@@ -594,28 +594,61 @@ function update() {
 setAsi(asi); setType(type);
 ids.concat(['date','metar','taf','exercise','pic','stu']).forEach(k => $(k).addEventListener('input', update));
 
+// Live weather: try aviationweather.gov directly, then through two free CORS relays,
+// then fall back to weather.json that the GitHub Action refreshes. Newest METAR wins.
+const AWC = 'https://aviationweather.gov/api/data/metar?ids=LHBP&format=raw&taf=true';
+const LIVE = [
+  u => u,
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(u),
+];
+async function getText(url, ms) {
+  const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), ms);
+  try { const r = await fetch(url, { cache: 'no-store', signal: ctl.signal }); if (!r.ok) throw 0; return await r.text(); }
+  finally { clearTimeout(t); }
+}
+function parseRaw(txt) {
+  const lines = txt.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  const mi = lines.findIndex(l => /^(METAR|SPECI) LHBP /.test(l));
+  const ti = lines.findIndex(l => /^TAF( AMD| COR)? LHBP /.test(l));
+  if (mi < 0) return null;
+  return { metar: lines[mi], taf: ti < 0 ? '' : lines.slice(ti).join(' ').replace(/\s+/g, ' ') };
+}
+function metarTime(m) {
+  const x = (m || '').match(/ (\d{2})(\d{2})(\d{2})Z/); if (!x) return null;
+  const now = new Date();
+  let t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), +x[1], +x[2], +x[3]);
+  if (t > now.getTime() + 36e5) t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, +x[1], +x[2], +x[3]);
+  return { t, hhmm: `${x[2]}:${x[3]}` };
+}
+async function liveWeather() {
+  const url = AWC + '&_=' + Date.now();
+  for (const via of LIVE) {
+    try { const w = parseRaw(await getText(via(url), 7000)); if (w) return w; } catch (e) {}
+  }
+  return null;
+}
+async function fileWeather() {
+  try { const r = await fetch('weather.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) return await r.json(); } catch (e) {}
+  return null;
+}
 async function getWeather(force) {
   const st = $('wxst');
   if (!force && ($('metar').value.trim() || $('taf').value.trim())) return;
-  st.textContent = 'Loading weather...';
-  try {
-    const r = await fetch('weather.json?t=' + Date.now(), { cache: 'no-store' });
-    if (!r.ok) throw new Error('not ready');
-    const w = await r.json();
-    $('metar').value = w.metar || ''; $('taf').value = w.taf || '';
-    const m = (w.metar || '').match(/ (\d{2})(\d{2})(\d{2})Z/);
-    st.className = 'hint';
-    if (m) {
-      const now = new Date();
-      let t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), +m[1], +m[2], +m[3]);
-      if (t > now.getTime() + 36e5) t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, +m[1], +m[2], +m[3]);
-      const age = Math.round((now.getTime() - t) / 6e4);
-      const ageTxt = age < 60 ? `${age} min old` : `${Math.floor(age / 60)} h ${age % 60} min old`;
-      st.textContent = `METAR ${m[2]}:${m[3]} UTC, ${ageTxt}.`;
-      if (age > 45) { st.className = 'hint stale'; st.textContent += ' Not the latest. Check aviationweather.gov before printing.'; }
-    } else st.textContent = 'Weather loaded.';
-    update();
-  } catch (e) { st.textContent = 'Weather not available right now. Paste it in by hand.'; }
+  st.className = 'hint'; st.textContent = 'Getting the latest LHBP weather...';
+  const [live, file] = await Promise.all([liveWeather(), fileWeather()]);
+  const pick = [live, file].filter(w => w && w.metar)
+    .sort((x, y) => ((metarTime(y.metar) || {}).t || 0) - ((metarTime(x.metar) || {}).t || 0))[0];
+  if (!pick) { st.className = 'hint stale'; st.textContent = 'Weather not available right now. Paste it in from aviationweather.gov.'; return; }
+  $('metar').value = pick.metar; $('taf').value = pick.taf || '';
+  const mt = metarTime(pick.metar);
+  if (mt) {
+    const age = Math.max(0, Math.round((Date.now() - mt.t) / 6e4));
+    const ageTxt = age < 60 ? `${age} min old` : `${Math.floor(age / 60)} h ${age % 60} min old`;
+    st.textContent = `METAR ${mt.hhmm} UTC, ${ageTxt}.`;
+    if (age > 45) { st.className = 'hint stale'; st.textContent += ' Not the latest. Check aviationweather.gov before printing.'; }
+  } else st.textContent = 'Weather loaded.';
+  update();
 }
 $('wx').onclick = async () => { $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
 getWeather(false);
