@@ -36,7 +36,10 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); ou
 .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .hint { font-size: 12px; color: var(--muted); }
 textarea { resize: vertical; }
-.wxbtn { font: 600 14px var(--sans); background: var(--field); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; cursor: pointer; }
+.wxbtn { font: 600 15px var(--sans); background: var(--accent); color: var(--panel); border: 0; border-radius: 8px; padding: 11px 16px; cursor: pointer; -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.wxbtn:hover { filter: brightness(1.08); }
+.wxbtn:active { transform: translateY(1px); }
+.wxbtn:disabled { opacity: .6; cursor: default; }
 .wxbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .calc { display: grid; gap: 6px; background: var(--field); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .calc div { display: grid; grid-template-columns: 64px 1fr; gap: 8px; }
@@ -131,7 +134,7 @@ td:first-child { font-family: var(--sans); }
       <label>Flaps max <input id="flaps" value="30°"></label>
       <label>NOTAMs <input id="notam" value="KFC table"></label>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" id="wx" class="wxbtn">Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
     <label>METAR LHBP <textarea id="metar" rows="2" placeholder="Paste the METAR here"></textarea></label>
     <label>TAF LHBP <textarea id="taf" rows="3" placeholder="Paste the TAF here"></textarea></label>
     <label>Exercise <textarea id="exercise" rows="3" placeholder="Today's exercise (leave empty to write it by hand)"></textarea></label>
@@ -566,7 +569,7 @@ async function getWeather(force) {
     update();
   } catch (e) { st.textContent = 'Weather not available right now. Paste it in by hand.'; }
 }
-$('wx').onclick = () => getWeather(true);
+$('wx').onclick = async () => { $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
 getWeather(false);
 
 $('make').onclick = () => {
