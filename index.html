@@ -170,9 +170,10 @@ td:first-child { font-weight: 500; }
           <button type="button" id="asi-mph" aria-pressed="false">MPH</button>
         </div>
       </div>
-      <label class="f"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
-      <label class="f"><span class="k">NOTAMs</span><input id="notam" value="KFC table"></label>
+      <label class="f span2"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
     </div>
+    <label class="f"><span class="k">NOTAMs</span><textarea id="notam" rows="4">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
+    <div class="wxrow"><button type="button" id="nt" class="wxbtn"><span aria-hidden="true">&#43;</span> Add online NOTAMs (LHBS)</button><span class="hint" id="ntst"></span></div>
     <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
     <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
     <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
@@ -510,16 +511,24 @@ const SHEET = (() => {
       row('AIRCRAFT', 60, (y0, h) => p.ink(LW + 20, y0 + h / 2, `${b.acName}  ${d.callSign}`, 10, { align: 'left' }));
       row('ASI', 60, (y0, h) => p.ink(LW + 20, y0 + h / 2, b.asi, 10, { align: 'left' }));
       row('FLAPS MAX', 60, (y0, h) => p.ink(LW + 20, y0 + h / 2, b.flaps, 10, { align: 'left' }));
-      row('NOTAMs', 60, (y0, h) => p.ink(LW + 20, y0 + h / 2, b.notam, 10, { align: 'left' }));
-      const block = (label, txt) => {
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
-        const lines = doc.splitTextToSize(txt || '', (W - LW - 40) * s);
-        const h = Math.max(110, lines.length * 8.5 * 1.35 / s + 40);
+      const block = (label, txt, maxH = 1e9) => {
+        const wpt = (W - LW - 40) * s;
+        let size = 8.5, lines;
+        for (;;) {
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(size);
+          lines = doc.splitTextToSize(txt || '', wpt);
+          if (lines.length * size * 1.35 / s + 40 <= maxH || size <= 6.5) break;
+          size -= 0.5;
+        }
+        const maxLines = Math.floor((maxH - 40) * s / (size * 1.35));
+        if (lines.length > maxLines) { lines = lines.slice(0, maxLines - 1); lines.push('... more NOTAMs, see full briefing'); }
+        const h = Math.max(110, lines.length * size * 1.35 / s + 40);
         row(label, h, (y0) => {
-          doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...C.ink);
-          lines.forEach((ln, i) => doc.text(ln, p.X(LW + 20), p.Y(y0 + 30) + i * 8.5 * 1.35));
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(size); doc.setTextColor(...C.ink);
+          lines.forEach((ln, i) => doc.text(ln, p.X(LW + 20), p.Y(y0 + 30) + i * size * 1.35));
         });
       };
+      block('NOTAMs', b.notam, 520);
       block('METAR LHBP', b.metar);
       block('TAF LHBP', b.taf);
 
@@ -544,7 +553,7 @@ const FLEET = {
   'HA-BFQ': [1615, 41.75], 'HA-BFR': [1609, 41.40], 'HA-BFS': [1617, 43.23], 'HA-BFW': [1617, 41.21],
   'HA-BGR': [1603, 41.08],
 };
-const ids = ['dep','dest','taxi','trip','res','extra','th','tm','front','rear','bag1','bag2','acname','flaps','notam'];
+const ids = ['dep','dest','taxi','trip','res','extra','th','tm','front','rear','bag1','bag2','acname','flaps'];
 let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
@@ -560,7 +569,7 @@ function data() {
     fuel: { taxi: n('taxi'), trip: n('trip'), reserve: n('res'), extra: n('extra') },
     hours: n('th'), minutes: n('tm'), type, bew: FLEET[ac][0], bewArm: FLEET[ac][1],
     front: n('front'), rear: n('rear'), bag1: n('bag1'), bag2: n('bag2'),
-    brief: { acName: $('acname').value.trim(), asi, flaps: $('flaps').value.trim(), notam: $('notam').value.trim(),
+    brief: { acName: $('acname').value.trim(), asi, flaps: $('flaps').value.trim(), notam: $('notam').value.trim().replace(/[ \t]+/g, ' '),
       metar: $('metar').value.trim().replace(/\s+/g, ' '), taf: $('taf').value.trim().replace(/\s+/g, ' '), exercise: $('exercise').value.trim() } };
 }
 function setType(t) { type = t; $('t-local').setAttribute('aria-pressed', t === 'local'); $('t-xc').setAttribute('aria-pressed', t === 'xc'); update(); }
@@ -592,7 +601,7 @@ function update() {
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
 setAsi(asi); setType(type);
-ids.concat(['date','metar','taf','exercise','pic','stu']).forEach(k => $(k).addEventListener('input', update));
+ids.concat(['date','metar','taf','exercise','pic','stu','notam']).forEach(k => $(k).addEventListener('input', update));
 
 // Live weather: try aviationweather.gov directly, then through two free CORS relays,
 // then fall back to weather.json that the GitHub Action refreshes. Newest METAR wins.
@@ -656,6 +665,21 @@ async function getWeather(force) {
   } else st.textContent = 'Weather loaded.';
   update();
 }
+async function addNotams() {
+  const st = $('ntst'); st.className = 'hint'; st.textContent = 'Getting NOTAMs...';
+  const w = await fileWeather();
+  if (!w || !Array.isArray(w.notams)) { st.className = 'hint stale'; st.textContent = 'Online NOTAMs not available yet. Check the AIP/NOTAM briefing.'; return; }
+  if (!w.notams.length) { st.textContent = 'No online NOTAMs listed for LHBS.'; return; }
+  const box = $('notam'); const have = box.value;
+  const key = s => (s.match(/[A-Z]\d{4}\/\d{2}/) || [s.slice(0, 40)])[0];
+  const norm = s => s.toUpperCase().replace(/\s+/g, ' ');
+  const body = n => { const e = n.match(/E\)\s*([\s\S]*?)(?:\n[F-G]\)|$)/); return norm(e ? e[1] : n).trim(); };
+  const add = w.notams.filter(n => !have.includes(key(n)) && !norm(have).includes(body(n).slice(0, 60)));
+  if (add.length) box.value = (have.trim() ? have.trim() + '\n\n' : '') + add.join('\n\n');
+  st.textContent = add.length ? `Added ${add.length} NOTAM${add.length > 1 ? 's' : ''}. Remove any that don't apply.` : 'All online NOTAMs are already in the box.';
+  update();
+}
+$('nt').onclick = async () => { $('nt').disabled = true; await addNotams(); $('nt').disabled = false; };
 $('wx').onclick = async () => { $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
 getWeather(false);
 
