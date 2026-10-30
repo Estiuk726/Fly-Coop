@@ -95,6 +95,36 @@ td:first-child { font-weight: 500; }
 .go { font: 700 16px var(--sans); background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--r); height: 48px; padding: 0 28px; cursor: pointer; white-space: nowrap; }
 .go:disabled { opacity: .5; cursor: default; }
 .go:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.link { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--fg); cursor: pointer; user-select: none; }
+.link input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); flex: none; }
+.link small { color: var(--muted); font-size: 13px; }
+input[readonly] { color: var(--muted); background: transparent; border-style: dashed; }
+.mg { display: block; font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.mg.tight { color: var(--bad); }
+.cg { width: 100%; height: auto; display: block; }
+.cg text { font: 11px var(--sans); fill: var(--muted); }
+.cg .env { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+.cg .grid line { stroke: var(--line); stroke-width: 1; }
+.cg .pt circle { stroke: var(--panel); stroke-width: 2; }
+.cg .pt text { font-weight: 700; fill: var(--fg); }
+.xw { display: grid; gap: 6px; background: var(--field); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.xw .row { display: grid; grid-template-columns: 76px 1fr; gap: 10px; align-items: baseline; }
+.xw .row span { color: var(--muted); font-size: 13px; }
+.xw b { font-weight: 600; }
+.xw .best { color: var(--ok); }
+.xw .warn { color: var(--bad); }
+.xw small { color: var(--muted); font-size: 12px; }
+.pv { position: fixed; inset: 0; z-index: 20; background: rgba(8, 12, 18, .94); display: flex; flex-direction: column;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
+.pv[hidden] { display: none; }
+.pv .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #fff; }
+.pv .top b { font-size: 16px; }
+.pv .top .acts { display: flex; gap: 8px; }
+.pv .pages { flex: 1; overflow: auto; display: grid; gap: 14px; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
+.pv canvas { width: min(1100px, 100%); height: auto; background: #fff; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+.pv .note { color: #cfd6de; font-size: 13px; text-align: center; }
+.ghost { font: 600 15px var(--sans); background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); border-radius: var(--r); height: 44px; padding: 0 18px; cursor: pointer; }
+.ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .wxbtn:active { transform: none; } }
 </style>
 </head>
@@ -122,6 +152,7 @@ td:first-child { font-weight: 500; }
 
   <section>
     <div class="sh"><h2>Fuel on board</h2><span class="chip" id="tot"></span></div>
+    <label class="link"><input type="checkbox" id="tlink" checked> Fill Trip from flight time <small id="tlinkh"></small></label>
     <div class="grid">
       <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" value="2"></span></label>
       <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" value="15"></span></label>
@@ -158,6 +189,7 @@ td:first-child { font-weight: 500; }
   <section>
     <div class="sh"><h2>M&amp;B check</h2></div>
     <div style="overflow-x:auto"><table id="mb"></table></div>
+    <svg class="cg" id="cg" viewBox="0 0 640 340" role="img" aria-label="Centre of gravity envelope with zero fuel, take-off and landing points"></svg>
   </section>
 
   <section>
@@ -175,6 +207,7 @@ td:first-child { font-weight: 500; }
     <label class="f"><span class="k">NOTAMs</span><textarea id="notam" rows="4">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
     <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
     <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
+    <div class="xw" id="xw" aria-live="polite"></div>
     <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
     <label class="f"><span class="k">Exercise</span><textarea id="exercise" rows="3" placeholder="Leave empty to write it by hand"></textarea></label>
     <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>. The PDF is A4, set to print on both sides (flip on short edge).</div>
@@ -184,8 +217,13 @@ td:first-child { font-weight: 500; }
 <div class="bar">
   <div class="in">
     <div class="st"><span id="sum"></span><span class="status" id="status" aria-live="polite"></span></div>
-    <button class="go" id="make" type="button">Create PDF</button>
+    <button class="go" id="make" type="button">Preview PDF</button>
   </div>
+</div>
+
+<div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-label="PDF preview">
+  <div class="top"><b>Preview</b><div class="acts"><button type="button" class="ghost" id="pvback">Edit</button><button type="button" class="go" id="pvsave">Save PDF</button></div></div>
+  <div class="pages" id="pvpages"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -557,7 +595,11 @@ let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
   if (s) { ids.forEach(k => { if (s[k] != null) $(k).value = s[k]; }); if (s.type) type = s.type; if (FLEET[s.ac]) ac = s.ac; if (s.asi) asi = s.asi; } } catch (e) {}
-$('date').value = new Date().toISOString().slice(0, 10);
+const todayLocal = () => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; };
+$('date').value = todayLocal();
+function refreshDate() { if (!$('date').value || $('date').value < todayLocal()) { $('date').value = todayLocal(); update(); } }
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshDate(); });
+window.addEventListener('focus', refreshDate);
 $('ac').innerHTML = Object.keys(FLEET).map(r => `<option${r === ac ? ' selected' : ''}>${r}</option>`).join('');
 
 const n = id => parseFloat($(id).value) || 0;
@@ -579,7 +621,60 @@ $('asi-kt').onclick = () => setAsi('Knots');
 $('asi-mph').onclick = () => setAsi('MPH');
 $('ac').addEventListener('change', () => { ac = $('ac').value; update(); });
 
+function drawCG(r) {
+  const X0 = 64, X1 = 620, Y0 = 20, Y1 = 290;
+  const X = a => X0 + (a - 34) / 14 * (X1 - X0), Y = w => Y1 - (w - 1500) / 900 * (Y1 - Y0);
+  let g = '<g class="grid">';
+  for (let a = 34; a <= 48; a++) g += `<line x1="${X(a)}" y1="${Y0}" x2="${X(a)}" y2="${Y1}"/>`;
+  for (let w = 1500; w <= 2400; w += 100) g += `<line x1="${X0}" y1="${Y(w)}" x2="${X1}" y2="${Y(w)}"/>`;
+  g += '</g>';
+  for (let a = 34; a <= 48; a += 2) g += `<text x="${X(a)}" y="${Y1 + 18}" text-anchor="middle">${a}</text>`;
+  for (let w = 1500; w <= 2400; w += 300) g += `<text x="${X0 - 8}" y="${Y(w) + 4}" text-anchor="end">${w}</text>`;
+  g += `<text x="${(X0 + X1) / 2}" y="${Y1 + 38}" text-anchor="middle">CG, inches aft of datum</text>`;
+  g += `<text x="14" y="${(Y0 + Y1) / 2}" text-anchor="middle" transform="rotate(-90 14 ${(Y0 + Y1) / 2})">Weight, lbs</text>`;
+  const env = [[35, 1500], [35, 1950], [38.5, 2300], [47.3, 2300], [47.3, 1500]];
+  g += `<polygon class="env" fill-opacity=".5" points="${env.map(([a, w]) => `${X(a)},${Y(w)}`).join(' ')}"/>`;
+  const pts = [['ZFW', r.zfw, 'var(--muted)'], ['T/O', r.tow, 'var(--accent)'], ['LDW', r.ldw, 'var(--ok)']];
+  g += `<line x1="${X(r.tow.arm)}" y1="${Y(r.tow.w)}" x2="${X(r.ldw.arm)}" y2="${Y(r.ldw.w)}" stroke="var(--fg)" stroke-dasharray="4 4" stroke-width="1.5"/>`;
+  const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  pts.forEach(([l, v, c], i) => {
+    const x = cl(X(v.arm), X0, X1), y = cl(Y(v.w), Y0, Y1);
+    const [tx, ty, anc] = [[x - 10, y + 4, 'end'], [x + 10, y - 6, 'start'], [x + 10, y + 16, 'start']][i];
+    g += `<g class="pt"><circle cx="${x}" cy="${y}" r="6" fill="${c}"/><text x="${tx}" y="${ty}" text-anchor="${anc}">${l}</text></g>`;
+  });
+  $('cg').innerHTML = g;
+}
+function crosswind() {
+  const box = $('xw'); const m = $('metar').value.toUpperCase();
+  const w = m.match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?(KT|MPS)\b/);
+  if (!w) { box.innerHTML = '<div class="row"><span>Wind</span><b>Add a METAR to see runway components</b></div>'; return; }
+  const k = w[4] === 'MPS' ? 1.944 : 1, spd = Math.round(+w[2] * k), gst = w[3] ? Math.round(+w[3] * k) : 0;
+  const LIMIT = 15;
+  if (w[1] === 'VRB' || spd === 0) {
+    box.innerHTML = `<div class="row"><span>Wind</span><b>${spd === 0 ? 'Calm' : `Variable ${spd} kt${gst ? ` gusting ${gst}` : ''}`}</b></div><div class="row"><span>Runway</span><b>${spd <= 3 ? 'Any runway' : `Assume full ${gst || spd} kt could be crosswind`}</b></div>`;
+    return;
+  }
+  const dir = +w[1];
+  const comp = hdg => { const rad = (dir - hdg) * Math.PI / 180; return { head: spd * Math.cos(rad), cross: Math.abs(spd * Math.sin(rad)), gcross: gst ? Math.abs(gst * Math.sin(rad)) : 0 }; };
+  const rw = [['09', 90], ['27', 270]].map(([n2, hdg]) => ({ n: n2, ...comp(hdg) }));
+  const best = rw[0].head >= rw[1].head ? 0 : 1;
+  const vr = m.match(/\b(\d{3})V(\d{3})\b/);
+  let html = `<div class="row"><span>Wind</span><b>${String(dir).padStart(3, '0')}° ${spd} kt${gst ? ` gusting ${gst}` : ''}${vr ? ` (varying ${vr[1]}–${vr[2]}°)` : ''}</b></div>`;
+  rw.forEach((x, i) => {
+    const hw = x.head >= 0 ? `${Math.round(x.head)} kt head` : `${Math.round(-x.head)} kt TAIL`;
+    const xc = Math.max(x.cross, x.gcross);
+    const cls = xc > LIMIT ? 'warn' : i === best ? 'best' : '';
+    html += `<div class="row"><span>RWY ${x.n}</span><b class="${cls}">${hw}, ${Math.round(x.cross)} kt cross${gst ? ` (${Math.round(x.gcross)} in gusts)` : ''}${i === best ? ' · favoured' : ''}${xc > LIMIT ? ' · above 15 kt demonstrated' : ''}</b></div>`;
+  });
+  html += '<small>LHBP wind applied to LHBS runways 09/27, headings taken as 090°/270°. C172 max demonstrated crosswind 15 kt.</small>';
+  box.innerHTML = html;
+}
 function update() {
+  const linked = $('tlink').checked;
+  const rateNow = type === 'local' ? 5 : 4.5, hrsNow = n('th') + n('tm') / 60;
+  $('trip').readOnly = linked;
+  if (linked) { $('trip').value = String(Math.ceil(rateNow * hrsNow * 10) / 10); $('tlinkh').textContent = `(${rateNow} gal/h × ${+hrsNow.toFixed(2)} h, rounded up)`; }
+  else $('tlinkh').textContent = '';
   const d = data();
   const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
   $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
@@ -592,15 +687,26 @@ function update() {
     `<div><span>Weight</span><b>${+g.toFixed(2)} gal × 6.71 lbs/gal = ${lbs.toFixed(1)} lbs</b></div>` +
     `<div><span>Moment</span><b>${lbs.toFixed(1)} lbs × 48 in / 1000 = −${mom.toFixed(2)}</b></div>`;
   const { r, checks } = SHEET.compute(d);
-  const rows = [['Zero fuel', r.zfw, checks.zfw], ['Ramp', r.ramp, checks.ramp], ['Take-off', r.tow, checks.tow], ['Landing', r.ldw, checks.ldw]];
+  const fwdLim = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), AFT = 47.3;
+  const rows = [['Zero fuel', r.zfw, checks.zfw, null], ['Ramp', r.ramp, checks.ramp, 2302], ['Take-off', r.tow, checks.tow, 2300], ['Landing', r.ldw, checks.ldw, 2300]];
   $('mb').innerHTML = '<tr><th></th><th>Weight</th><th>Arm</th><th>Moment</th><th></th></tr>' +
-    rows.map(([l, v, ok]) => `<tr><td>${l}</td><td>${v.w.toFixed(0)}</td><td>${v.arm.toFixed(2)}</td><td>${v.m.toFixed(2)}</td><td><span class="pill ${ok ? 'ok' : 'bad'}">${ok ? 'OK' : 'Out'}</span></td></tr>`).join('') +
+    rows.map(([l, v, ok, max]) => {
+      const wm = max == null ? null : max - v.w;
+      const fm = v.arm - fwdLim(v.w), am = AFT - v.arm, cm = Math.min(fm, am);
+      const wTxt = wm == null ? '' : `<span class="mg${wm < 50 ? ' tight' : ''}">${wm >= 0 ? wm.toFixed(0) + ' under max' : Math.abs(wm).toFixed(0) + ' over max'}</span>`;
+      const cTxt = `<span class="mg${cm < 1 ? ' tight' : ''}">${cm >= 0 ? (fm <= am ? `${fm.toFixed(2)} aft of fwd lim` : `${am.toFixed(2)} fwd of aft lim`) : 'outside CG range'}</span>`;
+      return `<tr><td>${l}</td><td>${v.w.toFixed(0)}${wTxt}</td><td>${v.arm.toFixed(2)}${cTxt}</td><td>${v.m.toFixed(2)}</td><td><span class="pill ${ok ? 'ok' : 'bad'}">${ok ? 'OK' : 'Out'}</span></td></tr>`;
+    }).join('') +
     (checks.bag1 && checks.bag2 ? '' : '<tr><td colspan="5"><span class="pill bad">Baggage over limit</span></td></tr>');
+  drawCG(r);
+  crosswind();
   { const allOk = Object.values(checks).every(Boolean); const s = $('sum'); s.className = allOk ? 'ok' : 'bad'; s.textContent = allOk ? '✓ Within weight and CG limits' : '✕ Outside limits, check M&B'; }
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
 setAsi(asi); setType(type);
 ids.concat(['date','metar','taf','exercise','pic','stu','notam']).forEach(k => $(k).addEventListener('input', update));
+$('tlink').addEventListener('change', () => { try { localStorage.setItem('c172tlink', $('tlink').checked ? '1' : '0'); } catch (e) {} update(); });
+try { if (localStorage.getItem('c172tlink') === '0') $('tlink').checked = false; } catch (e) {}
 
 // Live weather: try aviationweather.gov directly, then through two free CORS relays,
 // then fall back to weather.json that the GitHub Action refreshes. Newest METAR wins.
@@ -667,19 +773,61 @@ async function getWeather(force) {
 $('wx').onclick = async () => { $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
 getWeather(false);
 
-$('make').onclick = () => {
+let pending = null;
+const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = PDFJS + 'pdf.min.js';
+    sc.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; res(window.pdfjsLib); };
+    sc.onerror = rej; document.head.appendChild(sc);
+  });
+}
+function savePending() {
+  if (!pending) return;
+  pending.doc.save(pending.name);
+  $('pic').value = ''; $('stu').value = '';
+  const st = $('status'); st.className = 'status okc'; st.textContent = `Saved ${pending.name}. Print double-sided, flip on short edge.`;
+  pending = null; closePreview(); update();
+}
+function closePreview() { $('pv').hidden = true; $('pvpages').innerHTML = ''; document.body.style.overflow = ''; }
+$('pvsave').onclick = savePending;
+$('pvback').onclick = () => { pending = null; closePreview(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pv').hidden) $('pvback').click(); });
+$('make').onclick = async () => {
   const st = $('status'); st.className = 'status';
   const d = data();
   if (!d.pic) { st.className = 'status err'; st.textContent = 'Add the instructor name first.'; $('pic').focus(); return; }
   if (!d.student) { st.className = 'status err'; st.textContent = 'Add the student pilot name first.'; $('stu').focus(); return; }
   if (!window.jspdf) { st.className = 'status err'; st.textContent = 'The PDF tool did not load. Check your connection and reload the page.'; return; }
+  let doc;
+  try { doc = SHEET.build(window.jspdf.jsPDF, d, { regular: FONT_REG, bold: FONT_BOLD }); }
+  catch (e) { st.className = 'status err'; st.textContent = 'Could not create the PDF: ' + (e && e.message || e); return; }
+  pending = { doc, name: `Navlog_MB_${d.callSign}_${$('date').value}.pdf` };
+  st.textContent = 'Preparing preview...';
+  $('make').disabled = true;
   try {
-    const doc = SHEET.build(window.jspdf.jsPDF, d, { regular: FONT_REG, bold: FONT_BOLD });
-    const name = `Navlog_MB_${d.callSign}_${$('date').value}.pdf`;
-    doc.save(name);
-    $('pic').value = ''; $('stu').value = '';
-    st.className = 'status okc'; st.textContent = `Created ${name}. Print it double-sided, flip on short edge.`;
-  } catch (e) { st.className = 'status err'; st.textContent = 'Could not create the PDF: ' + (e && e.message || e); }
+    const lib = await loadPdfJs();
+    const pdf = await lib.getDocument({ data: doc.output('arraybuffer') }).promise;
+    const box = $('pvpages'); box.innerHTML = '';
+    $('pv').hidden = false; document.body.style.overflow = 'hidden';
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const vp = page.getViewport({ scale: 2 });
+      const cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
+      cv.setAttribute('aria-label', `Page ${i}`);
+      box.appendChild(cv);
+      await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+    }
+    const note = document.createElement('p'); note.className = 'note';
+    note.textContent = 'Page 1 front, page 2 back. Check aircraft, names, fuel and weather, then tap Save PDF.';
+    box.appendChild(note);
+    st.textContent = '';
+  } catch (e) {
+    closePreview();
+    st.textContent = 'Preview not available, saving directly.';
+    savePending();
+  } finally { $('make').disabled = false; }
 };
 update();
 </script>
