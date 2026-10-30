@@ -503,7 +503,7 @@ const FLEET = {
   'HA-BFQ': [1615, 41.75], 'HA-BFR': [1609, 41.40], 'HA-BFS': [1617, 43.23], 'HA-BFW': [1617, 41.21],
   'HA-BGR': [1603, 41.08],
 };
-const ids = ['pic','stu','dep','dest','taxi','trip','res','extra','th','tm','front','rear','bag1','bag2','acname','flaps','notam'];
+const ids = ['dep','dest','taxi','trip','res','extra','th','tm','front','rear','bag1','bag2','acname','flaps','notam'];
 let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
@@ -550,7 +550,7 @@ function update() {
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
 setAsi(asi); setType(type);
-ids.concat(['date','metar','taf','exercise']).forEach(k => $(k).addEventListener('input', update));
+ids.concat(['date','metar','taf','exercise','pic','stu']).forEach(k => $(k).addEventListener('input', update));
 
 async function getWeather(force) {
   const st = $('wxst');
@@ -579,6 +579,7 @@ $('make').onclick = () => {
     const doc = SHEET.build(window.jspdf.jsPDF, d, { regular: FONT_REG, bold: FONT_BOLD });
     const name = `Navlog_MB_${d.callSign}_${$('date').value}.pdf`;
     doc.save(name);
+    $('pic').value = ''; $('stu').value = '';
     st.className = 'status okc'; st.textContent = `Created ${name}. Print it double-sided, flip on short edge.`;
   } catch (e) { st.className = 'status err'; st.textContent = 'Could not create the PDF: ' + (e && e.message || e); }
 };
