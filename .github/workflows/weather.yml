@@ -3,7 +3,7 @@ name: Update LHBP weather
 on:
   schedule:
     # every 15 minutes, off the busy :00/:30 marks so GitHub is less likely to delay or skip runs
-    - cron: "7,22,37,52 * * * *"
+    - cron: "8,23,38,53 * * * *"
   workflow_dispatch: {}
 
 permissions:
