@@ -61,6 +61,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
 .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
 .hint { font-size: 13px; color: var(--muted); }
 .hint a { color: var(--accent); }
+.hint.stale { color: var(--bad); font-weight: 600; }
 .calc { display: grid; gap: 8px; background: var(--field); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; font-size: 15px; font-variant-numeric: tabular-nums; }
 .calc div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-items: baseline; }
 .calc span { color: var(--muted); font-size: 13px; }
@@ -603,7 +604,16 @@ async function getWeather(force) {
     const w = await r.json();
     $('metar').value = w.metar || ''; $('taf').value = w.taf || '';
     const m = (w.metar || '').match(/ (\d{2})(\d{2})(\d{2})Z/);
-    st.textContent = m ? `METAR from day ${m[1]}, ${m[2]}:${m[3]} UTC. Updates every 30 min.` : 'Weather loaded.';
+    st.className = 'hint';
+    if (m) {
+      const now = new Date();
+      let t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), +m[1], +m[2], +m[3]);
+      if (t > now.getTime() + 36e5) t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, +m[1], +m[2], +m[3]);
+      const age = Math.round((now.getTime() - t) / 6e4);
+      const ageTxt = age < 60 ? `${age} min old` : `${Math.floor(age / 60)} h ${age % 60} min old`;
+      st.textContent = `METAR ${m[2]}:${m[3]} UTC, ${ageTxt}.`;
+      if (age > 45) { st.className = 'hint stale'; st.textContent += ' Not the latest. Check aviationweather.gov before printing.'; }
+    } else st.textContent = 'Weather loaded.';
     update();
   } catch (e) { st.textContent = 'Weather not available right now. Paste it in by hand.'; }
 }
