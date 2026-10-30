@@ -2,5 +2,6 @@
   "station": "LHBP",
   "metar": "METAR LHBP 301900Z 32005KT 9999 SCT041 BKN120 11/07 Q1024 NOSIG",
   "taf": "TAF LHBP 301715Z 3018/3118 32005KT CAVOK TEMPO 3018/3024 10005KT BKN040 BKN065 TEMPO 3100/3110 -SHRA -RA OVC033 BECMG 3110/3112 SCT040 TEMPO 3115/3118 VRB03KT -SHRA NSC",
-  "notams": []
+  "notams": [],
+  "notam_info": "fetch failed: <urlopen error [Errno -2] Name or service not known>"
 }
