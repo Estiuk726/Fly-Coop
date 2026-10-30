@@ -141,7 +141,7 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
   <section>
     <div class="sh"><h2>Flight</h2><span class="chip" id="achint"></span></div>
     <div class="grid">
-      <label class="f"><span class="k">Date</span><input id="date" type="date"></label>
+      <label class="f"><span class="k">Date (UTC)</span><input id="date" type="date"></label>
       <label class="f"><span class="k">Aircraft</span><select id="ac"></select></label>
       <label class="f"><span class="k">DEP</span><input id="dep" value="LHBS" autocapitalize="characters"></label>
       <label class="f"><span class="k">DEST</span><input id="dest" value="LHBS" autocapitalize="characters"></label>
@@ -595,7 +595,7 @@ let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
   if (s) { ids.forEach(k => { if (s[k] != null) $(k).value = s[k]; }); if (s.type) type = s.type; if (FLEET[s.ac]) ac = s.ac; if (s.asi) asi = s.asi; } } catch (e) {}
-const todayLocal = () => { const n = new Date(); return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`; };
+const todayLocal = () => new Date().toISOString().slice(0, 10); // UTC date, aviation rule
 $('date').value = todayLocal();
 function refreshDate() { if (!$('date').value || $('date').value < todayLocal()) { $('date').value = todayLocal(); update(); } }
 document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshDate(); });
