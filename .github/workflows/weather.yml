@@ -24,11 +24,12 @@ jobs:
           METAR=$(curl -fsS "https://aviationweather.gov/api/data/metar?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//')
           TAF=$(curl -fsS "https://aviationweather.gov/api/data/taf?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//')
           if [ -z "$METAR" ] || [ -z "$TAF" ]; then echo "Empty response, keeping old file"; exit 0; fi
-          NOTAMS=$(python3 scripts/notams.py LHBS || true)
-          if [ -z "$NOTAMS" ] && [ -f weather.json ]; then NOTAMS=$(jq -c '.notams // []' weather.json); fi
-          [ -z "$NOTAMS" ] && NOTAMS='[]'
-          jq -n --arg m "$METAR" --arg t "$TAF" --argjson n "$NOTAMS" \
-            '{station:"LHBP", metar:$m, taf:$t, notams:$n}' > weather.json
+          NT=$(python3 scripts/notams.py LHBS || echo '{"notams":[],"info":"script error"}')
+          NOTAMS=$(echo "$NT" | jq -c '.notams')
+          INFO=$(echo "$NT" | jq -r '.info')
+          if [ "$NOTAMS" = "[]" ] && [ -f weather.json ] && echo "$INFO" | grep -q "fetch failed"; then NOTAMS=$(jq -c '.notams // []' weather.json); fi
+          jq -n --arg m "$METAR" --arg t "$TAF" --argjson n "$NOTAMS" --arg i "$INFO" \
+            '{station:"LHBP", metar:$m, taf:$t, notams:$n, notam_info:$i}' > weather.json
           cat weather.json
       - name: Commit if changed
         run: |

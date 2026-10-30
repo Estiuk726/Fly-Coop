@@ -13,7 +13,7 @@ req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (FlyCoop f
 try:
     page = urllib.request.urlopen(req, timeout=30).read().decode("utf-8", "replace")
 except Exception as e:
-    print(f"fetch failed: {e}", file=sys.stderr); sys.exit(1)
+    print(json.dumps({"notams": [], "info": f"fetch failed: {e}"})); sys.exit(0)
 
 notams = []
 for block in re.findall(r"<pre[^>]*>(.*?)</pre>", page, flags=re.S | re.I):
@@ -23,6 +23,7 @@ for block in re.findall(r"<pre[^>]*>(.*?)</pre>", page, flags=re.S | re.I):
     if text and any(l in text for l in locs) and text not in notams:
         notams.append(text)
 
-if not notams and "NOTAM" not in page.upper():
-    print("unexpected page", file=sys.stderr); sys.exit(1)
-print(json.dumps(notams))
+snippet = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", page))
+i = snippet.find("LHBS")
+info = f"{len(page)} bytes, {len(re.findall(r'<pre', page, flags=re.I))} pre blocks, {len(notams)} NOTAMs; near LHBS: {snippet[max(0,i-80):i+200] if i >= 0 else 'LHBS not found'}"
+print(json.dumps({"notams": notams, "info": info[:600]}))
