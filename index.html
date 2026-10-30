@@ -5,62 +5,96 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>C172 Flight Sheet</title>
 <style>
-/* Layout: one narrow column of grouped fields, live M&B check, one Create PDF button; page 2 is the briefing + exercise side */
+/* Layout: one 760px column of cards; every field is label-over-control on a fixed 4/2 column grid, controls 44px tall; sticky Create PDF bar at the bottom */
 :root {
-  --bg: #eef1f4; --panel: #ffffff; --fg: #17202a; --muted: #5c6773;
-  --line: #d5dbe1; --accent: #1f4fa3; --ok: #1d7a46; --bad: #b42318; --field: #f7f9fb;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; --mono: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --bg: #eef1f5; --panel: #ffffff; --fg: #141b24; --muted: #5d6876; --line: #d6dce3;
+  --field: #f6f8fa; --accent: #1f4fa3; --on-accent: #ffffff; --accent-soft: #e6edf9;
+  --ok: #1d7a46; --bad: #b42318;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --h: 44px; --r: 8px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #11161c; --panel: #1a2129; --fg: #e6ebf0; --muted: #98a3ae;
-  --line: #2e3843; --accent: #7aa7f0; --ok: #5cc48a; --bad: #f2786c; --field: #141a21; color-scheme: dark } }
+  --bg: #0e1319; --panel: #171e27; --fg: #e7ecf1; --muted: #97a2ae; --line: #2a3440;
+  --field: #10161d; --accent: #6f9ef0; --on-accent: #0b1626; --accent-soft: #1b2a42;
+  --ok: #5cc48a; --bad: #f2786c; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #11161c; --panel: #1a2129; --fg: #e6ebf0; --muted: #98a3ae;
-  --line: #2e3843; --accent: #7aa7f0; --ok: #5cc48a; --bad: #f2786c; --field: #141a21; color-scheme: dark }
-body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px; }
-.wrap { max-width: 640px; margin: 0 auto; display: grid; gap: 16px; }
-h1 { font-size: 20px; font-weight: 600; margin: 0; }
-.sub { color: var(--muted); margin: 4px 0 0; font-size: 14px; }
-section { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; display: grid; gap: 12px; }
-h2 { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; font-weight: 600; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
-label, .lbl { display: grid; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
-input, select, textarea { font: 500 15px var(--mono); color: var(--fg); background: var(--field); border: 1px solid var(--line);
-  border-radius: 6px; padding: 8px 10px; width: 100%; box-sizing: border-box; }
-input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
-.seg { display: flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
-.seg button { flex: 1; font: 500 14px var(--sans); padding: 9px; background: var(--field); color: var(--fg); border: 0; cursor: pointer; }
+  --bg: #0e1319; --panel: #171e27; --fg: #e7ecf1; --muted: #97a2ae; --line: #2a3440;
+  --field: #10161d; --accent: #6f9ef0; --on-accent: #0b1626; --accent-soft: #1b2a42;
+  --ok: #5cc48a; --bad: #f2786c; color-scheme: dark }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.4 var(--sans);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 0; }
+.wrap { max-width: 760px; margin: 0 auto; display: grid; gap: 16px; }
+header { display: grid; gap: 4px; padding: 0 4px 4px; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .14em; color: var(--accent); }
+h1 { font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -.01em; }
+.sub { color: var(--muted); margin: 0; font-size: 14px; }
+section { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; }
+.sh { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0; font-weight: 700; }
+.chip { font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 3px 10px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 12px; align-items: end; }
+.span2 { grid-column: span 2; }
+.full { grid-column: 1 / -1; }
+@media (max-width: 620px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } section { padding: 16px 14px; } }
+.f { display: grid; gap: 6px; min-width: 0; }
+.f > .k { font-size: 13px; font-weight: 500; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+input, select, textarea { font: 500 16px var(--sans); color: var(--fg); background: var(--field); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 0 12px; width: 100%; min-width: 0; margin: 0; }
+input, select { height: var(--h); line-height: normal; }
+input[type="date"] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
+input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+select { -webkit-appearance: none; appearance: none; padding-right: 34px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px; background-repeat: no-repeat; }
+textarea { padding: 10px 12px; resize: vertical; font: 500 14px/1.45 var(--mono); }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
+.u { position: relative; }
+.u input { padding-right: 46px; font-variant-numeric: tabular-nums; }
+.u::after { content: attr(data-unit); position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); pointer-events: none; }
+.seg { display: flex; height: var(--h); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--field); }
+.seg button { flex: 1; font: 600 15px var(--sans); background: transparent; color: var(--fg); border: 0; cursor: pointer; padding: 0 8px; white-space: nowrap; }
 .seg button + button { border-left: 1px solid var(--line); }
-.seg button[aria-pressed="true"] { background: var(--accent); color: var(--panel); }
-.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-.hint { font-size: 12px; color: var(--muted); }
-textarea { resize: vertical; }
-.wxbtn { font: 600 15px var(--sans); background: var(--accent); color: var(--panel); border: 0; border-radius: 8px; padding: 11px 16px; cursor: pointer; -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
-.wxbtn:hover { filter: brightness(1.08); }
-.wxbtn:active { transform: translateY(1px); }
-.wxbtn:disabled { opacity: .6; cursor: default; }
-.wxbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.calc { display: grid; gap: 6px; background: var(--field); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; font-size: 14px; font-variant-numeric: tabular-nums; }
-.calc div { display: grid; grid-template-columns: 64px 1fr; gap: 8px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -3px; }
+.hint { font-size: 13px; color: var(--muted); }
+.hint a { color: var(--accent); }
+.calc { display: grid; gap: 8px; background: var(--field); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.calc div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-items: baseline; }
 .calc span { color: var(--muted); font-size: 13px; }
 .calc b { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
-.hint a { color: var(--accent); }
-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14px; }
-th, td { text-align: right; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+.calc div:nth-child(3) b { color: var(--accent); }
+.wxrow { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 4px 0; }
+.wxbtn { font: 600 15px var(--sans); background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--r); height: var(--h); padding: 0 20px; cursor: pointer;
+  -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.wxbtn:hover { filter: brightness(1.07); }
+.wxbtn:active { transform: translateY(1px); }
+.wxbtn:disabled { opacity: .6; cursor: default; }
+.wxbtn:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 15px; }
+th, td { text-align: right; padding: 9px 6px; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
 th:first-child, td:first-child { text-align: left; }
-th { font-size: 12px; color: var(--muted); font-weight: 500; }
-td { font-family: var(--mono); }
-td:first-child { font-family: var(--sans); }
-.pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 12px; font-weight: 600; font-family: var(--sans); }
+th { font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+td:first-child { font-weight: 500; }
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
 .pill.ok { color: var(--ok); border: 1px solid var(--ok); }
 .pill.bad { color: var(--bad); border: 1px solid var(--bad); }
-.go { font: 600 16px var(--sans); background: var(--accent); color: var(--panel); border: 0; border-radius: 8px; padding: 14px; cursor: pointer; }
+.bar { position: sticky; bottom: 0; z-index: 5; margin: 8px calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 0;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+  background: var(--panel); border-top: 1px solid var(--line); }
+.bar .in { max-width: 760px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+.bar .st { flex: 1; min-width: 0; display: grid; gap: 2px; }
+#sum { font-size: 14px; font-weight: 700; }
+#sum.ok { color: var(--ok); } #sum.bad { color: var(--bad); }
+.status { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status.err { color: var(--bad); } .status.okc { color: var(--ok); }
+.go { font: 700 16px var(--sans); background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--r); height: 48px; padding: 0 28px; cursor: pointer; white-space: nowrap; }
 .go:disabled { opacity: .5; cursor: default; }
 .go:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
-.status { font-size: 13px; min-height: 1em; }
-.status.err { color: var(--bad); }
-.status.okc { color: var(--ok); }
+@media (prefers-reduced-motion: reduce) { .wxbtn:active { transform: none; } }
 </style>
 </head>
 <body>
@@ -68,40 +102,39 @@ td:first-child { font-family: var(--sans); }
 
 <div class="wrap">
   <header>
-    <h1>C172 Flight Sheet</h1>
-    <p class="sub">Fill in the flight and create the printable navlog and M&amp;B sheet as a PDF.</p>
+    <div class="eyebrow">FLY-COOP &middot; C172</div>
+    <h1>Flight Sheet</h1>
+    <p class="sub">Fill in the flight and get the navlog, M&amp;B sheet and briefing as one A4 PDF.</p>
   </header>
 
   <section>
-    <h2>Flight</h2>
+    <div class="sh"><h2>Flight</h2><span class="chip" id="achint"></span></div>
     <div class="grid">
-      <label>Date <input id="date" type="date"></label>
-      <label>Aircraft <select id="ac"></select></label>
-      <label>Instructor (PIC) <input id="pic" placeholder="Name"></label>
-      <label>Student pilot <input id="stu" placeholder="Your name"></label>
-      <label>DEP <input id="dep" value="LHBS"></label>
-      <label>DEST <input id="dest" value="LHBS"></label>
+      <label class="f"><span class="k">Date</span><input id="date" type="date"></label>
+      <label class="f"><span class="k">Aircraft</span><select id="ac"></select></label>
+      <label class="f"><span class="k">DEP</span><input id="dep" value="LHBS" autocapitalize="characters"></label>
+      <label class="f"><span class="k">DEST</span><input id="dest" value="LHBS" autocapitalize="characters"></label>
+      <label class="f span2"><span class="k">Instructor (PIC)</span><input id="pic" placeholder="Instructor name" autocomplete="off"></label>
+      <label class="f span2"><span class="k">Student pilot</span><input id="stu" placeholder="Student name" autocomplete="off"></label>
     </div>
-    <div class="hint" id="achint"></div>
   </section>
 
   <section>
-    <h2>Fuel table (US gal, as taken on board)</h2>
+    <div class="sh"><h2>Fuel on board</h2><span class="chip" id="tot"></span></div>
     <div class="grid">
-      <label>Taxi <input id="taxi" type="number" step="0.1" value="2"></label>
-      <label>Trip <input id="trip" type="number" step="0.1" value="15"></label>
-      <label>Reserve <input id="res" type="number" step="0.1" value="4"></label>
-      <label>Extra <input id="extra" type="number" step="0.1" value="0"></label>
+      <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" value="2"></span></label>
+      <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" value="15"></span></label>
+      <label class="f"><span class="k">Reserve</span><span class="u" data-unit="gal"><input id="res" type="number" inputmode="decimal" step="0.1" value="4"></span></label>
+      <label class="f"><span class="k">Extra</span><span class="u" data-unit="gal"><input id="extra" type="number" inputmode="decimal" step="0.1" value="0"></span></label>
     </div>
-    <div class="hint" id="tot"></div>
   </section>
 
   <section>
-    <h2>Trip fuel for M&amp;B</h2>
+    <div class="sh"><h2>Trip fuel for M&amp;B</h2></div>
     <div class="grid">
-      <label>Flight time, hours <input id="th" type="number" min="0" step="1" value="0"></label>
-      <label>Minutes <input id="tm" type="number" min="0" max="59" step="1" value="45"></label>
-      <div class="lbl">Type of flight
+      <label class="f"><span class="k">Hours</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
+      <label class="f"><span class="k">Minutes</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="1" value="45"></span></label>
+      <div class="f span2"><span class="k">Type of flight</span>
         <div class="seg" role="group" aria-label="Type of flight">
           <button type="button" id="t-local" aria-pressed="true">Local</button>
           <button type="button" id="t-xc" aria-pressed="false">Cross country</button>
@@ -112,42 +145,46 @@ td:first-child { font-family: var(--sans); }
   </section>
 
   <section>
-    <h2>Mass (lbs)</h2>
+    <div class="sh"><h2>Mass</h2></div>
     <div class="grid">
-      <label>Pilot + front passenger <input id="front" type="number" value="320"></label>
-      <label>Rear seat <input id="rear" type="number" value="0"></label>
-      <label>Baggage area 1 (max 120) <input id="bag1" type="number" value="0"></label>
-      <label>Baggage area 2 (max 50) <input id="bag2" type="number" value="0"></label>
+      <label class="f"><span class="k">Pilot + front pax</span><span class="u" data-unit="lbs"><input id="front" type="number" inputmode="decimal" value="320"></span></label>
+      <label class="f"><span class="k">Rear seat</span><span class="u" data-unit="lbs"><input id="rear" type="number" inputmode="decimal" value="0"></span></label>
+      <label class="f"><span class="k">Baggage 1 (max 120)</span><span class="u" data-unit="lbs"><input id="bag1" type="number" inputmode="decimal" value="0"></span></label>
+      <label class="f"><span class="k">Baggage 2 (max 50)</span><span class="u" data-unit="lbs"><input id="bag2" type="number" inputmode="decimal" value="0"></span></label>
     </div>
   </section>
 
   <section>
-    <h2>Back side: briefing</h2>
+    <div class="sh"><h2>M&amp;B check</h2></div>
+    <div style="overflow-x:auto"><table id="mb"></table></div>
+  </section>
+
+  <section>
+    <div class="sh"><h2>Briefing (back side)</h2></div>
     <div class="grid">
-      <label>Aircraft <input id="acname" value="Cessna 172"></label>
-      <div class="lbl">ASI
+      <label class="f"><span class="k">Aircraft</span><input id="acname" value="Cessna 172"></label>
+      <div class="f"><span class="k">ASI</span>
         <div class="seg" role="group" aria-label="ASI units">
           <button type="button" id="asi-kt" aria-pressed="true">Knots</button>
           <button type="button" id="asi-mph" aria-pressed="false">MPH</button>
         </div>
       </div>
-      <label>Flaps max <input id="flaps" value="30°"></label>
-      <label>NOTAMs <input id="notam" value="KFC table"></label>
+      <label class="f"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
+      <label class="f"><span class="k">NOTAMs</span><input id="notam" value="KFC table"></label>
     </div>
-    <div style="display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
-    <label>METAR LHBP <textarea id="metar" rows="2" placeholder="Paste the METAR here"></textarea></label>
-    <label>TAF LHBP <textarea id="taf" rows="3" placeholder="Paste the TAF here"></textarea></label>
-    <label>Exercise <textarea id="exercise" rows="3" placeholder="Today's exercise (leave empty to write it by hand)"></textarea></label>
-    <div class="hint">Get the latest LHBP METAR and TAF: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>. Whatever you type under Exercise prints in the EXERCISE box below the TAF. Leave it empty to write by hand. The PDF is A4 and set to print on both sides.</div>
+    <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
+    <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
+    <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
+    <label class="f"><span class="k">Exercise</span><textarea id="exercise" rows="3" placeholder="Leave empty to write it by hand"></textarea></label>
+    <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>. The PDF is A4, set to print on both sides (flip on short edge).</div>
   </section>
+</div>
 
-  <section>
-    <h2>M&amp;B check</h2>
-    <div style="overflow-x:auto"><table id="mb"></table></div>
-  </section>
-
-  <button class="go" id="make" type="button">Create PDF</button>
-  <div class="status" id="status" aria-live="polite"></div>
+<div class="bar">
+  <div class="in">
+    <div class="st"><span id="sum"></span><span class="status" id="status" aria-live="polite"></span></div>
+    <button class="go" id="make" type="button">Create PDF</button>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -536,8 +573,8 @@ $('ac').addEventListener('change', () => { ac = $('ac').value; update(); });
 function update() {
   const d = data();
   const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
-  $('achint').textContent = `${ac}: empty weight ${FLEET[ac][0]} lbs, arm ${FLEET[ac][1].toFixed(2)} in`;
-  $('tot').textContent = `Total required: ${+tot.toFixed(2)} gal (${(tot * 6.71).toFixed(1)} lbs)`;
+  $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
+  $('tot').textContent = `Total ${+tot.toFixed(2)} gal · ${(tot * 6.71).toFixed(1)} lbs`;
   const rate = type === 'local' ? 5 : 4.5, g = rate * (d.hours + d.minutes / 60);
   const hrsDec = d.hours + d.minutes / 60, lbs = g * 6.71, mom = lbs * 48 / 1000;
   $('burn').innerHTML =
@@ -550,6 +587,7 @@ function update() {
   $('mb').innerHTML = '<tr><th></th><th>Weight</th><th>Arm</th><th>Moment</th><th></th></tr>' +
     rows.map(([l, v, ok]) => `<tr><td>${l}</td><td>${v.w.toFixed(0)}</td><td>${v.arm.toFixed(2)}</td><td>${v.m.toFixed(2)}</td><td><span class="pill ${ok ? 'ok' : 'bad'}">${ok ? 'OK' : 'Out'}</span></td></tr>`).join('') +
     (checks.bag1 && checks.bag2 ? '' : '<tr><td colspan="5"><span class="pill bad">Baggage over limit</span></td></tr>');
+  { const allOk = Object.values(checks).every(Boolean); const s = $('sum'); s.className = allOk ? 'ok' : 'bad'; s.textContent = allOk ? '✓ Within weight and CG limits' : '✕ Outside limits, check M&B'; }
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
 setAsi(asi); setType(type);
