@@ -173,7 +173,6 @@ td:first-child { font-weight: 500; }
       <label class="f span2"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
     </div>
     <label class="f"><span class="k">NOTAMs</span><textarea id="notam" rows="4">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
-    <div class="wxrow"><button type="button" id="nt" class="wxbtn"><span aria-hidden="true">&#43;</span> Add online NOTAMs (LHBS)</button><span class="hint" id="ntst"></span></div>
     <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
     <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
     <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
@@ -665,21 +664,6 @@ async function getWeather(force) {
   } else st.textContent = 'Weather loaded.';
   update();
 }
-async function addNotams() {
-  const st = $('ntst'); st.className = 'hint'; st.textContent = 'Getting NOTAMs...';
-  const w = await fileWeather();
-  if (!w || !Array.isArray(w.notams)) { st.className = 'hint stale'; st.textContent = 'Online NOTAMs not available yet. Check the AIP/NOTAM briefing.'; return; }
-  if (!w.notams.length) { st.textContent = 'No online NOTAMs listed for LHBS.'; return; }
-  const box = $('notam'); const have = box.value;
-  const key = s => (s.match(/[A-Z]\d{4}\/\d{2}/) || [s.slice(0, 40)])[0];
-  const norm = s => s.toUpperCase().replace(/\s+/g, ' ');
-  const body = n => { const e = n.match(/E\)\s*([\s\S]*?)(?:\n[F-G]\)|$)/); return norm(e ? e[1] : n).trim(); };
-  const add = w.notams.filter(n => !have.includes(key(n)) && !norm(have).includes(body(n).slice(0, 60)));
-  if (add.length) box.value = (have.trim() ? have.trim() + '\n\n' : '') + add.join('\n\n');
-  st.textContent = add.length ? `Added ${add.length} NOTAM${add.length > 1 ? 's' : ''}. Remove any that don't apply.` : 'All online NOTAMs are already in the box.';
-  update();
-}
-$('nt').onclick = async () => { $('nt').disabled = true; await addNotams(); $('nt').disabled = false; };
 $('wx').onclick = async () => { $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
 getWeather(false);
 
