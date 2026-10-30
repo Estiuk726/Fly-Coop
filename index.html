@@ -623,10 +623,13 @@ function metarTime(m) {
 }
 async function liveWeather() {
   const url = AWC + '&_=' + Date.now();
-  for (const via of LIVE) {
-    try { const w = parseRaw(await getText(via(url), 7000)); if (w) return w; } catch (e) {}
-  }
-  return null;
+  const tries = LIVE.map((via, i) => getText(via(url), 8000).then(t => { const w = parseRaw(t); if (!w) throw 0; w.src = i ? 'relay' : 'aviationweather.gov'; return w; }));
+  // VATSIM mirrors the official METAR and allows browser requests; METAR only, TAF comes from the other sources
+  const vatsim = getText('https://metar.vatsim.net/metar.php?id=LHBP&_=' + Date.now(), 8000).then(t => {
+    const m = t.trim().split(/\r?\n/)[0].trim(); if (!/^LHBP \d{6}Z/.test(m)) throw 0; return { metar: 'METAR ' + m, taf: '', src: 'VATSIM' };
+  });
+  const res = await Promise.allSettled([...tries, vatsim]);
+  return res.filter(r => r.status === 'fulfilled').map(r => r.value);
 }
 async function fileWeather() {
   try { const r = await fetch('weather.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) return await r.json(); } catch (e) {}
@@ -637,15 +640,18 @@ async function getWeather(force) {
   if (!force && ($('metar').value.trim() || $('taf').value.trim())) return;
   st.className = 'hint'; st.textContent = 'Getting the latest LHBP weather...';
   const [live, file] = await Promise.all([liveWeather(), fileWeather()]);
-  const pick = [live, file].filter(w => w && w.metar)
-    .sort((x, y) => ((metarTime(y.metar) || {}).t || 0) - ((metarTime(x.metar) || {}).t || 0))[0];
+  if (file) file.src = 'saved copy';
+  const all = [...live, file].filter(w => w && w.metar);
+  const byTime = (x, y) => ((metarTime(y.metar) || {}).t || 0) - ((metarTime(x.metar) || {}).t || 0);
+  const pick = all.slice().sort(byTime)[0];
+  if (pick && !pick.taf) { const withTaf = all.filter(w => w.taf).sort((x, y) => (y.src === 'saved copy' ? -1 : 1))[0]; if (withTaf) pick.taf = withTaf.taf; }
   if (!pick) { st.className = 'hint stale'; st.textContent = 'Weather not available right now. Paste it in from aviationweather.gov.'; return; }
   $('metar').value = pick.metar; $('taf').value = pick.taf || '';
   const mt = metarTime(pick.metar);
   if (mt) {
     const age = Math.max(0, Math.round((Date.now() - mt.t) / 6e4));
     const ageTxt = age < 60 ? `${age} min old` : `${Math.floor(age / 60)} h ${age % 60} min old`;
-    st.textContent = `METAR ${mt.hhmm} UTC, ${ageTxt}.`;
+    st.textContent = `METAR ${mt.hhmm} UTC, ${ageTxt} (from ${pick.src}).`;
     if (age > 45) { st.className = 'hint stale'; st.textContent += ' Not the latest. Check aviationweather.gov before printing.'; }
   } else st.textContent = 'Weather loaded.';
   update();
