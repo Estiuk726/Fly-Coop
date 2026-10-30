@@ -134,7 +134,7 @@ td:first-child { font-family: var(--sans); }
       <label>Flaps max <input id="flaps" value="30°"></label>
       <label>NOTAMs <input id="notam" value="KFC table"></label>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
     <label>METAR LHBP <textarea id="metar" rows="2" placeholder="Paste the METAR here"></textarea></label>
     <label>TAF LHBP <textarea id="taf" rows="3" placeholder="Paste the TAF here"></textarea></label>
     <label>Exercise <textarea id="exercise" rows="3" placeholder="Today's exercise (leave empty to write it by hand)"></textarea></label>
