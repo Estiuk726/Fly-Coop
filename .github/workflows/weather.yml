@@ -1,0 +1,34 @@
+name: Update LHBP weather
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"   # every 30 minutes (GitHub may delay runs a few minutes)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  weather:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch METAR and TAF
+        run: |
+          set -e
+          METAR=$(curl -fsS "https://aviationweather.gov/api/data/metar?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//')
+          TAF=$(curl -fsS "https://aviationweather.gov/api/data/taf?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//')
+          if [ -z "$METAR" ] || [ -z "$TAF" ]; then echo "Empty response, keeping old file"; exit 0; fi
+          jq -n --arg m "$METAR" --arg t "$TAF" \
+            '{station:"LHBP", metar:$m, taf:$t}' > weather.json
+          cat weather.json
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- weather.json 2>/dev/null && git ls-files --error-unmatch weather.json >/dev/null 2>&1; then
+            echo "No change"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add weather.json
+          git commit -m "Update LHBP weather"
+          git push
