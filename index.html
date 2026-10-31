@@ -163,9 +163,6 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
   <section>
     <div class="sh"><h2>Fuel for M&amp;B</h2></div>
     <div class="grid">
-      <label class="f"><span class="k">Flown before me, h</span><span class="u" data-unit="h"><input id="bh" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
-      <label class="f"><span class="k">Flown before me, min</span><span class="u" data-unit="min"><input id="bm" type="number" inputmode="numeric" min="0" max="59" step="1" value="0"></span></label>
-      <div class="f span2 hint" style="align-self:center">Total time the students before you fly. Leave 0 if you fly first.</div>
       <label class="f"><span class="k">My flight, h</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
       <label class="f"><span class="k">My flight, min</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="1" value="45"></span></label>
       <div class="f span2"><span class="k">Type of flight</span>
@@ -592,7 +589,7 @@ const FLEET = {
   'HA-BFQ': [1615, 41.75], 'HA-BFR': [1609, 41.40], 'HA-BFS': [1617, 43.23], 'HA-BFW': [1617, 41.21],
   'HA-BGR': [1603, 41.08],
 };
-const ids = ['dep','dest','taxi','trip','res','extra','bh','bm','th','tm','front','rear','bag1','bag2','acname','flaps'];
+const ids = ['dep','dest','taxi','trip','res','extra','th','tm','front','rear','bag1','bag2','acname','flaps'];
 let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
@@ -610,7 +607,7 @@ function data() {
   return { date: dmy($('date').value), callSign: ac, pic: $('pic').value.trim(), student: $('stu').value.trim(),
     dep: $('dep').value.trim().toUpperCase(), dest: $('dest').value.trim().toUpperCase(),
     fuel: { taxi: n('taxi'), trip: n('trip'), reserve: n('res'), extra: n('extra') },
-    hours: n('th'), minutes: n('tm'), type, before: (type === 'local' ? 5 : 4.5) * (n('bh') + n('bm') / 60), bew: FLEET[ac][0], bewArm: FLEET[ac][1],
+    hours: n('th'), minutes: n('tm'), type, before: 0, bew: FLEET[ac][0], bewArm: FLEET[ac][1],
     front: n('front'), rear: n('rear'), bag1: n('bag1'), bag2: n('bag2'),
     brief: { acName: $('acname').value.trim(), asi, flaps: $('flaps').value.trim(), notam: $('notam').value.trim().replace(/[ \t]+/g, ' '),
       metar: $('metar').value.trim().replace(/\s+/g, ' '), taf: $('taf').value.trim().replace(/\s+/g, ' '), exercise: $('exercise').value.trim() } };
@@ -677,11 +674,10 @@ function update() {
   $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
   $('tot').textContent = `Total ${+tot.toFixed(2)} gal · ${(tot * 6.71).toFixed(1)} lbs`;
   const rate = type === 'local' ? 5 : 4.5, hrsDec = d.hours + d.minutes / 60, g = rate * hrsDec;
-  const bHrs = n('bh') + n('bm') / 60, avail = tot - d.before, left = avail - g;
+  const avail = tot, left = avail - g;
   const bad = avail < 0 || left < 4;
   $('burn').innerHTML =
     `<div><span>On board</span><b>${+tot.toFixed(2)} gal at engine start</b></div>` +
-    (d.before ? `<div><span>Before me</span><b>${rate} gal/h × ${+bHrs.toFixed(2)} h = −${+d.before.toFixed(2)} gal</b></div>` : '') +
     `<div><span>Available</span><b>${+avail.toFixed(2)} gal × 6.71 = ${(Math.max(0, avail) * 6.71).toFixed(1)} lbs (usable fuel on M&amp;B)</b></div>` +
     `<div><span>My trip</span><b>${rate} gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} gal = ${(g * 6.71).toFixed(1)} lbs</b></div>` +
     `<div><span>At landing</span><b class="${bad ? 'warnc' : ''}">${+left.toFixed(2)} gal left${left < 4 ? ' · below 4 gal reserve' : ''}</b></div>`;
