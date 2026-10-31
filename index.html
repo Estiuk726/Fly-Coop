@@ -178,11 +178,14 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
   <section>
     <div class="sh"><h2>Mass</h2></div>
     <div class="grid">
-      <label class="f"><span class="k">Pilot + front pax</span><span class="u" data-unit="lbs"><input id="front" type="number" inputmode="decimal" value="320"></span></label>
+      <label class="f"><span class="k">Student</span><span class="u" data-unit="kg"><input id="wstu" type="number" inputmode="decimal" step="0.5" value="75"></span></label>
+      <label class="f"><span class="k">Instructor</span><span class="u" data-unit="kg"><input id="wins" type="number" inputmode="decimal" step="0.5" value="70"></span></label>
+      <label class="f span2"><span class="k">Pilot and passenger (on M&amp;B)</span><span class="u" data-unit="lbs"><input id="front" type="number" readonly tabindex="-1"></span></label>
       <label class="f"><span class="k">Rear seat</span><span class="u" data-unit="lbs"><input id="rear" type="number" inputmode="decimal" value="0"></span></label>
       <label class="f"><span class="k">Baggage 1 (max 120)</span><span class="u" data-unit="lbs"><input id="bag1" type="number" inputmode="decimal" value="0"></span></label>
       <label class="f"><span class="k">Baggage 2 (max 50)</span><span class="u" data-unit="lbs"><input id="bag2" type="number" inputmode="decimal" value="0"></span></label>
     </div>
+    <div class="hint" id="fronth"></div>
   </section>
 
   <section>
@@ -589,7 +592,7 @@ const FLEET = {
   'HA-BFQ': [1615, 41.75], 'HA-BFR': [1609, 41.40], 'HA-BFS': [1617, 43.23], 'HA-BFW': [1617, 41.21],
   'HA-BGR': [1603, 41.08],
 };
-const ids = ['dep','dest','taxi','trip','res','extra','th','tm','front','rear','bag1','bag2','acname','flaps'];
+const ids = ['dep','dest','taxi','trip','res','extra','th','tm','wstu','wins','rear','bag1','bag2','acname','flaps'];
 let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
@@ -669,6 +672,7 @@ function crosswind() {
   box.innerHTML = html;
 }
 function update() {
+  { const kg = n('wstu') + n('wins'); $('front').value = (kg * 2.205).toFixed(1); $('fronth').textContent = `${+n('wstu').toFixed(1)} + ${+n('wins').toFixed(1)} = ${+kg.toFixed(1)} kg × 2.205 = ${(kg * 2.205).toFixed(1)} lbs`; }
   const d = data();
   const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
   $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
