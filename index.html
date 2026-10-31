@@ -66,7 +66,7 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
 .calc div { display: grid; grid-template-columns: 72px 1fr; gap: 10px; align-items: baseline; }
 .calc span { color: var(--muted); font-size: 13px; }
 .calc b { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
-.calc div:nth-child(3) b { color: var(--accent); }
+.calc .warnc { color: var(--bad); }
 .wxrow { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 4px 0; }
 .wxbtn { font: 600 15px var(--sans); background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--r); height: var(--h); padding: 0 20px; cursor: pointer;
   -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -152,7 +152,6 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
 
   <section>
     <div class="sh"><h2>Fuel on board</h2><span class="chip" id="tot"></span></div>
-    <label class="link"><input type="checkbox" id="tlink" checked> Fill Trip from flight time <small id="tlinkh"></small></label>
     <div class="grid">
       <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" value="2"></span></label>
       <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" value="15"></span></label>
@@ -162,10 +161,13 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
   </section>
 
   <section>
-    <div class="sh"><h2>Trip fuel for M&amp;B</h2></div>
+    <div class="sh"><h2>Fuel for M&amp;B</h2></div>
     <div class="grid">
-      <label class="f"><span class="k">Hours</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
-      <label class="f"><span class="k">Minutes</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="1" value="45"></span></label>
+      <label class="f"><span class="k">Flown before me, h</span><span class="u" data-unit="h"><input id="bh" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
+      <label class="f"><span class="k">Flown before me, min</span><span class="u" data-unit="min"><input id="bm" type="number" inputmode="numeric" min="0" max="59" step="1" value="0"></span></label>
+      <div class="f span2 hint" style="align-self:center">Total time the students before you fly. Leave 0 if you fly first.</div>
+      <label class="f"><span class="k">My flight, h</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
+      <label class="f"><span class="k">My flight, min</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="1" value="45"></span></label>
       <div class="f span2"><span class="k">Type of flight</span>
         <div class="seg" role="group" aria-label="Type of flight">
           <button type="button" id="t-local" aria-pressed="true">Local</button>
@@ -258,7 +260,7 @@ const SHEET = (() => {
     const zw = ['bew', 'front', 'rear', 'bag1', 'bag2'].reduce((s, k) => s + r[k].w, 0);
     const zm = ['bew', 'front', 'rear', 'bag1', 'bag2'].reduce((s, k) => s + r[k].m, 0);
     r.zfw = { w: zw, m: zm, arm: zm * 1000 / zw };
-    item('fuel', totalGal * DENS, ARMS.fuel);
+    item('fuel', Math.max(0, totalGal - (d.before || 0)) * DENS, ARMS.fuel);
     const rw = zw + r.fuel.w, rm = zm + r.fuel.m;
     r.ramp = { w: rw, m: rm, arm: rm * 1000 / rw };
     r.startup = { w: START_W, arm: null, m: START_M };
@@ -590,7 +592,7 @@ const FLEET = {
   'HA-BFQ': [1615, 41.75], 'HA-BFR': [1609, 41.40], 'HA-BFS': [1617, 43.23], 'HA-BFW': [1617, 41.21],
   'HA-BGR': [1603, 41.08],
 };
-const ids = ['dep','dest','taxi','trip','res','extra','th','tm','front','rear','bag1','bag2','acname','flaps'];
+const ids = ['dep','dest','taxi','trip','res','extra','bh','bm','th','tm','front','rear','bag1','bag2','acname','flaps'];
 let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
@@ -608,7 +610,7 @@ function data() {
   return { date: dmy($('date').value), callSign: ac, pic: $('pic').value.trim(), student: $('stu').value.trim(),
     dep: $('dep').value.trim().toUpperCase(), dest: $('dest').value.trim().toUpperCase(),
     fuel: { taxi: n('taxi'), trip: n('trip'), reserve: n('res'), extra: n('extra') },
-    hours: n('th'), minutes: n('tm'), type, bew: FLEET[ac][0], bewArm: FLEET[ac][1],
+    hours: n('th'), minutes: n('tm'), type, before: (type === 'local' ? 5 : 4.5) * (n('bh') + n('bm') / 60), bew: FLEET[ac][0], bewArm: FLEET[ac][1],
     front: n('front'), rear: n('rear'), bag1: n('bag1'), bag2: n('bag2'),
     brief: { acName: $('acname').value.trim(), asi, flaps: $('flaps').value.trim(), notam: $('notam').value.trim().replace(/[ \t]+/g, ' '),
       metar: $('metar').value.trim().replace(/\s+/g, ' '), taf: $('taf').value.trim().replace(/\s+/g, ' '), exercise: $('exercise').value.trim() } };
@@ -670,22 +672,19 @@ function crosswind() {
   box.innerHTML = html;
 }
 function update() {
-  const linked = $('tlink').checked;
-  const rateNow = type === 'local' ? 5 : 4.5, hrsNow = n('th') + n('tm') / 60;
-  $('trip').readOnly = linked;
-  if (linked) { $('trip').value = String(Math.ceil(rateNow * hrsNow * 10) / 10); $('tlinkh').textContent = `(${rateNow} gal/h × ${+hrsNow.toFixed(2)} h, rounded up)`; }
-  else $('tlinkh').textContent = '';
   const d = data();
   const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
   $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
   $('tot').textContent = `Total ${+tot.toFixed(2)} gal · ${(tot * 6.71).toFixed(1)} lbs`;
-  const rate = type === 'local' ? 5 : 4.5, g = rate * (d.hours + d.minutes / 60);
-  const hrsDec = d.hours + d.minutes / 60, lbs = g * 6.71, mom = lbs * 48 / 1000;
+  const rate = type === 'local' ? 5 : 4.5, hrsDec = d.hours + d.minutes / 60, g = rate * hrsDec;
+  const bHrs = n('bh') + n('bm') / 60, avail = tot - d.before, left = avail - g;
+  const bad = avail < 0 || left < 4;
   $('burn').innerHTML =
-    `<div><span>Time</span><b>${d.hours} h ${d.minutes} min = ${+hrsDec.toFixed(2)} h</b></div>` +
-    `<div><span>Fuel</span><b>${rate} US gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} US gal</b></div>` +
-    `<div><span>Weight</span><b>${+g.toFixed(2)} gal × 6.71 lbs/gal = ${lbs.toFixed(1)} lbs</b></div>` +
-    `<div><span>Moment</span><b>${lbs.toFixed(1)} lbs × 48 in / 1000 = −${mom.toFixed(2)}</b></div>`;
+    `<div><span>On board</span><b>${+tot.toFixed(2)} gal at engine start</b></div>` +
+    (d.before ? `<div><span>Before me</span><b>${rate} gal/h × ${+bHrs.toFixed(2)} h = −${+d.before.toFixed(2)} gal</b></div>` : '') +
+    `<div><span>Available</span><b>${+avail.toFixed(2)} gal × 6.71 = ${(Math.max(0, avail) * 6.71).toFixed(1)} lbs (usable fuel on M&amp;B)</b></div>` +
+    `<div><span>My trip</span><b>${rate} gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} gal = ${(g * 6.71).toFixed(1)} lbs</b></div>` +
+    `<div><span>At landing</span><b class="${bad ? 'warnc' : ''}">${+left.toFixed(2)} gal left${left < 4 ? ' · below 4 gal reserve' : ''}</b></div>`;
   const { r, checks } = SHEET.compute(d);
   const fwdLim = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), AFT = 47.3;
   const rows = [['Zero fuel', r.zfw, checks.zfw, null], ['Ramp', r.ramp, checks.ramp, 2302], ['Take-off', r.tow, checks.tow, 2300], ['Landing', r.ldw, checks.ldw, 2300]];
@@ -705,8 +704,7 @@ function update() {
 }
 setAsi(asi); setType(type);
 ids.concat(['date','metar','taf','exercise','pic','stu','notam']).forEach(k => $(k).addEventListener('input', update));
-$('tlink').addEventListener('change', () => { try { localStorage.setItem('c172tlink', $('tlink').checked ? '1' : '0'); } catch (e) {} update(); });
-try { if (localStorage.getItem('c172tlink') === '0') $('tlink').checked = false; } catch (e) {}
+
 
 // Live weather: try aviationweather.gov directly, then through two free CORS relays,
 // then fall back to weather.json that the GitHub Action refreshes. Newest METAR wins.
