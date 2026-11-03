@@ -126,42 +126,116 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
 .ghost { font: 600 15px var(--sans); background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); border-radius: var(--r); height: 44px; padding: 0 18px; cursor: pointer; }
 .ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .wxbtn:active { transform: none; } }
+
+/* Gold accent, at-a-glance panel, numbered preflight steps */
+:root { --brand: #b8760f; --brand-soft: #fbf1df; --on-brand: #ffffff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --brand: #e3a443; --brand-soft: #2c2214; --on-brand: #1d1305; } }
+:root[data-theme="dark"] { --brand: #e3a443; --brand-soft: #2c2214; --on-brand: #1d1305; }
+header.hero { display: flex; align-items: center; gap: 16px; padding: 4px 4px 2px; }
+header.hero svg { width: 92px; height: auto; flex: none; }
+header.hero .t { display: grid; gap: 2px; min-width: 0; }
+header.hero h1 { font-size: 24px; }
+.eyebrow { color: var(--brand); }
+.glance { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 620px) { .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 2px; min-width: 0; position: relative; overflow: hidden; }
+.tile::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--ok); }
+.tile.warn::before { background: var(--bad); }
+.tile.info::before { background: var(--brand); }
+.tile .l { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.tile .v { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .s { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile.warn .s { color: var(--bad); font-weight: 600; }
+.steps { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 4; display: flex; gap: 6px; overflow-x: auto; padding: 8px 0; margin: -4px 0; background: var(--bg); scrollbar-width: none; }
+.steps::-webkit-scrollbar { display: none; }
+.steps a { flex: none; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px 7px 7px; font-size: 14px; font-weight: 600; }
+.steps a i { font-style: normal; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; background: var(--brand-soft); color: var(--brand); }
+.steps a.done i { background: var(--ok); color: var(--panel); }
+.steps a.todo i { background: var(--bad); color: var(--panel); }
+section { scroll-margin-top: 64px; }
+.sh h2 { display: flex; align-items: center; gap: 10px; color: var(--fg); font-size: 14px; }
+.sh h2 .n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--brand); color: var(--on-brand); font-size: 13px; letter-spacing: 0; }
+.crew { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 14px 12px; align-items: end; }
+.sub2 { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+.need { border-color: var(--brand) !important; border-style: dashed !important; }
+.go, .wxbtn { background: var(--brand); color: var(--on-brand); }
+.seg button[aria-pressed="true"] { background: var(--brand); color: var(--on-brand); }
+.chip { color: var(--brand); background: var(--brand-soft); }
+.cg .env { fill: var(--brand-soft); stroke: var(--brand); }
+input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
 </style>
 </head>
 <body>
 
 
 <div class="wrap">
-  <header>
-    <div class="eyebrow">FLY-COOP &middot; C172</div>
-    <h1>Flight Sheet</h1>
-    <p class="sub">Fill in the flight and get the navlog, M&amp;B sheet and briefing as one A4 PDF.</p>
+  <header class="hero">
+    <div class="t"><div class="eyebrow">C172 &middot; LHBS</div><h1>Flight Sheet</h1>
+    <p class="sub">Navlog, M&amp;B and briefing as one A4 PDF.</p></div>
   </header>
 
-  <section>
-    <div class="sh"><h2>Flight</h2><span class="chip" id="achint"></span></div>
+  <div class="glance" aria-live="polite">
+    <div class="tile" id="g-tow"><span class="l">Take-off</span><span class="v">-</span><span class="s"></span></div>
+    <div class="tile" id="g-cg"><span class="l">CG at T/O</span><span class="v">-</span><span class="s"></span></div>
+    <div class="tile" id="g-fuel"><span class="l">Fuel at landing</span><span class="v">-</span><span class="s"></span></div>
+    <div class="tile info" id="g-wx"><span class="l">Wind / RWY</span><span class="v">-</span><span class="s"></span></div>
+  </div>
+
+  <nav class="steps" aria-label="Sections">
+    <a href="#s1" id="n1"><i>1</i>Flight &amp; crew</a>
+    <a href="#s2" id="n2"><i>2</i>Weather &amp; NOTAMs</a>
+    <a href="#s3" id="n3"><i>3</i>Fuel</a>
+    <a href="#s4" id="n4"><i>4</i>Weight &amp; balance</a>
+    <a href="#s5" id="n5"><i>5</i>Exercise</a>
+  </nav>
+
+  <section id="s1">
+    <div class="sh"><h2><span class="n">1</span>Flight &amp; crew</h2><span class="chip" id="achint"></span></div>
     <div class="grid">
       <label class="f"><span class="k">Date (UTC)</span><input id="date" type="date"></label>
       <label class="f"><span class="k">Aircraft</span><select id="ac"></select></label>
       <label class="f"><span class="k">DEP</span><input id="dep" value="LHBS" autocapitalize="characters"></label>
       <label class="f"><span class="k">DEST</span><input id="dest" value="LHBS" autocapitalize="characters"></label>
-      <label class="f span2"><span class="k">Instructor (PIC)</span><input id="pic" placeholder="Instructor name" autocomplete="off"></label>
-      <label class="f span2"><span class="k">Student pilot</span><input id="stu" placeholder="Student name" autocomplete="off"></label>
+    </div>
+    <div class="crew">
+      <label class="f"><span class="k">Student pilot</span><input id="stu" placeholder="Student name" autocomplete="off"></label>
+      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wstu" type="number" inputmode="decimal" step="0.5" value="75"></span></label>
+      <label class="f"><span class="k">Instructor (PIC)</span><input id="pic" placeholder="Instructor name" autocomplete="off"></label>
+      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wins" type="number" inputmode="decimal" step="0.5" value="70"></span></label>
+    </div>
+    <div class="grid">
+      <label class="f"><span class="k">Aircraft</span><input id="acname" value="Cessna 172"></label>
+            <div class="f"><span class="k">ASI</span>
+        <div class="seg" role="group" aria-label="ASI units">
+          <button type="button" id="asi-kt" aria-pressed="true">Knots</button>
+          <button type="button" id="asi-mph" aria-pressed="false">MPH</button>
+        </div>
+      </div>
+      <label class="f span2"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
     </div>
   </section>
 
-  <section>
-    <div class="sh"><h2>Fuel on board</h2><span class="chip" id="tot"></span></div>
+  <section id="s2">
+    <div class="sh"><h2><span class="n">2</span>Weather &amp; NOTAMs</h2></div>
+    <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
+    <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
+    <div class="xw" id="xw" aria-live="polite"></div>
+    <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
+    <label class="f"><span class="k">NOTAMs</span><textarea id="notam" rows="4">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
+    <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>.</div>
+  </section>
+
+  <section id="s3">
+    <div class="sh"><h2><span class="n">3</span>Fuel</h2><span class="chip" id="tot"></span></div>
+    <div class="sub2">Fuel table (navlog)</div>
     <div class="grid">
       <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" value="2"></span></label>
       <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" value="15"></span></label>
       <label class="f"><span class="k">Reserve</span><span class="u" data-unit="gal"><input id="res" type="number" inputmode="decimal" step="0.1" value="4"></span></label>
       <label class="f"><span class="k">Extra</span><span class="u" data-unit="gal"><input id="extra" type="number" inputmode="decimal" step="0.1" value="0"></span></label>
     </div>
-  </section>
-
-  <section>
-    <div class="sh"><h2>Fuel for M&amp;B</h2></div>
+    <div class="sub2">My flight (M&amp;B trip fuel)</div>
     <div class="grid">
       <label class="f"><span class="k">My flight, h</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
       <label class="f"><span class="k">My flight, min</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="1" value="45"></span></label>
@@ -175,44 +249,23 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
     <div class="calc" id="burn" aria-live="polite"></div>
   </section>
 
-  <section>
-    <div class="sh"><h2>Mass</h2></div>
+  <section id="s4">
+    <div class="sh"><h2><span class="n">4</span>Weight &amp; balance</h2></div>
     <div class="grid">
-      <label class="f"><span class="k">Student</span><span class="u" data-unit="kg"><input id="wstu" type="number" inputmode="decimal" step="0.5" value="75"></span></label>
-      <label class="f"><span class="k">Instructor</span><span class="u" data-unit="kg"><input id="wins" type="number" inputmode="decimal" step="0.5" value="70"></span></label>
-      <label class="f span2"><span class="k">Pilot and passenger (on M&amp;B)</span><span class="u" data-unit="lbs"><input id="front" type="number" readonly tabindex="-1"></span></label>
+      <label class="f"><span class="k">Pilot + passenger</span><span class="u" data-unit="lbs"><input id="front" type="number" readonly tabindex="-1"></span></label>
       <label class="f"><span class="k">Rear seat</span><span class="u" data-unit="lbs"><input id="rear" type="number" inputmode="decimal" value="0"></span></label>
       <label class="f"><span class="k">Baggage 1 (max 120)</span><span class="u" data-unit="lbs"><input id="bag1" type="number" inputmode="decimal" value="0"></span></label>
       <label class="f"><span class="k">Baggage 2 (max 50)</span><span class="u" data-unit="lbs"><input id="bag2" type="number" inputmode="decimal" value="0"></span></label>
     </div>
     <div class="hint" id="fronth"></div>
-  </section>
-
-  <section>
-    <div class="sh"><h2>M&amp;B check</h2></div>
     <div style="overflow-x:auto"><table id="mb"></table></div>
     <svg class="cg" id="cg" viewBox="0 0 640 340" role="img" aria-label="Centre of gravity envelope with zero fuel, take-off and landing points"></svg>
   </section>
 
-  <section>
-    <div class="sh"><h2>Briefing (back side)</h2></div>
-    <div class="grid">
-      <label class="f"><span class="k">Aircraft</span><input id="acname" value="Cessna 172"></label>
-      <div class="f"><span class="k">ASI</span>
-        <div class="seg" role="group" aria-label="ASI units">
-          <button type="button" id="asi-kt" aria-pressed="true">Knots</button>
-          <button type="button" id="asi-mph" aria-pressed="false">MPH</button>
-        </div>
-      </div>
-      <label class="f span2"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
-    </div>
-    <label class="f"><span class="k">NOTAMs</span><textarea id="notam" rows="4">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
-    <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
-    <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
-    <div class="xw" id="xw" aria-live="polite"></div>
-    <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
+  <section id="s5">
+    <div class="sh"><h2><span class="n">5</span>Exercise</h2></div>
     <label class="f"><span class="k">Exercise</span><textarea id="exercise" rows="3" placeholder="Leave empty to write it by hand"></textarea></label>
-    <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>. The PDF is A4, set to print on both sides (flip on short edge).</div>
+    <div class="hint">The PDF is A4, set to print on both sides (flip on short edge).</div>
   </section>
 </div>
 
@@ -671,6 +724,32 @@ function crosswind() {
   html += '<small>LHBP wind applied to LHBS runways 09/27, headings taken as 090°/270°. C172 max demonstrated crosswind 15 kt.</small>';
   box.innerHTML = html;
 }
+
+function glance() {
+  const d = data(); const { r, checks } = SHEET.compute(d);
+  const set = (id, v, s, warn, info) => { const t = $(id); if (id === 'g-wx') t.querySelector('.l').textContent = 'Wind / RWY'; t.className = 'tile' + (warn ? ' warn' : info ? ' info' : ''); t.querySelector('.v').textContent = v; t.querySelector('.s').textContent = s; };
+  const tm = 2300 - r.tow.w;
+  set('g-tow', `${r.tow.w.toFixed(0)} lbs`, tm >= 0 ? `${tm.toFixed(0)} under max` : `${(-tm).toFixed(0)} OVER max`, !checks.tow);
+  const fl = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), cm = Math.min(r.tow.arm - fl(r.tow.w), 47.3 - r.tow.arm);
+  set('g-cg', r.tow.arm.toFixed(2) + ' in', cm >= 0 ? `${cm.toFixed(2)} in inside limits` : 'Outside CG range', !(checks.tow && checks.ldw && checks.zfw));
+  const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra, burn = (type === 'local' ? 5 : 4.5) * (d.hours + d.minutes / 60), left = tot - burn;
+  set('g-fuel', `${+left.toFixed(1)} gal`, left < 4 ? 'Below 4 gal reserve' : `${+tot.toFixed(1)} on board − ${+burn.toFixed(2)}`, left < 4);
+  const m = $('metar').value.toUpperCase().match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT\b/);
+  if (!m) set('g-wx', 'No METAR', 'Get weather in step 2', false, true);
+  else if (m[1] === 'VRB') set('g-wx', `VRB ${+m[2]} kt`, 'Any runway', false, true);
+  else {
+    const dir = +m[1], s = +m[2], gs = m[3] ? +m[3] : 0, c = h2 => Math.cos((dir - h2) * Math.PI / 180);
+    const rw = c(90) >= c(270) ? ['09', 90] : ['27', 270], xc = Math.round(Math.abs(Math.max(s, gs) * Math.sin((dir - rw[1]) * Math.PI / 180)));
+    set('g-wx', `RWY ${rw[0]}`, `${xc} kt crosswind${xc > 15 ? ', above 15' : ''}`, xc > 15, xc <= 15); $('g-wx').querySelector('.l').textContent = `Wind ${m[1]}/${s}${gs ? 'G' + gs : ''}`;
+  }
+  const mark = (id, ok) => { const a = $(id); a.className = ok ? 'done' : 'todo'; a.querySelector('i').textContent = ok ? '✓' : '!'; };
+  mark('n1', d.pic && d.student);
+  mark('n2', !!$('metar').value.trim() && !!$('taf').value.trim());
+  mark('n3', left >= 4);
+  mark('n4', Object.values(checks).every(Boolean));
+  $('n5').className = ''; $('n5').querySelector('i').textContent = '5';
+  $('pic').classList.toggle('need', !d.pic); $('stu').classList.toggle('need', !d.student);
+}
 function update() {
   { const kg = n('wstu') + n('wins'); $('front').value = (kg * 2.205).toFixed(1); $('fronth').textContent = `${+n('wstu').toFixed(1)} + ${+n('wins').toFixed(1)} = ${+kg.toFixed(1)} kg × 2.205 = ${(kg * 2.205).toFixed(1)} lbs`; }
   const d = data();
@@ -699,6 +778,7 @@ function update() {
     (checks.bag1 && checks.bag2 ? '' : '<tr><td colspan="5"><span class="pill bad">Baggage over limit</span></td></tr>');
   drawCG(r);
   crosswind();
+  glance();
   { const allOk = Object.values(checks).every(Boolean); const s = $('sum'); s.className = allOk ? 'ok' : 'bad'; s.textContent = allOk ? '✓ Within weight and CG limits' : '✕ Outside limits, check M&B'; }
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
