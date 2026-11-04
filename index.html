@@ -134,6 +134,9 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
   #pv .pg { width: 297mm !important; height: 210mm !important; max-width: none !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always; break-after: page; }
   #pv .pg:last-of-type, body.only-1 #pv .pg, body.only-2 #pv .pg { page-break-after: auto; break-after: auto; }
 }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; }
+.qbtn { font: 600 14px var(--sans); color: var(--brand); background: var(--brand-soft); border: 1px solid var(--brand); border-radius: 999px; height: 36px; padding: 0 14px; cursor: pointer; }
+.qbtn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 .pv .note { color: #cfd6de; font-size: 13px; text-align: center; }
 .pv .howto { max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #e6ebf0; font-size: 14px; line-height: 1.45; background: rgba(255,255,255,.07); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; }
 .pv .rot { display: flex; align-items: center; gap: 8px; color: #cfd6de; font-size: 13px; }
@@ -284,7 +287,8 @@ input[type=number] { -moz-appearance: textfield; }
   <section id="s5">
     <div class="sh"><h2><span class="n">5</span>Exercise</h2></div>
     <label class="f"><span class="k">Exercise</span><textarea id="exercise" rows="3" placeholder="Leave empty to write it by hand"></textarea></label>
-    <div class="hint">The PDF is A4, set to print on both sides (flip on short edge).</div>
+    <div class="quick"><button type="button" class="qbtn" id="ex-tc">+ Traffic Circuit</button></div>
+    <div class="hint">The PDF is A4 landscape. In the preview, print the front first, then the back.</div>
   </section>
 </div>
 
@@ -308,7 +312,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611040944';
+  var V = '202611040954';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -899,6 +903,11 @@ let wxHand = false;
 ['metar', 'taf'].forEach(k => $(k).addEventListener('input', () => { wxHand = true; }));
 setInterval(() => { if (!wxHand && !document.hidden) getWeather(true); }, 5 * 60 * 1000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && !wxHand) getWeather(true); });
+$('ex-tc').onclick = () => {
+  const box = $('exercise'), t = 'Traffic Circuit';
+  if (!box.value.toLowerCase().includes(t.toLowerCase())) box.value = box.value.trim() ? box.value.replace(/\s+$/, '') + '\n' + t : t;
+  box.dispatchEvent(new Event('input')); box.focus();
+};
 $('wx').onclick = async () => { wxHand = false; $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
 getWeather(false);
 
