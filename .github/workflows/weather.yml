@@ -1,13 +1,17 @@
 name: Update LHBP weather
 
+# Keeps weather.json fresh for the flight sheet.
+# One run refreshes every 10 minutes for about 50 minutes, then starts the next run itself,
+# so updates keep going even when GitHub skips scheduled runs. The schedule below only
+# restarts the chain if it ever stops.
 on:
   schedule:
-    # every 15 minutes, off the busy :00/:30 marks so GitHub is less likely to delay or skip runs
-    - cron: "8,23,38,53 * * * *"
+    - cron: "8 */2 * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: weather
@@ -16,25 +20,33 @@ concurrency:
 jobs:
   weather:
     runs-on: ubuntu-latest
+    timeout-minutes: 70
     steps:
       - uses: actions/checkout@v5
-      - name: Fetch METAR and TAF
+      - name: Refresh METAR and TAF every 10 minutes
         run: |
-          set -e
-          METAR=$(curl -fsS "https://aviationweather.gov/api/data/metar?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//')
-          TAF=$(curl -fsS "https://aviationweather.gov/api/data/taf?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//')
-          if [ -z "$METAR" ] || [ -z "$TAF" ]; then echo "Empty response, keeping old file"; exit 0; fi
-          jq -n --arg m "$METAR" --arg t "$TAF" \
-            '{station:"LHBP", metar:$m, taf:$t}' > weather.json
-          cat weather.json
-      - name: Commit if changed
-        run: |
-          if git diff --quiet -- weather.json 2>/dev/null && git ls-files --error-unmatch weather.json >/dev/null 2>&1; then
-            echo "No change"; exit 0
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add weather.json
-          git commit -m "Update LHBP weather"
-          git pull --rebase -q origin main
-          git push
+          for i in 1 2 3 4 5 6; do
+            METAR=$(curl -fsS --max-time 30 "https://aviationweather.gov/api/data/metar?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//' || true)
+            TAF=$(curl -fsS --max-time 30 "https://aviationweather.gov/api/data/taf?ids=LHBP&format=raw" | tr -s ' \n' ' ' | sed 's/ *$//' || true)
+            if [ -n "$METAR" ] && [ -n "$TAF" ]; then
+              jq -n --arg m "$METAR" --arg t "$TAF" '{station:"LHBP", metar:$m, taf:$t}' > weather.json
+              if ! git diff --quiet -- weather.json; then
+                git add weather.json
+                git commit -q -m "Update LHBP weather"
+                git pull --rebase -q origin main && git push -q || echo "push failed, will retry next round"
+                echo "$(date -u +%H:%MZ) updated: $METAR"
+              else
+                echo "$(date -u +%H:%MZ) no change"
+              fi
+            else
+              echo "$(date -u +%H:%MZ) empty response, keeping old file"
+            fi
+            [ "$i" -lt 6 ] && sleep 540
+          done
+      - name: Start the next run
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run weather.yml --repo "${{ github.repository }}" --ref main

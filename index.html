@@ -308,7 +308,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611040932';
+  var V = '202611040934';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -880,7 +880,9 @@ async function getWeather(force) {
   const all = [...live, file].filter(w => w && w.metar);
   const byTime = (x, y) => ((metarTime(y.metar) || {}).t || 0) - ((metarTime(x.metar) || {}).t || 0);
   const pick = all.slice().sort(byTime)[0];
-  if (pick && !pick.taf) { const withTaf = all.filter(w => w.taf).sort((x, y) => (y.src === 'saved copy' ? -1 : 1))[0]; if (withTaf) pick.taf = withTaf.taf; }
+  const tafT = w => { const x = (w.taf || '').match(/ (\d{6})Z/); return x ? +x[1] : 0; };
+  const newestTaf = all.filter(w => w.taf).sort((x, y) => tafT(y) - tafT(x))[0];
+  if (pick && newestTaf && tafT(newestTaf) > tafT(pick)) pick.taf = newestTaf.taf;
   if (!pick) { st.className = 'hint stale'; st.textContent = 'Weather not available right now. Paste it in from aviationweather.gov.'; return; }
   $('metar').value = pick.metar; $('taf').value = pick.taf || '';
   const mt = metarTime(pick.metar);
@@ -892,7 +894,12 @@ async function getWeather(force) {
   } else st.textContent = 'Weather loaded.';
   update();
 }
-$('wx').onclick = async () => { $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
+// keep weather fresh while the page is open, unless it was typed in by hand
+let wxHand = false;
+['metar', 'taf'].forEach(k => $(k).addEventListener('input', () => { wxHand = true; }));
+setInterval(() => { if (!wxHand && !document.hidden) getWeather(true); }, 5 * 60 * 1000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && !wxHand) getWeather(true); });
+$('wx').onclick = async () => { wxHand = false; $('wx').disabled = true; await getWeather(true); $('wx').disabled = false; };
 getWeather(false);
 
 let pending = null;
