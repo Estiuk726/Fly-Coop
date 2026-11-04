@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   weather:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 70
     steps:
       - uses: actions/checkout@v5
@@ -43,8 +43,9 @@ jobs:
             else
               echo "$(date -u +%H:%MZ) empty response, keeping old file"
             fi
-            [ "$i" -lt 6 ] && sleep 540
+            if [ "$i" -lt 6 ]; then sleep 540; fi
           done
+          exit 0
       - name: Start the next run
         if: always()
         env:
