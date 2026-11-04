@@ -308,7 +308,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611040934';
+  var V = '202611040944';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -682,7 +682,7 @@ const FLEET = {
   'HA-BFQ': [1615, 41.75], 'HA-BFR': [1609, 41.40], 'HA-BFS': [1617, 43.23], 'HA-BFW': [1617, 41.21],
   'HA-BGR': [1603, 41.08],
 };
-const ids = ['dep','dest','taxi','trip','res','extra','th','tm','wstu','wins','rear','bag1','bag2','acname','flaps'];
+const ids = ['pic','stu','dep','dest','taxi','trip','res','extra','th','tm','wstu','wins','rear','bag1','bag2','acname','flaps'];
 let asi = 'Knots';
 let type = 'local', ac = 'HA-BFN';
 try { const s = JSON.parse(localStorage.getItem('c172sheet') || 'null');
@@ -915,35 +915,35 @@ function loadPdfJs() {
 function savePending() {
   if (!pending) return;
   pending.doc.save(pending.name);
-  $('pic').value = ''; $('stu').value = '';
   const st = $('status'); st.className = 'status okc'; st.textContent = `Saved ${pending.name}. Print double-sided, flip on short edge.`;
   pending = null; closePreview(); update();
 }
 function closePreview() { if ($('pvst')) $('pvst').textContent = ''; $('pv').hidden = true; $('pvpages').innerHTML = ''; document.body.style.overflow = ''; }
 $('pvsave').onclick = savePending;
-let printedBack = false;
 function printPage(n) {
-  document.body.classList.remove('only-1', 'only-2');
-  document.body.classList.add('printing', 'only-' + n);
-  if (n === 2) printedBack = true;
-  setTimeout(() => window.print(), 50);
+  const pg = $('pvpages').querySelectorAll('.pg')[n - 1];
+  if (!pg) return;
+  const rot = n === 2 && $('pvrot').checked;
+  const w = window.open('', '_blank');
+  if (!w) { $('pvst').textContent = 'Allow pop-ups for this site, then tap the button again.'; return; }
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${n === 1 ? 'Front' : 'Back'} - ${pending ? pending.name : 'Flight sheet'}</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@page { size: A4 landscape; margin: 5mm; }
+html, body { margin: 0; padding: 0; background: #fff; }
+.wrap { width: 100%; display: flex; justify-content: center; }
+img { display: block; width: 96%; height: auto; ${rot ? 'transform: rotate(180deg);' : ''} }
+@media screen { body { background: #555; padding: 16px; } img { max-width: 1100px; box-shadow: 0 4px 20px rgba(0,0,0,.4); } }
+</style></head><body><div class="wrap"><img src="${pg.src}" alt="${n === 1 ? 'Front' : 'Back'}"></div>
+<script>document.querySelector('img').decode().catch(function(){}).then(function(){ setTimeout(function(){ window.print(); }, 300); });<\/script></body></html>`);
+  w.document.close();
+  $('pvst').textContent = n === 1 ? '✓ Front sent to print. Flip the sheet into the tray, then tap Print back.' : '✓ Back sent to print.';
 }
 $('pvp1').onclick = () => printPage(1);
 $('pvp2').onclick = () => printPage(2);
 function applyRot() { const pg = $('pvpages').querySelectorAll('.pg')[1]; if (pg) pg.classList.toggle('rot180', $('pvrot').checked); }
 $('pvrot').addEventListener('change', () => { try { localStorage.setItem('c172rot', $('pvrot').checked ? '1' : '0'); } catch (e) {} applyRot(); });
 try { $('pvrot').checked = localStorage.getItem('c172rot') === '1'; } catch (e) {}
-window.addEventListener('afterprint', () => {
-  if (!document.body.classList.contains('printing')) return;
-  const wasBack = document.body.classList.contains('only-2');
-  document.body.classList.remove('printing', 'only-1', 'only-2');
-  const st = $('status'); st.className = 'status okc';
-  if (wasBack) {
-    $('pic').value = ''; $('stu').value = '';
-    st.textContent = 'Front and back printed.';
-    pending = null; printedBack = false; closePreview(); update();
-  } else { st.textContent = 'Front printed.'; $('pvst').textContent = '✓ Front printed. Now flip the sheet into the tray and tap Print back.'; }
-});
 $('pvback').onclick = () => { pending = null; closePreview(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pv').hidden) $('pvback').click(); });
 $('make').onclick = async () => {
