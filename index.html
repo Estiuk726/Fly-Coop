@@ -593,22 +593,15 @@ const SHEET = (() => {
       const yl = 'Loaded airplane Weight (Pounds)', ylw = doc.getTextWidth(yl);
       doc.text(yl, p.X(102) + 2.3, p.Y((gy1 + gy2) / 2) + ylw / 2, { angle: 90 });
 
-      // each point: its own colour, dashed guide lines down to the CG axis and across to the weight axis
+      // each point: a coloured dot with its name
       const PTS = [['ZFW', r.zfw, [21, 101, 192]], ['T/O', r.tow, [211, 47, 47]], ['LDW', r.ldw, [46, 125, 50]]];
-      doc.setLineDashPattern([1.5, 1.5], 0);
-      PTS.forEach(([lab, v, col]) => {
-        const x = GX(v.arm), y = GY(v.w);
-        p.line(x, y, x, gy2, 0.6, col);
-        p.line(gx1, y, x, y, 0.6, col);
-      });
-      doc.setLineDashPattern([], 0);
       PTS.forEach(([lab, v, col]) => {
         const x = p.X(GX(v.arm)), yy = p.Y(GY(v.w));
-        doc.setLineWidth(1.4); doc.setDrawColor(...col);
-        doc.line(x - 3.2, yy - 3.2, x + 3.2, yy + 3.2); doc.line(x - 3.2, yy + 3.2, x + 3.2, yy - 3.2);
+        doc.setFillColor(...col); doc.circle(x, yy, 2.4, 'F');
         doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(...col);
-        if (lab === 'ZFW') doc.text(lab, x - 5, yy + 8, { align: 'right' });
-        else if (lab === 'LDW' && Math.abs(p.Y(GY(r.tow.w)) - yy) < 9) doc.text(lab, x + 5, yy + 9);
+        if (lab === 'ZFW') doc.text(lab, x - 5, yy + 2.2, { align: 'right' });
+        else if (lab === 'LDW' && Math.abs(p.Y(GY(r.tow.w)) - yy) < 9) doc.text(lab, x + 5, yy + 6);
+        else if (lab === 'T/O' && Math.abs(p.Y(GY(r.ldw.w)) - yy) < 9) doc.text(lab, x + 5, yy - 1.5);
         else doc.text(lab, x + 5, yy + 2.2);
       });
       if (Object.values(checks).some(ok => !ok))
@@ -720,14 +713,10 @@ function drawCG(r) {
   g += `<polygon class="env" fill-opacity=".5" points="${env.map(([a, w]) => `${X(a)},${Y(w)}`).join(' ')}"/>`;
   const pts = [['ZFW', r.zfw, '#1e88e5'], ['T/O', r.tow, '#e53935'], ['LDW', r.ldw, '#43a047']];
   const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-  pts.forEach(([l, v, c]) => {
-    const x = cl(X(v.arm), X0, X1), y = cl(Y(v.w), Y0, Y1);
-    g += `<line x1="${x}" y1="${y}" x2="${x}" y2="${Y1}" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="${X0}" y1="${y}" x2="${x}" y2="${y}" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
-  });
   pts.forEach(([l, v, c], i) => {
     const x = cl(X(v.arm), X0, X1), y = cl(Y(v.w), Y0, Y1);
-    const [tx, ty, anc] = [[x - 10, y - 10, 'end'], [x + 10, y - 6, 'start'], [x + 10, y + 16, 'start']][i];
-    g += `<g class="pt"><circle cx="${x}" cy="${y}" r="6" fill="${c}"/><text x="${tx}" y="${ty}" text-anchor="${anc}" style="fill:${c};paint-order:stroke;stroke:var(--panel);stroke-width:4px">${l} ${v.w.toFixed(0)} / ${v.arm.toFixed(2)}</text></g>`;
+    const [tx, ty, anc] = [[x - 10, y + 4, 'end'], [x + 10, y - 6, 'start'], [x + 10, y + 16, 'start']][i];
+    g += `<g class="pt"><circle cx="${x}" cy="${y}" r="6" fill="${c}"/><text x="${tx}" y="${ty}" text-anchor="${anc}" style="fill:${c};paint-order:stroke;stroke:var(--panel);stroke-width:4px">${l}</text></g>`;
   });
   $('cg').innerHTML = g;
 }
