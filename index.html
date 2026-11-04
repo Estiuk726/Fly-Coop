@@ -312,7 +312,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611040954';
+  var V = '202611041005';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -923,15 +923,39 @@ function loadPdfJs() {
 }
 function savePending() {
   if (!pending) return;
+  logSheet('save_pdf');
   pending.doc.save(pending.name);
   const st = $('status'); st.className = 'status okc'; st.textContent = `Saved ${pending.name}. Print double-sided, flip on short edge.`;
   pending = null; closePreview(); update();
 }
 function closePreview() { if ($('pvst')) $('pvst').textContent = ''; $('pv').hidden = true; $('pvpages').innerHTML = ''; document.body.style.overflow = ''; }
 $('pvsave').onclick = savePending;
+// Backup: every preview, print and save adds one row to the flight-sheet Supabase database.
+// The public key can only add rows; it cannot read, change or delete them.
+const SB_URL = 'https://dzdearqrpnmeznwkbmhd.supabase.co', SB_KEY = 'sb_publishable_3V7XU6JtK3UVuqcl6Jd3Cw_n5XBGiJI';
+function logSheet(action) {
+  try {
+    const d = data(); const { r, checks } = SHEET.compute(d);
+    const num = v => (Number.isFinite(v) ? Math.round(v * 100) / 100 : null), cut = (s, n) => (s || '').slice(0, n);
+    const row = {
+      action, flight_date: d.date, aircraft: d.callSign, dep: cut(d.dep, 10), dest: cut(d.dest, 10),
+      instructor: cut(d.pic, 80), student: cut(d.student, 80),
+      student_kg: num(n('wstu')), instructor_kg: num(n('wins')), rear_lbs: num(d.rear), bag1_lbs: num(d.bag1), bag2_lbs: num(d.bag2),
+      fuel_taxi: num(d.fuel.taxi), fuel_trip: num(d.fuel.trip), fuel_reserve: num(d.fuel.reserve), fuel_extra: num(d.fuel.extra),
+      flight_minutes: Math.round(d.hours * 60 + d.minutes), flight_type: d.type,
+      tow_lbs: num(r.tow.w), tow_arm: num(r.tow.arm), ldw_lbs: num(r.ldw.w), ldw_arm: num(r.ldw.arm), zfw_lbs: num(r.zfw.w), zfw_arm: num(r.zfw.arm),
+      within_limits: Object.values(checks).every(Boolean),
+      metar: cut(d.brief.metar, 400), taf: cut(d.brief.taf, 1200), notam: cut(d.brief.notam, 3000), exercise: cut(d.brief.exercise, 1000),
+      user_agent: cut(navigator.userAgent, 300),
+    };
+    fetch(SB_URL + '/rest/v1/sheets', { method: 'POST', keepalive: true,
+      headers: { apikey: SB_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) }).catch(() => {});
+  } catch (e) {}
+}
 function printPage(n) {
   const pg = $('pvpages').querySelectorAll('.pg')[n - 1];
   if (!pg) return;
+  logSheet(n === 1 ? 'print_front' : 'print_back');
   const rot = n === 2 && $('pvrot').checked;
   const w = window.open('', '_blank');
   if (!w) { $('pvst').textContent = 'Allow pop-ups for this site, then tap the button again.'; return; }
@@ -965,6 +989,7 @@ $('make').onclick = async () => {
   try { doc = SHEET.build(window.jspdf.jsPDF, d, { regular: FONT_REG, bold: FONT_BOLD }); }
   catch (e) { st.className = 'status err'; st.textContent = 'Could not create the PDF: ' + (e && e.message || e); return; }
   pending = { doc, name: `Navlog_MB_${d.callSign}_${$('date').value}.pdf` };
+  logSheet('preview');
   st.textContent = 'Preparing preview...';
   $('make').disabled = true;
   try {
