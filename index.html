@@ -121,7 +121,17 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
 .pv .top b { font-size: 16px; }
 .pv .top .acts { display: flex; gap: 8px; }
 .pv .pages { flex: 1; overflow: auto; display: grid; gap: 14px; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
-.pv canvas { width: min(1100px, 100%); height: auto; background: #fff; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+.pv canvas, .pv .pg { width: min(1100px, 100%); height: auto; background: #fff; border-radius: 4px; box-shadow: 0 4px 20px rgba(0,0,0,.4); display: block; }
+@page { size: A4 landscape; margin: 0; }
+@media print {
+  html, body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
+  body > *:not(#pv) { display: none !important; }
+  #pv { position: static !important; display: block !important; background: #fff !important; padding: 0 !important; }
+  #pv .top, #pv .note { display: none !important; }
+  #pv .pages { display: block !important; overflow: visible !important; }
+  #pv .pg { width: 297mm !important; height: 210mm !important; max-width: none !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always; break-after: page; }
+  #pv .pg:last-of-type { page-break-after: auto; break-after: auto; }
+}
 .pv .note { color: #cfd6de; font-size: 13px; text-align: center; }
 .ghost { font: 600 15px var(--sans); background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); border-radius: var(--r); height: 44px; padding: 0 18px; cursor: pointer; }
 .ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
@@ -277,7 +287,7 @@ input[type=number] { -moz-appearance: textfield; }
 </div>
 
 <div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-label="PDF preview">
-  <div class="top"><b>Preview</b><div class="acts"><button type="button" class="ghost" id="pvback">Edit</button><button type="button" class="go" id="pvsave">Save PDF</button></div></div>
+  <div class="top"><b>Preview</b><div class="acts"><button type="button" class="ghost" id="pvback">Edit</button><button type="button" class="ghost" id="pvsave">Save PDF</button><button type="button" class="go" id="pvprint">Print</button></div></div>
   <div class="pages" id="pvpages"></div>
 </div>
 
@@ -570,14 +580,20 @@ const SHEET = (() => {
       const yl = 'Loaded airplane Weight (Pounds)', ylw = doc.getTextWidth(yl);
       doc.text(yl, p.X(102) + 2.3, p.Y((gy1 + gy2) / 2) + ylw / 2, { angle: 90 });
 
-      doc.setLineDashPattern([2, 2], 0);
-      p.line(GX(r.tow.arm), GY(r.tow.w), GX(r.ldw.arm), GY(r.ldw.w), 0.8, C.ink);
+      // each point: its own colour, dashed guide lines down to the CG axis and across to the weight axis
+      const PTS = [['ZFW', r.zfw, [21, 101, 192]], ['T/O', r.tow, [211, 47, 47]], ['LDW', r.ldw, [46, 125, 50]]];
+      doc.setLineDashPattern([1.5, 1.5], 0);
+      PTS.forEach(([lab, v, col]) => {
+        const x = GX(v.arm), y = GY(v.w);
+        p.line(x, y, x, gy2, 0.6, col);
+        p.line(gx1, y, x, y, 0.6, col);
+      });
       doc.setLineDashPattern([], 0);
-      [['ZFW', r.zfw], ['T/O', r.tow], ['LDW', r.ldw]].forEach(([lab, v]) => {
+      PTS.forEach(([lab, v, col]) => {
         const x = p.X(GX(v.arm)), yy = p.Y(GY(v.w));
-        doc.setLineWidth(1.3); doc.setDrawColor(...C.ink);
-        doc.line(x - 3, yy - 3, x + 3, yy + 3); doc.line(x - 3, yy + 3, x + 3, yy - 3);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(...C.ink);
+        doc.setLineWidth(1.4); doc.setDrawColor(...col);
+        doc.line(x - 3.2, yy - 3.2, x + 3.2, yy + 3.2); doc.line(x - 3.2, yy + 3.2, x + 3.2, yy - 3.2);
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(6.5); doc.setTextColor(...col);
         if (lab === 'ZFW') doc.text(lab, x - 5, yy + 8, { align: 'right' });
         else if (lab === 'LDW' && Math.abs(p.Y(GY(r.tow.w)) - yy) < 9) doc.text(lab, x + 5, yy + 9);
         else doc.text(lab, x + 5, yy + 2.2);
@@ -689,13 +705,16 @@ function drawCG(r) {
   g += `<text x="14" y="${(Y0 + Y1) / 2}" text-anchor="middle" transform="rotate(-90 14 ${(Y0 + Y1) / 2})">Weight, lbs</text>`;
   const env = [[35, 1500], [35, 1950], [38.5, 2300], [47.3, 2300], [47.3, 1500]];
   g += `<polygon class="env" fill-opacity=".5" points="${env.map(([a, w]) => `${X(a)},${Y(w)}`).join(' ')}"/>`;
-  const pts = [['ZFW', r.zfw, 'var(--muted)'], ['T/O', r.tow, 'var(--accent)'], ['LDW', r.ldw, 'var(--ok)']];
-  g += `<line x1="${X(r.tow.arm)}" y1="${Y(r.tow.w)}" x2="${X(r.ldw.arm)}" y2="${Y(r.ldw.w)}" stroke="var(--fg)" stroke-dasharray="4 4" stroke-width="1.5"/>`;
+  const pts = [['ZFW', r.zfw, '#1e88e5'], ['T/O', r.tow, '#e53935'], ['LDW', r.ldw, '#43a047']];
   const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  pts.forEach(([l, v, c]) => {
+    const x = cl(X(v.arm), X0, X1), y = cl(Y(v.w), Y0, Y1);
+    g += `<line x1="${x}" y1="${y}" x2="${x}" y2="${Y1}" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 3"/><line x1="${X0}" y1="${y}" x2="${x}" y2="${y}" stroke="${c}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+  });
   pts.forEach(([l, v, c], i) => {
     const x = cl(X(v.arm), X0, X1), y = cl(Y(v.w), Y0, Y1);
-    const [tx, ty, anc] = [[x - 10, y + 4, 'end'], [x + 10, y - 6, 'start'], [x + 10, y + 16, 'start']][i];
-    g += `<g class="pt"><circle cx="${x}" cy="${y}" r="6" fill="${c}"/><text x="${tx}" y="${ty}" text-anchor="${anc}">${l}</text></g>`;
+    const [tx, ty, anc] = [[x - 10, y - 10, 'end'], [x + 10, y - 6, 'start'], [x + 10, y + 16, 'start']][i];
+    g += `<g class="pt"><circle cx="${x}" cy="${y}" r="6" fill="${c}"/><text x="${tx}" y="${ty}" text-anchor="${anc}" style="fill:${c};paint-order:stroke;stroke:var(--panel);stroke-width:4px">${l} ${v.w.toFixed(0)} / ${v.arm.toFixed(2)}</text></g>`;
   });
   $('cg').innerHTML = g;
 }
@@ -870,6 +889,17 @@ function savePending() {
 }
 function closePreview() { $('pv').hidden = true; $('pvpages').innerHTML = ''; document.body.style.overflow = ''; }
 $('pvsave').onclick = savePending;
+$('pvprint').onclick = () => {
+  document.body.classList.add('printing');
+  setTimeout(() => window.print(), 50);
+};
+window.addEventListener('afterprint', () => {
+  if (!document.body.classList.contains('printing')) return;
+  document.body.classList.remove('printing');
+  $('pic').value = ''; $('stu').value = '';
+  const st = $('status'); st.className = 'status okc'; st.textContent = 'Sent to print.';
+  pending = null; closePreview(); update();
+});
 $('pvback').onclick = () => { pending = null; closePreview(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pv').hidden) $('pvback').click(); });
 $('make').onclick = async () => {
@@ -891,14 +921,14 @@ $('make').onclick = async () => {
     $('pv').hidden = false; document.body.style.overflow = 'hidden';
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
-      const vp = page.getViewport({ scale: 2 });
+      const vp = page.getViewport({ scale: 3 });
       const cv = document.createElement('canvas'); cv.width = vp.width; cv.height = vp.height;
-      cv.setAttribute('aria-label', `Page ${i}`);
-      box.appendChild(cv);
       await page.render({ canvasContext: cv.getContext('2d'), viewport: vp }).promise;
+      const img = new Image(); img.src = cv.toDataURL('image/png'); img.alt = `Page ${i}`; img.className = 'pg';
+      box.appendChild(img);
     }
     const note = document.createElement('p'); note.className = 'note';
-    note.textContent = 'Page 1 front, page 2 back. Check aircraft, names, fuel and weather, then tap Save PDF.';
+    note.textContent = 'Page 1 front, page 2 back. Tap Print, then choose two-sided (flip on short edge) in the print options.';
     box.appendChild(note);
     st.textContent = '';
   } catch (e) {
