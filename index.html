@@ -240,6 +240,7 @@ input[type=number] { -moz-appearance: textfield; }
     <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
     <div class="xw" id="xw" aria-live="polite"></div>
     <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
+    <div class="hint" id="tafage"></div>
     <label class="f"><span class="k">NOTAMs</span><textarea id="notam" rows="4">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
     <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>.</div>
   </section>
@@ -307,7 +308,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611040705';
+  var V = '202611040932';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -814,6 +815,14 @@ function update() {
   drawCG(r);
   crosswind();
   glance();
+  { const x = $('taf').value.toUpperCase().match(/TAF(?: AMD| COR)? LHBP (\d{2})(\d{2})(\d{2})Z/); const el = $('tafage');
+    if (!x) el.textContent = '';
+    else { const now = new Date(); let t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), +x[1], +x[2], +x[3]);
+      if (t > now.getTime() + 36e5) t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, +x[1], +x[2], +x[3]);
+      const age = Math.max(0, Math.round((now.getTime() - t) / 6e4));
+      const nextH = [5, 11, 17, 23].find(hh => hh * 60 + 15 > now.getUTCHours() * 60 + now.getUTCMinutes()) ?? 5;
+      el.className = 'hint' + (age > 7 * 60 ? ' stale' : '');
+      el.textContent = `TAF issued ${x[2]}:${x[3]} UTC, ${Math.floor(age / 60)} h ${age % 60} min ago. LHBP issues a new TAF about every 6 hours (next around ${String(nextH).padStart(2, '0')}:15 UTC).`; } }
   { const allOk = Object.values(checks).every(Boolean); const s = $('sum'); s.className = allOk ? 'ok' : 'bad'; s.textContent = allOk ? '✓ Within weight and CG limits' : '✕ Outside limits, check M&B'; }
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
