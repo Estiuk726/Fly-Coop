@@ -114,7 +114,7 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
 .xw .best { color: var(--ok); }
 .xw .warn { color: var(--bad); }
 .xw small { color: var(--muted); font-size: 12px; }
-.pv { position: fixed; inset: 0; z-index: 20; background: rgba(8, 12, 18, .94); display: flex; flex-direction: column;
+.pv { position: fixed; inset: 0; z-index: 20; background: #0b1017; display: flex; flex-direction: column;
   padding: calc(12px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
 .pv[hidden] { display: none; }
 .pv .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #fff; }
@@ -127,12 +127,20 @@ input[readonly] { color: var(--muted); background: transparent; border-style: da
   html, body { background: #fff !important; padding: 0 !important; margin: 0 !important; }
   body > *:not(#pv) { display: none !important; }
   #pv { position: static !important; display: block !important; background: #fff !important; padding: 0 !important; }
-  #pv .top, #pv .note { display: none !important; }
+  #pv .top, #pv .note, #pv .howto { display: none !important; }
+  body.only-1 #pv .pg:nth-of-type(2), body.only-2 #pv .pg:nth-of-type(1) { display: none !important; }
+  body.only-2 #pv .pg.rot180 { transform: rotate(180deg); }
   #pv .pages { display: block !important; overflow: visible !important; }
   #pv .pg { width: 297mm !important; height: 210mm !important; max-width: none !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always; break-after: page; }
-  #pv .pg:last-of-type { page-break-after: auto; break-after: auto; }
+  #pv .pg:last-of-type, body.only-1 #pv .pg, body.only-2 #pv .pg { page-break-after: auto; break-after: auto; }
 }
 .pv .note { color: #cfd6de; font-size: 13px; text-align: center; }
+.pv .howto { max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #e6ebf0; font-size: 14px; line-height: 1.45; background: rgba(255,255,255,.07); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; }
+.pv .rot { display: flex; align-items: center; gap: 8px; color: #cfd6de; font-size: 13px; }
+.pv .rot input { width: 20px; height: 20px; margin: 0; flex: none; }
+.pv .top .acts { flex-wrap: wrap; justify-content: flex-end; }
+.pv .top .acts .go, .pv .top .acts .ghost { height: 44px; padding: 0 14px; font-size: 15px; }
+.pv .pg.rot180 { transform: rotate(180deg); }
 .ghost { font: 600 15px var(--sans); background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.5); border-radius: var(--r); height: 44px; padding: 0 18px; cursor: pointer; }
 .ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .wxbtn:active { transform: none; } }
@@ -287,7 +295,12 @@ input[type=number] { -moz-appearance: textfield; }
 </div>
 
 <div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-label="PDF preview">
-  <div class="top"><b>Preview</b><div class="acts"><button type="button" class="ghost" id="pvback">Edit</button><button type="button" class="ghost" id="pvsave">Save PDF</button><button type="button" class="go" id="pvprint">Print</button></div></div>
+  <div class="top"><b>Preview</b><div class="acts"><button type="button" class="ghost" id="pvback">Edit</button><button type="button" class="ghost" id="pvsave">Save PDF</button><button type="button" class="go" id="pvp1">Print front</button><button type="button" class="go" id="pvp2">Print back</button></div></div>
+  <div class="howto" id="pvhow">
+    <div><b>Two-sided by hand:</b> 1. Tap <b>Print front</b>. 2. Put the printed sheet back in the tray, flipped over. 3. Tap <b>Print back</b>.</div>
+    <span id="pvst" style="color:#7fd3a0;font-weight:600"></span>
+    <label class="rot"><input type="checkbox" id="pvrot"> Back came out upside down? Tick this and print the back again.</label>
+  </div>
   <div class="pages" id="pvpages"></div>
 </div>
 
@@ -887,18 +900,30 @@ function savePending() {
   const st = $('status'); st.className = 'status okc'; st.textContent = `Saved ${pending.name}. Print double-sided, flip on short edge.`;
   pending = null; closePreview(); update();
 }
-function closePreview() { $('pv').hidden = true; $('pvpages').innerHTML = ''; document.body.style.overflow = ''; }
+function closePreview() { if ($('pvst')) $('pvst').textContent = ''; $('pv').hidden = true; $('pvpages').innerHTML = ''; document.body.style.overflow = ''; }
 $('pvsave').onclick = savePending;
-$('pvprint').onclick = () => {
-  document.body.classList.add('printing');
+let printedBack = false;
+function printPage(n) {
+  document.body.classList.remove('only-1', 'only-2');
+  document.body.classList.add('printing', 'only-' + n);
+  if (n === 2) printedBack = true;
   setTimeout(() => window.print(), 50);
-};
+}
+$('pvp1').onclick = () => printPage(1);
+$('pvp2').onclick = () => printPage(2);
+function applyRot() { const pg = $('pvpages').querySelectorAll('.pg')[1]; if (pg) pg.classList.toggle('rot180', $('pvrot').checked); }
+$('pvrot').addEventListener('change', () => { try { localStorage.setItem('c172rot', $('pvrot').checked ? '1' : '0'); } catch (e) {} applyRot(); });
+try { $('pvrot').checked = localStorage.getItem('c172rot') === '1'; } catch (e) {}
 window.addEventListener('afterprint', () => {
   if (!document.body.classList.contains('printing')) return;
-  document.body.classList.remove('printing');
-  $('pic').value = ''; $('stu').value = '';
-  const st = $('status'); st.className = 'status okc'; st.textContent = 'Sent to print.';
-  pending = null; closePreview(); update();
+  const wasBack = document.body.classList.contains('only-2');
+  document.body.classList.remove('printing', 'only-1', 'only-2');
+  const st = $('status'); st.className = 'status okc';
+  if (wasBack) {
+    $('pic').value = ''; $('stu').value = '';
+    st.textContent = 'Front and back printed.';
+    pending = null; printedBack = false; closePreview(); update();
+  } else { st.textContent = 'Front printed.'; $('pvst').textContent = '✓ Front printed. Now flip the sheet into the tray and tap Print back.'; }
 });
 $('pvback').onclick = () => { pending = null; closePreview(); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('pv').hidden) $('pvback').click(); });
@@ -927,8 +952,9 @@ $('make').onclick = async () => {
       const img = new Image(); img.src = cv.toDataURL('image/png'); img.alt = `Page ${i}`; img.className = 'pg';
       box.appendChild(img);
     }
+    applyRot();
     const note = document.createElement('p'); note.className = 'note';
-    note.textContent = 'Page 1 front, page 2 back. Tap Print, then choose two-sided (flip on short edge) in the print options.';
+    note.textContent = 'Page 1 is the front, page 2 is the back.';
     box.appendChild(note);
     st.textContent = '';
   } catch (e) {
