@@ -252,7 +252,7 @@ input[type=number] { -moz-appearance: textfield; }
 
   <section id="s3">
     <div class="sh"><h2><span class="n">3</span>Fuel</h2><span class="chip" id="tot"></span></div>
-    <div class="sub2">Fuel table (navlog)</div>
+    <div class="sub2">Fuel table (navlog), US gal · 1 US gal = 3.8 l</div>
     <div class="grid">
       <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" value="2"></span></label>
       <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" value="15"></span></label>
@@ -314,7 +314,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611051508';
+  var V = '202611051510';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -768,6 +768,8 @@ function crosswind() {
 }
 
 // fuel endurance: fuel on board minus taxi and the 4 gal reserve, at the briefing pack burn rate
+const L_PER_GAL = 3.8; // FlyCoop: 1 US gal = 3.785 l, rounded to 3.8 l
+const lit = g => `${(g * L_PER_GAL).toFixed(1)} l`;
 function fuelCheck(d) {
   const rate = d.type === 'local' ? 5 : 4.5, hrs = d.hours + d.minutes / 60, burn = rate * hrs;
   const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
@@ -784,7 +786,7 @@ function glance() {
   const fl = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), cm = Math.min(r.tow.arm - fl(r.tow.w), 47.3 - r.tow.arm);
   set('g-cg', r.tow.arm.toFixed(2) + ' in', cm >= 0 ? `${cm.toFixed(2)} in inside limits` : 'Outside CG range', !(checks.tow && checks.ldw && checks.zfw));
   const fc = fuelCheck(d), left = fc.left;
-  set('g-fuel', `${+left.toFixed(1)} gal`, fc.empty ? 'NOT ENOUGH FUEL' : fc.over ? `Below reserve · max ${fc.endTxt}` : `Max flight ${fc.endTxt}`, fc.over);
+  set('g-fuel', `${+left.toFixed(1)} gal · ${(left * L_PER_GAL).toFixed(0)} l`, fc.empty ? 'NOT ENOUGH FUEL' : fc.over ? `Below reserve · max ${fc.endTxt}` : `Max flight ${fc.endTxt}`, fc.over);
   const m = $('metar').value.toUpperCase().match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT\b/);
   if (!m) set('g-wx', 'No METAR', 'Get weather in step 2', false, true);
   else if (m[1] === 'VRB') set('g-wx', `VRB ${+m[2]} kt`, 'Any runway', false, true);
@@ -806,17 +808,17 @@ function update() {
   const d = data();
   const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
   $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
-  $('tot').textContent = `Total ${+tot.toFixed(2)} gal · ${(tot * 6.71).toFixed(1)} lbs`;
+  $('tot').textContent = `Total ${+tot.toFixed(2)} gal · ${lit(tot)} · ${(tot * 6.71).toFixed(1)} lbs`;
   const rate = type === 'local' ? 5 : 4.5, hrsDec = d.hours + d.minutes / 60, g = rate * hrsDec;
   const fc = fuelCheck(d), avail = tot, left = fc.left;
   const warn = fc.empty
     ? `<div class="fwarn">⚠ Not enough fuel. ${+tot.toFixed(1)} gal on board runs out before ${d.hours} h ${d.minutes} min. Max flight time with the 4 gal reserve: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>`
     : fc.over ? `<div class="fwarn">⚠ Flight time is longer than your fuel allows. You would land with ${+left.toFixed(2)} gal, below the 4 gal reserve. Max flight time: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>` : '';
   $('burn').innerHTML = warn +
-    `<div><span>On board</span><b>${+tot.toFixed(2)} gal at engine start</b></div>` +
+    `<div><span>On board</span><b>${+tot.toFixed(2)} gal (${lit(tot)}) at engine start</b></div>` +
     `<div><span>Available</span><b>${+avail.toFixed(2)} gal × 6.71 = ${(Math.max(0, avail) * 6.71).toFixed(1)} lbs (usable fuel on M&amp;B)</b></div>` +
-    `<div><span>My trip</span><b>${rate} gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} gal = ${(g * 6.71).toFixed(1)} lbs</b></div>` +
-    `<div><span>At landing</span><b class="${fc.over ? 'warnc' : ''}">${+left.toFixed(2)} gal left (after ${+d.fuel.taxi.toFixed(1)} gal taxi)${fc.over ? ' · below 4 gal reserve' : ''}</b></div>` +
+    `<div><span>My trip</span><b>${rate} gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} gal (${lit(g)}) = ${(g * 6.71).toFixed(1)} lbs</b></div>` +
+    `<div><span>At landing</span><b class="${fc.over ? 'warnc' : ''}">${+left.toFixed(2)} gal (${lit(left)}) left (after ${+d.fuel.taxi.toFixed(1)} gal taxi)${fc.over ? ' · below 4 gal reserve' : ''}</b></div>` +
     `<div><span>Max flight</span><b>${fc.endTxt} with 4 gal reserve</b></div>`;
   const { r, checks } = SHEET.compute(d);
   const fwdLim = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), AFT = 47.3;
