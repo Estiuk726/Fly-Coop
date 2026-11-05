@@ -67,6 +67,8 @@ input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
 .calc span { color: var(--muted); font-size: 13px; }
 .calc b { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
 .calc .warnc { color: var(--bad); }
+.fwarn { display: block !important; background: color-mix(in srgb, var(--bad) 14%, transparent); border: 1px solid var(--bad); color: var(--bad); border-radius: 8px; padding: 10px 12px; font-weight: 600; font-size: 14px; line-height: 1.4; }
+.fwarn b { color: inherit; }
 .wxrow { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; padding: 4px 0; }
 .wxbtn { font: 600 15px var(--sans); background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--r); height: var(--h); padding: 0 20px; cursor: pointer;
   -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
@@ -312,7 +314,7 @@ input[type=number] { -moz-appearance: textfield; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611041005';
+  var V = '202611051508';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -765,6 +767,15 @@ function crosswind() {
   box.innerHTML = html;
 }
 
+// fuel endurance: fuel on board minus taxi and the 4 gal reserve, at the briefing pack burn rate
+function fuelCheck(d) {
+  const rate = d.type === 'local' ? 5 : 4.5, hrs = d.hours + d.minutes / 60, burn = rate * hrs;
+  const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
+  const left = tot - d.fuel.taxi - burn;
+  const endMin = Math.max(0, Math.floor((tot - d.fuel.taxi - 4) / rate * 60));
+  const fmt = mm => `${Math.floor(mm / 60)} h ${String(mm % 60).padStart(2, '0')} min`;
+  return { rate, hrs, burn, tot, left, endMin, endTxt: fmt(endMin), over: left < 4, empty: left < 0 };
+}
 function glance() {
   const d = data(); const { r, checks } = SHEET.compute(d);
   const set = (id, v, s, warn, info) => { const t = $(id); if (id === 'g-wx') t.querySelector('.l').textContent = 'Wind / RWY'; t.className = 'tile' + (warn ? ' warn' : info ? ' info' : ''); t.querySelector('.v').textContent = v; t.querySelector('.s').textContent = s; };
@@ -772,8 +783,8 @@ function glance() {
   set('g-tow', `${r.tow.w.toFixed(0)} lbs`, tm >= 0 ? `${tm.toFixed(0)} under max` : `${(-tm).toFixed(0)} OVER max`, !checks.tow);
   const fl = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), cm = Math.min(r.tow.arm - fl(r.tow.w), 47.3 - r.tow.arm);
   set('g-cg', r.tow.arm.toFixed(2) + ' in', cm >= 0 ? `${cm.toFixed(2)} in inside limits` : 'Outside CG range', !(checks.tow && checks.ldw && checks.zfw));
-  const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra, burn = (type === 'local' ? 5 : 4.5) * (d.hours + d.minutes / 60), left = tot - burn;
-  set('g-fuel', `${+left.toFixed(1)} gal`, left < 4 ? 'Below 4 gal reserve' : `${+tot.toFixed(1)} on board − ${+burn.toFixed(2)}`, left < 4);
+  const fc = fuelCheck(d), left = fc.left;
+  set('g-fuel', `${+left.toFixed(1)} gal`, fc.empty ? 'NOT ENOUGH FUEL' : fc.over ? `Below reserve · max ${fc.endTxt}` : `Max flight ${fc.endTxt}`, fc.over);
   const m = $('metar').value.toUpperCase().match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT\b/);
   if (!m) set('g-wx', 'No METAR', 'Get weather in step 2', false, true);
   else if (m[1] === 'VRB') set('g-wx', `VRB ${+m[2]} kt`, 'Any runway', false, true);
@@ -797,13 +808,16 @@ function update() {
   $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
   $('tot').textContent = `Total ${+tot.toFixed(2)} gal · ${(tot * 6.71).toFixed(1)} lbs`;
   const rate = type === 'local' ? 5 : 4.5, hrsDec = d.hours + d.minutes / 60, g = rate * hrsDec;
-  const avail = tot, left = avail - g;
-  const bad = avail < 0 || left < 4;
-  $('burn').innerHTML =
+  const fc = fuelCheck(d), avail = tot, left = fc.left;
+  const warn = fc.empty
+    ? `<div class="fwarn">⚠ Not enough fuel. ${+tot.toFixed(1)} gal on board runs out before ${d.hours} h ${d.minutes} min. Max flight time with the 4 gal reserve: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>`
+    : fc.over ? `<div class="fwarn">⚠ Flight time is longer than your fuel allows. You would land with ${+left.toFixed(2)} gal, below the 4 gal reserve. Max flight time: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>` : '';
+  $('burn').innerHTML = warn +
     `<div><span>On board</span><b>${+tot.toFixed(2)} gal at engine start</b></div>` +
     `<div><span>Available</span><b>${+avail.toFixed(2)} gal × 6.71 = ${(Math.max(0, avail) * 6.71).toFixed(1)} lbs (usable fuel on M&amp;B)</b></div>` +
     `<div><span>My trip</span><b>${rate} gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} gal = ${(g * 6.71).toFixed(1)} lbs</b></div>` +
-    `<div><span>At landing</span><b class="${bad ? 'warnc' : ''}">${+left.toFixed(2)} gal left${left < 4 ? ' · below 4 gal reserve' : ''}</b></div>`;
+    `<div><span>At landing</span><b class="${fc.over ? 'warnc' : ''}">${+left.toFixed(2)} gal left (after ${+d.fuel.taxi.toFixed(1)} gal taxi)${fc.over ? ' · below 4 gal reserve' : ''}</b></div>` +
+    `<div><span>Max flight</span><b>${fc.endTxt} with 4 gal reserve</b></div>`;
   const { r, checks } = SHEET.compute(d);
   const fwdLim = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), AFT = 47.3;
   const rows = [['Zero fuel', r.zfw, checks.zfw, null], ['Ramp', r.ramp, checks.ramp, 2302], ['Take-off', r.tow, checks.tow, 2300], ['Landing', r.ldw, checks.ldw, 2300]];
@@ -827,7 +841,7 @@ function update() {
       const nextH = [5, 11, 17, 23].find(hh => hh * 60 + 15 > now.getUTCHours() * 60 + now.getUTCMinutes()) ?? 5;
       el.className = 'hint' + (age > 7 * 60 ? ' stale' : '');
       el.textContent = `TAF issued ${x[2]}:${x[3]} UTC, ${Math.floor(age / 60)} h ${age % 60} min ago. LHBP issues a new TAF about every 6 hours (next around ${String(nextH).padStart(2, '0')}:15 UTC).`; } }
-  { const allOk = Object.values(checks).every(Boolean); const s = $('sum'); s.className = allOk ? 'ok' : 'bad'; s.textContent = allOk ? '✓ Within weight and CG limits' : '✕ Outside limits, check M&B'; }
+  { const allOk = Object.values(checks).every(Boolean); const s = $('sum'); const fc = fuelCheck(data()); s.className = allOk && !fc.over ? 'ok' : 'bad'; s.textContent = !allOk ? '✕ Outside limits, check M&B' : fc.over ? `✕ Not enough fuel · max ${fc.endTxt}` : '✓ Within weight, CG and fuel limits'; }
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
 setAsi(asi); setType(type);
