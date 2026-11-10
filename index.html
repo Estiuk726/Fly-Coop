@@ -6,278 +6,267 @@
 <title>FlyCoop C172 Flight Sheet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Narrow:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='20 20 720 440'%3E%3Crect x='20' y='20' width='720' height='440' rx='60' fill='#0b1f3a'/%3E%3Cg fill='none' stroke-width='34' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='118,80 135,42 595,40 645,135 625,162' stroke='#c9d4e3'/%3E%3Cpath d='M40 145 C110 100 220 120 360 170' stroke='#deb246'/%3E%3Cpolyline points='300,212 490,92 502,104 400,225' stroke='#deb246'/%3E%3Cpolyline points='440,190 580,238 665,188 720,200' stroke='#e6965f'/%3E%3Cpolyline points='258,338 358,440 462,335' stroke='#c9d4e3'/%3E%3C/g%3E%3C/svg%3E">
 <style>
-/* Cockpit Command: navy instrument header over a bright working surface (dark panel at night).
-   Cyan = live values and inputs, blue = primary action, green / amber / red = within limits / caution / out of limits. */
+/* Flight Strip: FlyCoop grey / gold / orange on white, one type family, rules instead of cards.
+   Colour only where it means something: green within limits, amber to complete, red out of limits. */
 :root {
-  --bg: #eef2f7; --card: #ffffff; --paper: #ffffff; --ink: #0b1f3a; --fg: #0b1f3a; --muted: #4f617a; --line: #d3dce8;
-  --field: #ffffff; --fline: #b9c6d8; --soft: #f5f8fc;
-  --navy: #0b1f3a; --navy2: #102a4c; --nline: #1f3a60; --ntext: #ffffff; --nmuted: #9fb6d4;
-  --cyan: #33c3db; --cyan-t: #065c6e; --cyan-bg: #e2f3f7;
-  --blue: #1757c2; --blue-h: #0f469f; --on-blue: #ffffff; --blue-bg: #eaf1fd;
-  --sel: #0b1f3a; --ok: #11663f; --ok-bg: #e3f4ea; --warn: #7a4b00; --warn-bg: #fdf0d6; --warn-l: #c98a00; --bad: #b42318; --bad-bg: #fde8e7;
-  --head: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
-  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --h: 46px; --r: 6px;
+  --bg: #ffffff; --card: #ffffff; --paper: #ffffff; --ink: #15191f; --fg: #15191f; --ink2: #2b313b; --muted: #5b6472; --line: #e1e4e9; --line2: #eceef2;
+  --field: #ffffff; --fline: #c9ced6; --soft: #f4f5f7;
+  --gold: #c8962e; --gold-btn: #d3a43a; --strip: #fbf4e1; --strip-l: #e6d6a8; --strip-t: #5b5236; --orange: #e08a52; --logo-g: #7a7f87;
+  --ok: #1a7f45; --warn: #9a5b00; --warn-l: #d79a2b; --bad: #c0282d; --bad-bg: #fdecec;
+  --bar: #15191f; --bar-ok: #7fd6a4; --bar-warn: #e8c46a; --bar-bad: #ff9b9b;
+  --sans: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --narrow: "Archivo Narrow", "Archivo", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --h: 46px; --r: 4px;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #060d18; --card: #0b1626; --paper: #0b1626; --ink: #e8f0fa; --fg: #e8f0fa; --muted: #8ea3bf; --line: #1c2e48;
-  --field: #060d18; --fline: #2a4064; --soft: #0f1e33;
-  --navy: #08182c; --navy2: #0d2140; --nline: #1c2e48;
-  --sel: #1d4f9e; --cyan-t: #3fd7ea; --cyan-bg: #0b2a33; --blue: #2f7de1; --blue-h: #4a8ff0; --blue-bg: #0f2347;
-  --ok: #4be0a8; --ok-bg: #0f2e26; --warn: #f7c25a; --warn-bg: #33260a; --warn-l: #f7c25a; --bad: #ff8a8a; --bad-bg: #3a1215; color-scheme: dark } }
+  --bg: #111418; --card: #111418; --paper: #111418; --ink: #eef0f3; --fg: #eef0f3; --ink2: #d3d7de; --muted: #9aa3b0; --line: #262b33; --line2: #20252c;
+  --field: #171b21; --fline: #353c47; --soft: #1a1f26;
+  --strip: #2a2412; --strip-l: #4a3f1c; --strip-t: #d8c690; --logo-g: #b9c0ca;
+  --ok: #5fd08f; --warn: #f0b955; --warn-l: #f0b955; --bad: #ff8080; --bad-bg: #3a1618; --bar: #0a0c0f; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #060d18; --card: #0b1626; --paper: #0b1626; --ink: #e8f0fa; --fg: #e8f0fa; --muted: #8ea3bf; --line: #1c2e48;
-  --field: #060d18; --fline: #2a4064; --soft: #0f1e33;
-  --navy: #08182c; --navy2: #0d2140; --nline: #1c2e48;
-  --sel: #1d4f9e; --cyan-t: #3fd7ea; --cyan-bg: #0b2a33; --blue: #2f7de1; --blue-h: #4a8ff0; --blue-bg: #0f2347;
-  --ok: #4be0a8; --ok-bg: #0f2e26; --warn: #f7c25a; --warn-bg: #33260a; --warn-l: #f7c25a; --bad: #ff8a8a; --bad-bg: #3a1215; color-scheme: dark }
+  --bg: #111418; --card: #111418; --paper: #111418; --ink: #eef0f3; --fg: #eef0f3; --ink2: #d3d7de; --muted: #9aa3b0; --line: #262b33; --line2: #20252c;
+  --field: #171b21; --fline: #353c47; --soft: #1a1f26;
+  --strip: #2a2412; --strip-l: #4a3f1c; --strip-t: #d8c690; --logo-g: #b9c0ca;
+  --ok: #5fd08f; --warn: #f0b955; --warn-l: #f0b955; --bad: #ff8080; --bad-bg: #3a1618; --bar: #0a0c0f; color-scheme: dark }
 * { box-sizing: border-box; }
-html { scroll-padding-top: 64px; }
-body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
-.mono, .tile .v, #tot, .calc b, table, .xw b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 var(--sans); -webkit-font-smoothing: antialiased; font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--mono); }
+.box { max-width: 1200px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
 
-/* ---------- Instrument header ---------- */
-.cmd { background: var(--navy); color: var(--ntext);
-  padding: calc(18px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 22px max(16px, env(safe-area-inset-left, 0px)); }
-.cmd .in { max-width: 1240px; margin: 0 auto; display: grid; gap: 18px; }
-.brand { display: flex; align-items: center; gap: 12px; }
-.brand .mark { width: 118px; height: 72px; flex: none; }
-.brand .org { color: #deb246; font-weight: 700; }
-.brand .wm { border-left: 1px solid var(--nline); padding-left: 14px; }
-.brand .wm { display: grid; gap: 1px; min-width: 0; flex: 1; }
-.brand h1 { margin: 0; font: 700 22px/1.1 var(--head); letter-spacing: -.01em; }
-.brand .sl { font: 500 12px var(--mono); color: var(--nmuted); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tail { margin-left: auto; display: flex; align-items: center; gap: 10px; flex: none; }
-.reg { font: 600 15px var(--mono); letter-spacing: .04em; color: var(--navy); background: #ffffff; border-radius: 4px; padding: 5px 10px; position: relative; }
-.reg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #deb246; border-radius: 4px 0 0 4px; }
-.reg { padding-left: 14px; }
-.fcat { font: 700 13px var(--mono); letter-spacing: .06em; padding: 5px 10px; border-radius: 4px; color: #ffffff; white-space: nowrap; }
+/* Top bar */
+.top0 { border-bottom: 1px solid var(--line); padding-top: env(safe-area-inset-top, 0px); }
+.top0 .box { display: flex; align-items: center; gap: 16px; padding-top: 14px; padding-bottom: 14px; }
+.logo { width: 84px; height: 52px; flex: none; }
+.logo .lg { stroke: var(--logo-g); } .logo .lgo { stroke: var(--gold-btn); } .logo .lor { stroke: var(--orange); } .logo text { fill: var(--logo-g); }
+.ttl { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.ttl b { font-size: 17px; font-weight: 700; }
+.ttl span { font-size: 13px; color: var(--muted); }
+#clock { font-size: 14px; color: var(--muted); white-space: nowrap; }
+
+/* Flight strip */
+.strip { display: grid; grid-template-columns: 14px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr);
+  background: var(--strip); border: 1px solid var(--strip-l); border-radius: var(--r); overflow: hidden; margin-top: 28px; }
+.strip > div { padding: 15px 18px; display: flex; flex-direction: column; justify-content: center; gap: 4px; border-right: 1px solid var(--strip-l); min-width: 0; }
+.strip > div:last-child { border-right: 0; }
+.strip > .hold { background: var(--gold); padding: 0; border: 0; }
+.strip .cs { font: 800 34px/1 var(--sans); letter-spacing: .01em; color: var(--ink); }
+.strip .big { font: 700 21px/1.2 var(--sans); }
+.strip .t { font-size: 14px; color: var(--strip-t); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.strip .crew { font-size: 15px; display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 6px; row-gap: 4px; align-items: baseline; }
+.strip .crew span { color: var(--strip-t); font-size: 13px; }
+.strip .crew b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.strip .crew a { color: var(--warn); font-weight: 600; }
+.strip .wxl { display: flex; align-items: center; gap: 8px; font-weight: 600; flex-wrap: wrap; }
+#sverd { font: 700 19px/1.2 var(--sans); }
+#sverd.ok { color: var(--ok); } #sverd.bad { color: var(--bad); } #sverd.warn { color: var(--warn); }
+#sverd2 { font-size: 14px; color: var(--warn); }
+#sverd2.ok { color: var(--strip-t); }
+.fcat { font: 700 13px var(--sans); color: #ffffff; padding: 2px 8px; border-radius: 3px; letter-spacing: .02em; }
 .fcat[hidden] { display: none; }
-.fcat.VFR { background: #15803d; } .fcat.MVFR { background: #1d5fd1; } .fcat.IFR { background: #c42b2b; } .fcat.LIFR { background: #a3229b; }
-.sh .fcat { font-size: 12px; padding: 4px 9px; }
-.glance { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-.tile { border: 1px solid var(--nline); background: var(--navy2); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 96px minmax(0, 1fr); grid-template-rows: auto auto auto; column-gap: 12px; align-items: center; min-width: 0; }
-.tile svg { grid-row: 1 / 4; width: 96px; height: 58px; overflow: visible; }
-.tile .l { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--nmuted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile .v { font-size: 22px; font-weight: 600; color: #ffffff; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile .s { font: 500 12px var(--sans); color: var(--nmuted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile.warn { border-color: #e5484d; }
-.tile.warn .s { color: #ff9b9b; font-weight: 600; }
-.g-track { fill: none; stroke: var(--nline); stroke-width: 12; }
-.g-red { fill: none; stroke: #e5484d; stroke-width: 12; }
-.g-amb { fill: none; stroke: #f0b429; stroke-width: 12; }
-.g-val { fill: none; stroke: var(--cyan); stroke-width: 12; }
-.g-val.over { stroke: #e5484d; }
-.g-ndl { stroke: var(--cyan); stroke-width: 5; stroke-linecap: round; }
-.g-hub { fill: var(--cyan); }
-@media (max-width: 1000px) { .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.fcat.VFR { background: #1a7f45; } .fcat.MVFR { background: #1f5fbf; } .fcat.IFR { background: #c0282d; } .fcat.LIFR { background: #9b1f93; }
+@media (max-width: 900px) {
+  .strip { grid-template-columns: 10px repeat(2, minmax(0, 1fr)); }
+  .strip > .hold { grid-row: 1 / 4; }
+  .strip > div { border-bottom: 1px solid var(--strip-l); }
+  .strip > div:nth-child(3), .strip > div:nth-child(5) { border-right: 0; }
+  .strip > div:nth-child(6) { grid-column: 2 / 4; border-bottom: 0; border-right: 0; flex-direction: row; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .strip .cs { font-size: 28px; }
+}
+
 @media (max-width: 560px) {
-  .glance { gap: 8px; }
-  .tile { grid-template-columns: 1fr; padding: 10px; justify-items: start; row-gap: 2px; }
-  .tile svg { grid-row: auto; width: 76px; height: 44px; }
-  .tile .v { font-size: 18px; }
-  .brand h1 { font-size: 18px; } .brand .mark { width: 72px; height: 44px; } .brand .wm { padding-left: 10px; } .brand .org { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; } .cmd { padding-bottom: 16px; } .cmd .in { gap: 14px; }
-  .tail .reg { font-size: 13px; } .tail { flex-direction: column; align-items: flex-end; gap: 6px; } .tail .fcat { font-size: 12px; padding: 3px 8px; }
+  .strip > div { padding: 12px 14px; }
+  .strip > div:nth-child(4) { grid-column: 2 / 4; border-right: 0; }
+  .strip > div:nth-child(5) { border-right: 1px solid var(--strip-l); border-bottom: 0; }
+  .strip > div:nth-child(6) { grid-column: auto; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .strip .big { font-size: 18px; } .strip .t { white-space: normal; }
+  .strip { margin-top: 18px; }
+  #sverd { font-size: 17px; }
+  .top0 .box { gap: 12px; padding-top: 10px; padding-bottom: 10px; }
+  .logo { width: 64px; height: 40px; }
+  .ttl span, #clock .cd { display: none; }
+  .ttl b { font-size: 16px; }
+}
+/* Key figures */
+.glance { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 26px 0 8px; }
+.tile { display: flex; flex-direction: column; gap: 2px; padding: 0 20px; border-left: 1px solid var(--line); min-width: 0; }
+.tile:first-child { padding-left: 0; border-left: 0; }
+.tile .l { font: 500 14px var(--narrow); color: var(--muted); }
+.tile .v { font: 600 32px/1.15 var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .s { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile.warn .v, .tile.warn .s { color: var(--bad); }
+@media (max-width: 700px) {
+  .glance { grid-template-columns: 1fr; margin-top: 14px; }
+  .tile, .tile:first-child { flex-direction: row; justify-content: space-between; align-items: baseline; flex-wrap: wrap; column-gap: 10px; padding: 9px 0; border-left: 0; border-bottom: 1px solid var(--line2); }
+  .tile:last-child { border-bottom: 0; }
+  .tile .l { font: 400 15px var(--sans); flex: 1; }
+  .tile .v { font-size: 16px; font-weight: 700; }
+  .tile .s { width: 100%; text-align: right; }
 }
 
-/* ---------- Section jump bar (one page) ---------- */
-.steps { position: sticky; top: 0; z-index: 6; background: var(--navy); border-top: 1px solid var(--nline);
-  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
-  padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); }
-.steps::-webkit-scrollbar { display: none; }
-.steps .in2 { max-width: 1240px; margin: 0 auto; display: flex; gap: 6px; width: 100%; }
-.steps a { flex: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #dbe6f4; font: 500 14px var(--sans);
-  padding: 7px 12px; border-radius: 6px; border: 1px solid transparent; }
-.steps a:hover { background: var(--navy2); }
-.steps a i { font-style: normal; width: 9px; height: 9px; border-radius: 50%; background: #4b6488; font-size: 0; overflow: hidden; }
-.steps a.done i { background: #4be0a8; }
-.steps a.todo { color: #ffd27a; border-color: #5a4512; }
-.steps a.todo i { background: #f0b429; }
-.steps a.bad { color: #ffb3b3; border-color: #6b2a30; }
-.steps a.bad i { background: #e5484d; }
+/* Sections as rows */
+.wrap { padding-bottom: 24px; }
+section { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 40px; padding: 34px 0; border-top: 1px solid var(--line); scroll-margin-top: 12px; }
+.rl { display: flex; flex-direction: column; gap: 6px; }
+.rl h2 { margin: 0; font: 600 16px var(--sans); color: var(--ink); }
+.rl p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.45; }
+.rl .chip { font-size: 13px; color: var(--muted); }
+.ct { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+@media (max-width: 760px) { section { grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 26px 0; } .rl h2 { font-size: 19px; font-weight: 700; } }
+.sub2 { font: 600 15px var(--sans); color: var(--ink); }
+.sub2 span { font-weight: 400; color: var(--muted); }
 
-/* ---------- Page body ---------- */
-.wrap { max-width: 1240px; margin: 0 auto; padding: 22px max(16px, env(safe-area-inset-right, 0px)) 28px max(16px, env(safe-area-inset-left, 0px));
-  display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 1080px) {
-  .wrap { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-areas: "s1 s4" "s2 s4" "s3 s5"; align-items: start; }
-  #s1 { grid-area: s1; } #s2 { grid-area: s2; } #s3 { grid-area: s3; } #s4 { grid-area: s4; } #s5 { grid-area: s5; }
-}
-section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 16px; min-width: 0; scroll-margin-top: 64px; }
-.sh { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-.sh h2 { margin: 0; display: flex; align-items: center; gap: 12px; font: 600 21px var(--head); letter-spacing: -.01em; color: var(--ink); }
-.sh h2 .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--sel); color: #ffffff; font: 600 13px var(--mono); flex: none; }
-.chip { font: 500 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.sub2 { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
-.sub2.sep { border-top: 1px solid var(--line); padding-top: 16px; }
-.tag { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--mono); padding: 4px 9px; border-radius: 4px; white-space: nowrap; }
-.tag.ok { background: var(--ok-bg); color: var(--ok); } .tag.warn { background: var(--warn-bg); color: var(--warn); } .tag.bad { background: var(--bad-bg); color: var(--bad); } .tag.info { background: var(--cyan-bg); color: var(--cyan-t); }
-.tag:empty { display: none; }
-@media (max-width: 560px) { section { padding: 16px 14px; border-radius: 10px; } .sh h2 { font-size: 19px; } }
-
-/* ---------- Fields ---------- */
+/* Fields */
 .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 12px; align-items: end; }
 .span2 { grid-column: span 2; } .full { grid-column: 1 / -1; }
-.crew { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 14px 12px; align-items: end; }
-@media (max-width: 560px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .crew { grid-template-columns: minmax(0, 1fr) 92px; } }
-.f { display: grid; gap: 6px; min-width: 0; }
-.f > .k { font: 600 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-input, select, textarea { font: 500 16px var(--sans); color: var(--ink); background: var(--field); border: 1.5px solid var(--fline);
-  border-radius: var(--r); padding: 0 12px; width: 100%; min-width: 0; margin: 0; transition: border-color .12s, box-shadow .12s; }
-input[type="number"], input[type="date"], #dep, #dest, #flaps, select { font-family: var(--mono); }
+.crew2 { display: grid; grid-template-columns: minmax(0, 1fr) 100px minmax(0, 1fr) 100px; gap: 14px 12px; align-items: end; }
+@media (max-width: 760px) { .crew2 { grid-template-columns: minmax(0, 1fr) 88px; } }
+@media (max-width: 560px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .grid.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; } }
+.f { display: grid; gap: 5px; min-width: 0; }
+.f > .k { font: 500 13px var(--narrow); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+input, select, textarea { font: 500 16px var(--sans); color: var(--ink); background: var(--field); border: 1px solid var(--fline);
+  border-radius: var(--r); padding: 0 12px; width: 100%; min-width: 0; margin: 0; font-variant-numeric: tabular-nums; transition: border-color .12s; }
 input, select { height: var(--h); line-height: normal; }
 input[type="date"] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
 input[type="date"]::-webkit-date-and-time-value { text-align: left; }
 select { -webkit-appearance: none; appearance: none; padding-right: 34px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237d8ea6' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237d8590' stroke-width='1.6'/%3E%3C/svg%3E");
   background-position: calc(100% - 13px) 50%; background-repeat: no-repeat; }
-textarea { padding: 11px 12px; resize: vertical; font: 400 13px/1.55 var(--mono); }
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 22%, transparent); }
-input::placeholder, textarea::placeholder { color: var(--muted); opacity: .75; }
-input[readonly] { color: var(--muted); background: var(--soft); border-style: dashed; }
-.need { border-color: var(--warn-l) !important; background: var(--warn-bg) !important; }
-input.bad { border-color: var(--bad) !important; background: var(--bad-bg) !important; }
+textarea { padding: 10px 12px; resize: vertical; font: 400 13px/1.6 var(--mono); }
+#exercise { font: 500 16px/1.5 var(--sans); }
+input:hover, select:hover, textarea:hover { border-color: var(--muted); }
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--gold); outline-offset: -1px; border-color: var(--gold); }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .7; }
+input[readonly] { color: var(--muted); background: var(--soft); border-color: var(--soft); }
+.need { border-color: var(--warn-l) !important; border-width: 2px !important; }
+input.bad { border-color: var(--bad) !important; border-width: 2px !important; color: var(--bad); }
 .u { position: relative; display: block; }
-.u input { padding-right: 46px; font-variant-numeric: tabular-nums; }
-.u::after { content: attr(data-unit); position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font: 500 12px var(--mono); color: var(--muted); pointer-events: none; }
+.u input { padding-right: 44px; }
+.u::after { content: attr(data-unit); position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--muted); pointer-events: none; }
 input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
-.seg { display: flex; height: var(--h); border: 1.5px solid var(--fline); border-radius: var(--r); overflow: hidden; background: var(--field); }
-.seg button { flex: 1; font: 600 14px var(--sans); background: transparent; color: var(--muted); border: 0; cursor: pointer; padding: 0 8px; white-space: nowrap; }
-.seg button + button { border-left: 1.5px solid var(--fline); }
-.seg button[aria-pressed="true"] { background: var(--sel); color: #ffffff; }
-.seg button:focus-visible { outline: 2px solid var(--blue); outline-offset: -3px; }
+
+/* Text options (underline = selected) */
+.opts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 20px; }
+.opts .sep { color: var(--fline); }
+.seg { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+.seg button, .qbtn { background: none; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 8px 0 4px; min-height: 40px;
+  font: 500 15px var(--sans); color: var(--muted); cursor: pointer; white-space: nowrap; }
+.seg button:hover, .qbtn:hover { color: var(--ink); }
+.seg button[aria-pressed="true"], .qbtn[aria-pressed="true"] { color: var(--ink); border-bottom-color: var(--gold); font-weight: 600; }
+.seg button:focus-visible, .qbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.quick { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.inline { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 24px; font-size: 15px; color: var(--muted); }
+.inline b { color: var(--ink); font-weight: 600; }
+
 .hint { font-size: 13px; color: var(--muted); line-height: 1.45; }
-.hint a { color: var(--blue); }
+.hint a, a { color: var(--ink); text-underline-offset: 3px; }
 .hint.stale { color: var(--warn); font-weight: 600; }
-.vmsg { display: grid; gap: 6px; }
+.vmsg { display: grid; gap: 4px; }
 .vmsg:empty { display: none; }
-.vmsg div { font-size: 13px; line-height: 1.4; padding: 8px 12px; border-radius: 6px; }
-.vmsg .e { background: var(--bad-bg); color: var(--bad); font-weight: 500; }
-.vmsg .w { background: var(--warn-bg); color: var(--warn); font-weight: 500; }
+.vmsg div { font-size: 14px; line-height: 1.45; }
+.vmsg .e { color: var(--bad); font-weight: 600; }
+.vmsg .w { color: var(--warn); font-weight: 500; }
 
-/* ---------- Buttons ---------- */
-.quick { display: flex; flex-wrap: wrap; gap: 8px; }
-.qbtn { font: 500 14px var(--mono); color: var(--ink); background: var(--field); border: 1.5px solid var(--fline); border-radius: var(--r); height: 40px; padding: 0 14px; cursor: pointer; }
-.qbtn:hover { border-color: var(--blue); }
-.qbtn[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); font-weight: 600; }
-.qbtn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.wxrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
-.wxbtn { font: 600 14px var(--sans); background: var(--field); color: var(--blue); border: 1.5px solid var(--blue); border-radius: var(--r); height: 42px; padding: 0 16px; cursor: pointer;
-  -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-.wxbtn:hover { background: var(--blue-bg); }
-.wxbtn:disabled { opacity: .55; cursor: default; }
-.wxbtn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
-.go { font: 600 16px var(--sans); background: var(--blue); color: var(--on-blue); border: 0; border-radius: 8px; height: 50px; padding: 0 26px; cursor: pointer; white-space: nowrap; }
-.go:hover { background: var(--blue-h); }
+/* Buttons */
+.linkbtn { background: none; border: 0; padding: 4px 0; font: 600 15px var(--sans); color: var(--ink); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.linkbtn:disabled { color: var(--muted); cursor: default; }
+.linkbtn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.go { font: 700 15px var(--sans); background: var(--gold-btn); color: #15191f; border: 0; border-radius: var(--r); height: 48px; padding: 0 24px; cursor: pointer; white-space: nowrap; }
+.go:hover { background: #e0b44c; }
 .go:disabled { opacity: .5; cursor: default; }
-.go:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.go:focus-visible { outline: 2px solid #ffffff; outline-offset: 2px; }
 .link { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; user-select: none; }
-.link input { width: 20px; height: 20px; margin: 0; accent-color: var(--blue); flex: none; }
+.link input { width: 20px; height: 20px; margin: 0; accent-color: var(--gold); flex: none; }
 
-/* ---------- Weather ---------- */
-.wxgrid { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: center; }
-#wdial { width: 150px; height: 150px; display: block; }
-.wd-ring { fill: var(--soft); stroke: var(--line); stroke-width: 2; }
-.wd-tick { stroke: var(--muted); stroke-width: 2; }
-.wd-txt { font: 600 17px var(--mono); fill: var(--muted); }
-.wd-rwy { fill: var(--sel); }
-.wd-num { font: 700 17px var(--mono); fill: #ffffff; }
-.wd-arrow { stroke: var(--cyan); stroke-width: 5; stroke-linecap: round; fill: none; }
-.wd-head { fill: var(--cyan); }
-.decode { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-.decode div { background: var(--soft); padding: 9px 12px; display: grid; gap: 2px; min-width: 0; }
-.decode span { font: 600 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.decode b { font: 600 15px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.decode:empty { display: none; }
-@media (max-width: 560px) { .wxgrid { grid-template-columns: 124px minmax(0, 1fr); gap: 12px; } #wdial { width: 124px; height: 124px; } .xw .row { grid-template-columns: 1fr; gap: 0; } .xw b { font-size: 13px; } .decode { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-.xw { display: grid; gap: 7px; font-size: 14px; font-variant-numeric: tabular-nums; min-width: 0; }
-.xw .row { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: baseline; }
-.xw .row span { font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.xw b { font-weight: 600; font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
-.xw .best { color: var(--ok); }
+/* Weather */
+.metar { font: 400 15px/1.6 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+#decode { font-size: 15px; line-height: 1.6; color: var(--ink2); }
+#decode:empty { display: none; }
+.wxhead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; font-size: 14px; color: var(--muted); }
+#metage.ok { color: var(--muted); } #metage.warn { color: var(--warn); font-weight: 600; } #metage.info { color: var(--muted); }
+.xw { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; border-top: 1px solid var(--line); padding-top: 14px; }
+.xw .row { display: flex; flex-direction: column; gap: 1px; }
+.xw .row:first-child:has(~ .row) { display: none; }
+.xw .row span { font: 500 13px var(--narrow); color: var(--muted); }
+.xw b { font-weight: 600; font-size: 15px; }
+.xw .best { color: var(--ink); }
 .xw .warn { color: var(--bad); }
-.xw small { color: var(--muted); font-size: 12px; line-height: 1.4; }
+.xw small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; line-height: 1.4; }
+@media (max-width: 560px) { .xw { grid-template-columns: 1fr; } }
+details.raw summary { cursor: pointer; font-size: 14px; color: var(--muted); }
 
-/* ---------- Fuel ---------- */
-.calc { display: grid; gap: 7px; background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; font-size: 14px; }
-.calc div { display: grid; grid-template-columns: 92px 1fr; gap: 10px; align-items: baseline; }
-.calc span { font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+/* Fuel */
+.calc { display: grid; gap: 4px; font-size: 15px; }
+.calc div { display: grid; grid-template-columns: 110px 1fr; gap: 12px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line2); }
+.calc div:last-child { border-bottom: 0; }
+.calc span { font: 500 14px var(--narrow); color: var(--muted); }
 .calc b { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
-.calc b.key { color: var(--cyan-t); font-weight: 600; }
+.calc b.key { font-weight: 700; }
 .calc .warnc { color: var(--bad); font-weight: 600; }
-.fwarn { display: block !important; background: var(--bad-bg); color: var(--bad); border-radius: 6px; padding: 10px 12px; font-weight: 500; font-size: 14px; line-height: 1.45; }
+.fwarn { display: block !important; color: var(--bad); font-weight: 600; font-size: 15px; line-height: 1.45; border-bottom: 0 !important; padding: 0 0 6px !important; }
 .fwarn b { color: inherit; }
-.etape { display: grid; gap: 6px; }
-.etape .bar2 { position: relative; height: 22px; border-radius: 4px; background: var(--soft); border: 1px solid var(--line); overflow: hidden; }
-.etape .trip { position: absolute; left: 0; top: 0; bottom: 0; background: var(--cyan); }
-.etape .trip.over { background: #e5484d; }
-.etape .resv { position: absolute; top: 0; bottom: 0; right: 0; background: repeating-linear-gradient(135deg, var(--warn-bg) 0 6px, color-mix(in srgb, var(--warn-l) 45%, transparent) 6px 12px); border-left: 2px solid var(--warn-l); }
-.etape .lbl { display: flex; justify-content: space-between; gap: 8px; font: 500 12px var(--mono); color: var(--muted); }
+.result { font: 600 22px/1.3 var(--sans); }
+.result span { color: var(--muted); font-weight: 500; }
 
-/* ---------- Weight & balance ---------- */
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th, td { text-align: right; padding: 9px 6px; border-bottom: 1px solid var(--line); }
-tr:first-child th { border-bottom: 1.5px solid var(--ink); }
+/* Mass & balance */
+.mbgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 36px; align-items: start; }
+@media (max-width: 900px) { .mbgrid { grid-template-columns: minmax(0, 1fr); gap: 18px; } .mbgrid .cg { order: -1; } }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: right; padding: 11px 0 11px 10px; border-bottom: 1px solid var(--line); }
+tr:first-child th { border-bottom: 1px solid var(--ink); padding-top: 0; }
 tr:last-child td { border-bottom: 0; }
-th:first-child, td:first-child { text-align: left; padding-left: 0; font-family: var(--sans); }
-th:last-child, td:last-child { padding-right: 0; }
-th { font: 600 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+th:first-child, td:first-child { text-align: left; padding-left: 0; }
+th { font: 500 13px var(--narrow); color: var(--muted); }
 td:first-child { font-weight: 500; }
-.pill { font: 600 11px var(--mono); padding: 3px 7px; border-radius: 4px; letter-spacing: .04em; }
-.pill.ok { background: var(--ok-bg); color: var(--ok); }
-.pill.bad { background: var(--bad-bg); color: var(--bad); }
-.mg { display: block; font: 500 11px var(--mono); color: var(--muted); white-space: nowrap; }
+.pill { font-size: 13px; font-weight: 600; }
+.pill.ok { color: var(--ok); } .pill.bad { color: var(--bad); }
+.mg { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; }
 .mg.tight { color: var(--warn); }
-.bagm { display: grid; gap: 6px; }
-.bagm .t { display: flex; justify-content: space-between; font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.bagm .b { height: 6px; border-radius: 3px; background: var(--soft); border: 1px solid var(--line); overflow: hidden; }
-.bagm .b i { display: block; height: 100%; background: var(--ok); }
-.bagm.over .t { color: var(--bad); } .bagm.over .b i { background: var(--bad); }
+.bagm .b { display: none; }
+.bagm .t { font-size: 13px; color: var(--muted); }
+.bagm.over .t { color: var(--bad); font-weight: 600; }
+#wbtag { font-size: 13px; font-weight: 600; }
+#wbtag.ok { color: var(--ok); } #wbtag.bad { color: var(--bad); }
 .cg { width: 100%; height: auto; display: block; }
-.cg text { font: 11px var(--mono); fill: var(--muted); }
-.cg .env { fill: var(--blue-bg); stroke: var(--ink); stroke-width: 1.5; }
-.cg .grid line { stroke: var(--line); stroke-width: 1; }
-.cg .pt circle { stroke: var(--card); stroke-width: 2; }
-.cg .pt text { font-weight: 700; font-size: 12px; }
+.cg text { font: 12px var(--sans); fill: var(--muted); }
+.cg .env { fill: var(--strip); fill-opacity: 1; stroke: var(--ink); stroke-width: 1.5; }
+.cg .grid line { stroke: var(--line2); stroke-width: 1; }
+.cg .pt circle { stroke: var(--bg); stroke-width: 2; }
+.cg .pt text { font-weight: 600; font-size: 13px; }
 
-/* ---------- Sticky action bar ---------- */
-.bar { position: sticky; bottom: 0; z-index: 5; background: var(--navy); color: #ffffff; border-top: 1px solid var(--nline);
-  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
-.bar .in { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
-.bar .st { flex: 1; min-width: 0; display: grid; gap: 2px; }
-#sum { font: 600 14px var(--sans); }
-#sum.ok { color: #4be0a8; } #sum.bad { color: #ff9b9b; } #sum.warn { color: #ffd27a; }
-.status { font-size: 13px; color: var(--nmuted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.status.err { color: #ff9b9b; } .status.okc { color: #4be0a8; }
-.bar .go { background: #2f7de1; }
-.bar .go:hover { background: #4a8ff0; }
+/* Sticky action bar */
+.bar { position: sticky; bottom: 0; z-index: 5; background: var(--bar); color: #ffffff; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.bar .in { display: flex; align-items: center; gap: 16px; padding-top: 12px; padding-bottom: 12px; }
+.bar .st { flex: 1; min-width: 0; display: grid; gap: 1px; }
+#sum { font-size: 15px; font-weight: 600; }
+#sum.ok { color: var(--bar-ok); } #sum.bad { color: var(--bar-bad); } #sum.warn { color: var(--bar-warn); }
+.status { font-size: 13px; color: #b9c0ca; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status.err { color: var(--bar-bad); } .status.okc { color: var(--bar-ok); }
 
-/* ---------- Preview overlay ---------- */
-.pv { position: fixed; inset: 0; z-index: 20; background: #07101d; display: flex; flex-direction: column;
+/* Preview overlay */
+.pv { position: fixed; inset: 0; z-index: 20; background: #0d0f12; display: flex; flex-direction: column;
   padding: calc(12px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
 .pv[hidden] { display: none; }
 .pv .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #fff; }
-.pv .top b { font: 600 18px var(--head); }
+.pv .top b { font: 700 18px var(--sans); }
 .pv .top .acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .pv .top .acts .go, .pv .top .acts .ghost { height: 44px; padding: 0 16px; font-size: 15px; }
-.pv .top .acts .go { background: #2f7de1; }
 .pv .pages { flex: 1; overflow: auto; display: grid; gap: 14px; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
-.pv canvas, .pv .pg { width: min(1100px, 100%); height: auto; background: #fff; border-radius: 4px; display: block; }
+.pv canvas, .pv .pg { width: min(1100px, 100%); height: auto; background: #fff; border-radius: 2px; display: block; }
 .pv .pg.rot180 { transform: rotate(180deg); }
-.pv .note { color: #9fb6d4; font-size: 13px; text-align: center; }
-.pv .howto { max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #dbe6f4; font-size: 14px; line-height: 1.5; background: #0d1d33; border: 1px solid #1c2e48; border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.pv .note { color: #9aa3b0; font-size: 13px; text-align: center; }
+.pv .howto { max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #d3d7de; font-size: 14px; line-height: 1.5; border-top: 1px solid #262b33; border-bottom: 1px solid #262b33; padding: 10px 0; display: grid; gap: 8px; }
 .pv .howto ol { margin: 0; padding-left: 20px; display: grid; gap: 2px; }
-.pv .pvwarn { background: #33260a; color: #ffd27a; border-radius: 6px; padding: 8px 10px; font-weight: 500; }
+.pv .pvwarn { color: #e8c46a; font-weight: 600; }
 .pv .pvwarn:empty { display: none; }
-.pv .rot { display: flex; align-items: center; gap: 8px; color: #9fb6d4; font-size: 13px; }
-.pv .rot input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: #33c3db; }
-.ghost { font: 600 15px var(--sans); background: transparent; color: #fff; border: 1px solid #3a5070; border-radius: var(--r); height: 44px; padding: 0 16px; cursor: pointer; }
-.ghost:hover { border-color: #9fb6d4; }
+.pv .rot { display: flex; align-items: center; gap: 8px; color: #9aa3b0; font-size: 13px; }
+.pv .rot input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: #d3a43a; }
+.ghost { font: 600 15px var(--sans); background: transparent; color: #fff; border: 1px solid #4a515c; border-radius: var(--r); height: 44px; padding: 0 16px; cursor: pointer; }
+.ghost:hover { border-color: #b9c0ca; }
 .ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 @page { size: A4 landscape; margin: 0; }
@@ -292,142 +281,144 @@ td:first-child { font-weight: 500; }
   #pv .pg { width: 297mm !important; height: 210mm !important; max-width: none !important; border-radius: 0 !important; page-break-after: always; break-after: page; }
   #pv .pg:last-of-type, body.only-1 #pv .pg, body.only-2 #pv .pg { page-break-after: auto; break-after: auto; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
-@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
 
-<header class="cmd">
-  <div class="in">
-    <div class="brand">
-      <svg class="mark" viewBox="20 20 720 440" role="img" aria-label="FlyCoop">
-        <g fill="none" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="118,80 135,42 595,40 645,135 625,162" stroke="#c9d4e3"/>
-          <path d="M40 145 C110 100 220 120 360 170" stroke="#deb246"/>
-          <polyline points="300,212 490,92 502,104 400,225" stroke="#deb246"/>
-          <polyline points="440,190 580,238 665,188 720,200" stroke="#e6965f"/>
-          <polyline points="258,338 358,440 462,335" stroke="#c9d4e3"/>
-        </g>
-        <text x="365" y="300" text-anchor="middle" fill="#c9d4e3" style="font:500 64px var(--sans);letter-spacing:22px">FLY-COOP</text>
-      </svg>
-      <div class="wm"><h1><span class="org">FlyCoop</span> C172 Flight Sheet</h1><span class="sl" id="hsub">Navlog · M&amp;B · Briefing</span></div>
-      <div class="tail"><span class="fcat" id="hcat" hidden></span><span class="reg" id="hreg">HA-BFN</span></div>
-    </div>
-    <div class="glance" aria-live="polite">
-      <div class="tile" id="g-tow"><svg id="gz-tow" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">Take-off</span><span class="v">-</span><span class="s"></span></div>
-      <div class="tile" id="g-cg"><svg id="gz-cg" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">CG at T/O</span><span class="v">-</span><span class="s"></span></div>
-      <div class="tile" id="g-fuel"><svg id="gz-fuel" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">Fuel at landing</span><span class="v">-</span><span class="s"></span></div>
-      <div class="tile" id="g-wx"><svg id="gz-wx" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">Wind / RWY</span><span class="v">-</span><span class="s"></span></div>
-    </div>
+<header class="top0">
+  <div class="box">
+    <svg class="logo" viewBox="20 20 720 440" role="img" aria-label="FlyCoop">
+      <g fill="none" stroke-width="18" stroke-linecap="round" stroke-linejoin="round">
+        <polyline class="lg" points="118,80 135,42 595,40 645,135 625,162"/>
+        <path class="lgo" d="M40 145 C110 100 220 120 360 170"/>
+        <polyline class="lgo" points="300,212 490,92 502,104 400,225"/>
+        <polyline class="lor" points="440,190 580,238 665,188 720,200"/>
+        <polyline class="lg" points="258,338 358,440 462,335"/>
+      </g>
+      <text x="365" y="300" text-anchor="middle" style="font:600 64px var(--sans);letter-spacing:22px">FLY-COOP</text>
+    </svg>
+    <div class="ttl"><b>C172 Flight Sheet</b><span>Navlog, mass &amp; balance and briefing</span></div>
+    <span id="clock"></span>
   </div>
 </header>
 
-<nav class="steps" aria-label="Jump to section"><div class="in2">
-  <a href="#s1" id="n1"><i>1</i>Flight &amp; crew</a>
-  <a href="#s2" id="n2"><i>2</i>Weather &amp; NOTAM</a>
-  <a href="#s3" id="n3"><i>3</i>Fuel</a>
-  <a href="#s4" id="n4"><i>4</i>Weight &amp; balance</a>
-  <a href="#s5" id="n5"><i>5</i>Exercise</a>
-</div></nav>
+<div class="box">
+  <div class="strip" role="group" aria-label="Flight strip" aria-live="polite">
+    <div class="hold"></div>
+    <div><span class="cs" id="hreg">HA-BFN</span><span class="t" id="sac">C172 / L</span></div>
+    <div><span class="big" id="sroute">LHBS → LHBS</span><span class="t" id="stime">Local · 0:45</span></div>
+    <div><div class="crew"><span>PIC</span><b id="spic"></b><span>SPL</span><b id="sstu"></b></div></div>
+    <div><span class="wxl"><span class="fcat" id="hcat" hidden></span><span id="swind">No METAR</span></span><span class="t" id="srwy">Weather below</span></div>
+    <div><span id="sverd"></span><span id="sverd2"></span></div>
+  </div>
 
-<main class="wrap">
-  <section id="s1">
-    <div class="sh"><h2><span class="n">1</span>Flight &amp; crew</h2><span class="chip" id="achint"></span></div>
-    <div class="grid">
-      <label class="f"><span class="k">Registration</span><select id="ac"></select></label>
-      <label class="f"><span class="k">Date (UTC)</span><input id="date" type="date"></label>
-      <label class="f"><span class="k">From</span><input id="dep" value="LHBS" autocapitalize="characters" maxlength="4"></label>
-      <label class="f"><span class="k">To</span><input id="dest" value="LHBS" autocapitalize="characters" maxlength="4"></label>
-    </div>
-    <div class="crew">
-      <label class="f"><span class="k">Student pilot</span><input id="stu" placeholder="Student name" autocomplete="off"></label>
-      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wstu" type="number" inputmode="decimal" step="0.5" min="0" value="75"></span></label>
-      <label class="f"><span class="k">Instructor (PIC)</span><input id="pic" placeholder="Instructor name" autocomplete="off"></label>
-      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wins" type="number" inputmode="decimal" step="0.5" min="0" value="70"></span></label>
-    </div>
-    <div class="grid">
-      <label class="f"><span class="k">Type (back page)</span><input id="acname" value="Cessna 172"></label>
-      <div class="f"><span class="k">ASI</span>
-        <div class="seg" role="group" aria-label="ASI units">
-          <button type="button" id="asi-kt" aria-pressed="true">Knots</button>
-          <button type="button" id="asi-mph" aria-pressed="false">MPH</button>
+  <div class="glance" aria-live="polite">
+    <div class="tile" id="g-tow"><span class="l">Take-off mass</span><span class="v">-</span><span class="s"></span></div>
+    <div class="tile" id="g-cg"><span class="l">CG at take-off</span><span class="v">-</span><span class="s"></span></div>
+    <div class="tile" id="g-fuel"><span class="l">Fuel at landing</span><span class="v">-</span><span class="s"></span></div>
+    <div class="tile" id="g-wx"><span class="l">Crosswind</span><span class="v">-</span><span class="s"></span></div>
+  </div>
+
+  <main class="wrap">
+    <section id="s1">
+      <div class="rl"><h2>Crew &amp; aircraft</h2><p>Names are remembered for next time.</p><span class="chip" id="achint"></span></div>
+      <div class="ct">
+        <div class="grid">
+          <label class="f"><span class="k">Registration</span><select id="ac"></select></label>
+          <label class="f"><span class="k">Date (UTC)</span><input id="date" type="date"></label>
+          <label class="f"><span class="k">From</span><input id="dep" value="LHBS" autocapitalize="characters" maxlength="4"></label>
+          <label class="f"><span class="k">To</span><input id="dest" value="LHBS" autocapitalize="characters" maxlength="4"></label>
+        </div>
+        <div class="crew2">
+          <label class="f"><span class="k">Instructor (PIC)</span><input id="pic" placeholder="Name" autocomplete="off"></label>
+          <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wins" type="number" inputmode="decimal" step="0.5" min="0" value="70"></span></label>
+          <label class="f"><span class="k">Student (SPL)</span><input id="stu" placeholder="Name" autocomplete="off"></label>
+          <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wstu" type="number" inputmode="decimal" step="0.5" min="0" value="75"></span></label>
+        </div>
+        <div class="grid">
+          <label class="f span2"><span class="k">Aircraft type (back page)</span><input id="acname" value="Cessna 172"></label>
+          <label class="f"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
+          <div class="f"><span class="k">ASI</span>
+            <div class="seg" role="group" aria-label="ASI units"><button type="button" id="asi-kt" aria-pressed="true">Knots</button><button type="button" id="asi-mph" aria-pressed="false">MPH</button></div>
+          </div>
+        </div>
+        <div class="vmsg" id="v1" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="s2">
+      <div class="rl"><h2>Weather</h2><p>LHBP. Updates every 5 minutes.</p></div>
+      <div class="ct">
+        <div class="wxhead"><span class="fcat" id="wxcat" hidden></span><span id="metage"></span><button type="button" id="wx" class="linkbtn">Refresh now</button><span class="hint" id="wxst"></span></div>
+        <div id="decode"></div>
+        <div class="hint" id="cath"></div>
+        <div class="xw" id="xw" aria-live="polite"></div>
+        <label class="f"><span class="k">METAR</span><textarea id="metar" rows="2" placeholder="Tap Refresh now or paste the METAR"></textarea></label>
+        <label class="f"><span class="k">TAF</span><textarea id="taf" rows="3" placeholder="Tap Refresh now or paste the TAF"></textarea></label>
+        <div class="hint" id="tafage"></div>
+        <label class="f"><span class="k">NOTAM</span><textarea id="notam" rows="3">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
+        <div class="hint">Source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a></div>
+      </div>
+    </section>
+
+    <section id="s3">
+      <div class="rl"><h2>Fuel</h2><p>US gal. 1 gal = 3.8 l = 6.71 lbs.</p></div>
+      <div class="ct">
+        <div class="sub2">Navlog table <span id="tot"></span></div>
+        <div class="grid g4">
+          <label class="f"><span class="k">Taxi</span><input id="taxi" type="number" inputmode="decimal" step="0.1" min="0" value="2"></label>
+          <label class="f"><span class="k">Trip</span><input id="trip" type="number" inputmode="decimal" step="0.1" min="0" value="15"></label>
+          <label class="f"><span class="k">Reserve</span><input id="res" type="number" inputmode="decimal" step="0.1" min="0" value="4"></label>
+          <label class="f"><span class="k">Extra</span><input id="extra" type="number" inputmode="decimal" step="0.1" min="0" value="0"></label>
+        </div>
+        <div class="sub2" style="margin-top:10px">Trip burn for M&amp;B</div>
+        <div class="opts">
+          <div class="quick" role="group" aria-label="Flight time"><button type="button" class="qbtn" data-t="30">0:30</button><button type="button" class="qbtn" data-t="45">0:45</button><button type="button" class="qbtn" data-t="60">1:00</button><button type="button" class="qbtn" data-t="90">1:30</button><button type="button" class="qbtn" data-t="120">2:00</button></div>
+          <span class="sep" aria-hidden="true">|</span>
+          <div class="seg" role="group" aria-label="Type of flight"><button type="button" id="t-local" aria-pressed="true">Local, 5 gal/h</button><button type="button" id="t-xc" aria-pressed="false">Cross country, 4.5 gal/h</button></div>
+        </div>
+        <div class="grid">
+          <label class="f"><span class="k">Hours</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" max="9" step="1" value="0"></span></label>
+          <label class="f"><span class="k">Minutes</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="5" value="45"></span></label>
+        </div>
+        <div class="vmsg" id="v3" aria-live="polite"></div>
+        <div class="calc" id="burn" aria-live="polite"></div>
+        <div id="etape" hidden></div>
+      </div>
+    </section>
+
+    <section id="s4">
+      <div class="rl"><h2>Mass &amp; balance</h2><p id="wbtag"></p></div>
+      <div class="ct">
+        <div class="grid">
+          <label class="f"><span class="k">Front seats</span><span class="u" data-unit="lbs"><input id="front" type="number" readonly tabindex="-1"></span></label>
+          <label class="f"><span class="k">Rear seat</span><span class="u" data-unit="lbs"><input id="rear" type="number" inputmode="decimal" min="0" value="0"></span></label>
+          <label class="f"><span class="k">Baggage 1</span><span class="u" data-unit="lbs"><input id="bag1" type="number" inputmode="decimal" min="0" value="0"></span></label>
+          <label class="f"><span class="k">Baggage 2</span><span class="u" data-unit="lbs"><input id="bag2" type="number" inputmode="decimal" min="0" value="0"></span></label>
+        </div>
+        <div class="hint" id="fronth"></div>
+        <div class="bagm" id="bagm"><div class="t">Baggage <span id="bagt">0 / 120 lbs</span> (area 1 max 120, area 2 max 50, together max 120)</div><div class="b"><i id="bagi"></i></div></div>
+        <div class="vmsg" id="v4" aria-live="polite"></div>
+        <div class="mbgrid">
+          <div style="overflow-x:auto"><table id="mb"></table></div>
+          <svg class="cg" id="cg" viewBox="0 0 640 340" role="img" aria-label="Centre of gravity envelope with zero fuel, take-off and landing points"></svg>
         </div>
       </div>
-      <label class="f span2"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
-    </div>
-    <div class="vmsg" id="v1" aria-live="polite"></div>
-  </section>
+    </section>
 
-  <section id="s2">
-    <div class="sh"><h2><span class="n">2</span>Weather &amp; NOTAM</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><span class="fcat" id="wxcat" hidden></span><span class="tag" id="metage"></span></span></div>
-    <div class="hint" id="cath"></div>
-    <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
-    <div class="wxgrid">
-      <svg id="wdial" viewBox="0 0 220 220" role="img" aria-label="Wind and runway 09/27"></svg>
-      <div class="xw" id="xw" aria-live="polite"></div>
-    </div>
-    <div class="decode" id="decode"></div>
-    <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
-    <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="3" placeholder="Tap the button above or paste the TAF"></textarea></label>
-    <div class="hint" id="tafage"></div>
-    <label class="f"><span class="k">NOTAM</span><textarea id="notam" rows="3">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
-    <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>. Refreshes every 5 minutes.</div>
-  </section>
-
-  <section id="s3">
-    <div class="sh"><h2><span class="n">3</span>Fuel</h2><span class="chip" id="tot"></span></div>
-    <div class="sub2">A · Navlog fuel table · you fill · US gal (1 gal = 3.8 l)</div>
-    <div class="grid">
-      <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" min="0" value="2"></span></label>
-      <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" min="0" value="15"></span></label>
-      <label class="f"><span class="k">Reserve</span><span class="u" data-unit="gal"><input id="res" type="number" inputmode="decimal" step="0.1" min="0" value="4"></span></label>
-      <label class="f"><span class="k">Extra</span><span class="u" data-unit="gal"><input id="extra" type="number" inputmode="decimal" step="0.1" min="0" value="0"></span></label>
-    </div>
-    <div class="sub2 sep">B · My flight · M&amp;B trip burn from flight time</div>
-    <div class="quick" role="group" aria-label="Quick flight time">
-      <button type="button" class="qbtn" data-t="30">0:30</button><button type="button" class="qbtn" data-t="45">0:45</button><button type="button" class="qbtn" data-t="60">1:00</button><button type="button" class="qbtn" data-t="90">1:30</button><button type="button" class="qbtn" data-t="120">2:00</button>
-    </div>
-    <div class="grid">
-      <label class="f"><span class="k">Hours</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" max="9" step="1" value="0"></span></label>
-      <label class="f"><span class="k">Minutes</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="5" value="45"></span></label>
-      <div class="f span2"><span class="k">Type of flight</span>
-        <div class="seg" role="group" aria-label="Type of flight">
-          <button type="button" id="t-local" aria-pressed="true">Local · 5 gal/h</button>
-          <button type="button" id="t-xc" aria-pressed="false">Cross country · 4.5</button>
-        </div>
+    <section id="s5">
+      <div class="rl"><h2>Exercise</h2><p>Printed on the back. Leave empty to write by hand.</p></div>
+      <div class="ct">
+        <textarea id="exercise" rows="2" aria-label="Exercise" placeholder="Exercise"></textarea>
+        <div class="quick"><button type="button" class="qbtn" id="ex-tc">+ Traffic Circuit</button></div>
       </div>
-    </div>
-    <div class="vmsg" id="v3" aria-live="polite"></div>
-    <div class="calc" id="burn" aria-live="polite"></div>
-    <div class="etape" id="etape"></div>
-  </section>
-
-  <section id="s4">
-    <div class="sh"><h2><span class="n">4</span>Weight &amp; balance</h2><span class="tag" id="wbtag"></span></div>
-    <div class="grid">
-      <label class="f"><span class="k">Front seats</span><span class="u" data-unit="lbs"><input id="front" type="number" readonly tabindex="-1"></span></label>
-      <label class="f"><span class="k">Rear seat</span><span class="u" data-unit="lbs"><input id="rear" type="number" inputmode="decimal" min="0" value="0"></span></label>
-      <label class="f"><span class="k">Bag 1 · max 120</span><span class="u" data-unit="lbs"><input id="bag1" type="number" inputmode="decimal" min="0" value="0"></span></label>
-      <label class="f"><span class="k">Bag 2 · max 50</span><span class="u" data-unit="lbs"><input id="bag2" type="number" inputmode="decimal" min="0" value="0"></span></label>
-    </div>
-    <div class="hint" id="fronth"></div>
-    <div class="bagm" id="bagm"><div class="t"><span>Baggage 1 + 2 combined</span><span id="bagt">0 / 120 lbs</span></div><div class="b"><i id="bagi" style="width:0%"></i></div></div>
-    <div class="vmsg" id="v4" aria-live="polite"></div>
-    <svg class="cg" id="cg" viewBox="0 0 640 340" role="img" aria-label="Centre of gravity envelope with zero fuel, take-off and landing points"></svg>
-    <div style="overflow-x:auto"><table id="mb"></table></div>
-  </section>
-
-  <section id="s5">
-    <div class="sh"><h2><span class="n">5</span>Exercise</h2><span class="chip">Optional</span></div>
-    <label class="f"><span class="k">Printed on the back page</span><textarea id="exercise" rows="3" placeholder="Leave empty to write it by hand"></textarea></label>
-    <div class="quick"><button type="button" class="qbtn" id="ex-tc">+ Traffic Circuit</button></div>
-    <div class="hint">The PDF is A4 landscape. In the preview, print the front, turn the sheet over, then print the back.</div>
-  </section>
-</main>
+    </section>
+  </main>
+</div>
 
 <div class="bar">
-  <div class="in">
+  <div class="box in">
     <div class="st"><span id="sum"></span><span class="status" id="status" aria-live="polite"></span></div>
     <button class="go" id="make" type="button">Preview PDF</button>
   </div>
@@ -438,7 +429,7 @@ td:first-child { font-weight: 500; }
   <div class="howto" id="pvhow">
     <div class="pvwarn" id="pvwarn"></div>
     <ol><li>Tap <b>Print front</b>.</li><li>Turn the printed sheet over and put it back in the tray.</li><li>Tap <b>Print back</b>.</li></ol>
-    <span id="pvst" style="color:#4be0a8;font-weight:500"></span>
+    <span id="pvst" style="color:#7fd6a4;font-weight:500"></span>
     <label class="rot"><input type="checkbox" id="pvrot"> Back came out upside down? Tick this and print the back again.</label>
   </div>
   <div class="pages" id="pvpages"></div>
@@ -447,7 +438,7 @@ td:first-child { font-weight: 500; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611101959';
+  var V = '202611102020';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -865,7 +856,7 @@ function drawCG(r) {
   g += `<text x="14" y="${(Y0 + Y1) / 2}" text-anchor="middle" transform="rotate(-90 14 ${(Y0 + Y1) / 2})">Weight, lbs</text>`;
   const env = [[35, 1500], [35, 1950], [38.5, 2300], [47.3, 2300], [47.3, 1500]];
   g += `<polygon class="env" fill-opacity=".5" points="${env.map(([a, w]) => `${X(a)},${Y(w)}`).join(' ')}"/>`;
-  const pts = [['ZFW', r.zfw, '#1e88e5'], ['T/O', r.tow, '#e53935'], ['LDW', r.ldw, '#43a047']];
+  const pts = [['ZFW', r.zfw, '#1f5fbf'], ['T/O', r.tow, '#c0282d'], ['LDW', r.ldw, '#1a7f45']];
   const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   pts.forEach(([l, v, c], i) => {
     const x = cl(X(v.arm), X0, X1), y = cl(Y(v.w), Y0, Y1);
@@ -914,67 +905,45 @@ function fuelCheck(d) {
   const fmt = mm => `${Math.floor(mm / 60)} h ${String(mm % 60).padStart(2, '0')} min`;
   return { rate, hrs, burn, tot, left, endMin, endTxt: fmt(endMin), over: left < 4, empty: left < 0 };
 }
-// ---- instrument gauges (semicircle, f = 0 at left, 1 at right) ----
-const gp = f => { const a = Math.PI * (1 - Math.max(0, Math.min(1, f))); return [(100 + 80 * Math.cos(a)).toFixed(1), (92 - 80 * Math.sin(a)).toFixed(1)]; };
-const garc = (f1, f2, cls) => { if (f2 - f1 < 0.002) return ''; const [x1, y1] = gp(f1), [x2, y2] = gp(f2); return `<path class="${cls}" d="M${x1} ${y1} A80 80 0 0 1 ${x2} ${y2}"/>`; };
-const gneedle = f => { const [x, y] = gp(f); const a = Math.PI * (1 - Math.max(0, Math.min(1, f))); const xi = (100 + 64 * Math.cos(a)).toFixed(1), yi = (92 - 64 * Math.sin(a)).toFixed(1); return `<line class="g-ndl" x1="100" y1="92" x2="${xi}" y2="${yi}"/><circle class="g-hub" cx="100" cy="92" r="7"/>`; };
-function windMini(dir, best) {
-  // runway 09/27 seen from above, wind arrow blowing from `dir` (null = calm or variable)
-  let g = '<rect x="22" y="40" width="156" height="26" rx="3" fill="#1f3a60"/>' +
-    '<line x1="56" y1="53" x2="144" y2="53" stroke="#9fb6d4" stroke-width="2" stroke-dasharray="8 7"/>' +
-    `<text x="30" y="59" fill="${best === 0 ? '#33c3db' : '#dbe6f4'}" style="font:700 17px var(--mono)">09</text>` +
-    `<text x="170" y="59" text-anchor="end" fill="${best === 1 ? '#33c3db' : '#dbe6f4'}" style="font:700 17px var(--mono)">27</text>`;
-  if (dir != null) {
-    const a = dir * Math.PI / 180, s = Math.sin(a), c = Math.cos(a);
-    const ox = 100 + 50 * s * 1.6, oy = 53 - 50 * c, ix = 100 + 14 * s * 1.6, iy = 53 - 14 * c;
-    g += `<line x1="${ox.toFixed(1)}" y1="${oy.toFixed(1)}" x2="${ix.toFixed(1)}" y2="${iy.toFixed(1)}" stroke="#33c3db" stroke-width="6" stroke-linecap="round"/><circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="7" fill="#33c3db"/>`;
-  }
-  return g;
-}
 function glance() {
   const d = data(); const { r, checks } = SHEET.compute(d);
   const set = (id, v, s, warn) => { const t = $(id); t.className = 'tile' + (warn ? ' warn' : ''); t.querySelector('.v').textContent = v; t.querySelector('.s').textContent = s; };
+  // flight strip
   $('hreg').textContent = ac;
-  $('hsub').textContent = `${d.date || ''} UTC · ${d.dep || '----'} → ${d.dest || '----'} · ${d.type === 'local' ? 'Local' : 'Cross country'} ${d.hours}:${String(d.minutes).padStart(2, '0')}`;
-  // take-off weight, 1500 to 2400 lbs
-  const tm = 2300 - r.tow.w, fw = w => (w - 1500) / 900;
-  set('g-tow', `${r.tow.w.toFixed(0)} lbs`, tm >= 0 ? `${tm.toFixed(0)} under max 2300` : `${(-tm).toFixed(0)} OVER max 2300`, !checks.tow);
-  $('gz-tow').innerHTML = garc(0, 1, 'g-track') + garc(fw(2300), 1, 'g-red') + garc(0, fw(r.tow.w), 'g-val' + (r.tow.w > 2300 ? ' over' : ''));
-  // CG, 34 to 48 in, red outside the limits at take-off weight
-  const fl = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), cm = Math.min(r.tow.arm - fl(r.tow.w), 47.3 - r.tow.arm), fa = a => (a - 34) / 14;
-  set('g-cg', r.tow.arm.toFixed(2) + ' in', cm >= 0 ? `${fl(r.tow.w).toFixed(2)} to 47.30 limits` : 'OUTSIDE CG RANGE', !(checks.tow && checks.ldw && checks.zfw));
-  $('gz-cg').innerHTML = garc(0, 1, 'g-track') + garc(0, fa(fl(r.tow.w)), 'g-red') + garc(fa(47.3), 1, 'g-red') + gneedle(fa(r.tow.arm));
-  // fuel endurance after taxi: trip used, reserve zone
-  const fc = fuelCheck(d), left = fc.left, usable = Math.max(0, fc.tot - d.fuel.taxi);
-  const hm = fc.endTxt.replace(' h ', ':').replace(' min', '');
-  set('g-fuel', `${+left.toFixed(1)} gal`, fc.empty ? 'NOT ENOUGH FUEL' : fc.over ? `Below reserve · max ${hm}` : `${(Math.max(0, left) * L_PER_GAL).toFixed(1)} l · max flight ${hm}`, fc.over);
-  $('gz-fuel').innerHTML = usable > 0
-    ? garc(0, 1, 'g-track') + garc(Math.max(0, (usable - 4) / usable), 1, 'g-amb') + garc(0, Math.min(1, fc.burn / usable), 'g-val' + (fc.over ? ' over' : ''))
-    : garc(0, 1, 'g-track');
-  // wind
+  $('sac').textContent = `C172 / L · BEW ${FLEET[ac][0]} lbs`;
+  $('sroute').textContent = `${d.dep || '----'} → ${d.dest || '----'}`;
+  $('stime').textContent = `${d.type === 'local' ? 'Local' : 'Cross country'} · ${d.hours}:${String(d.minutes).padStart(2, '0')}`;
+  const nm = (id, v, ask) => { const e = $(id); e.innerHTML = ''; if (v) e.textContent = v; else { const a = document.createElement('a'); a.href = '#' + ask; a.textContent = 'Add name'; a.onclick = ev => { ev.preventDefault(); $(ask).focus(); }; e.appendChild(a); } };
+  nm('spic', d.pic, 'pic'); nm('sstu', d.student, 'stu');
+  // key figures
+  const tm = 2300 - r.tow.w;
+  set('g-tow', `${r.tow.w.toFixed(0)} lbs`, tm >= 0 ? `${tm.toFixed(0)} under MTOW 2300` : `${(-tm).toFixed(0)} over MTOW 2300`, !checks.tow);
+  const fl = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), cm = Math.min(r.tow.arm - fl(r.tow.w), 47.3 - r.tow.arm);
+  set('g-cg', r.tow.arm.toFixed(2) + ' in', cm >= 0 ? `limits ${fl(r.tow.w).toFixed(2)} to 47.30` : 'outside CG range', !(checks.tow && checks.ldw && checks.zfw));
+  const fc = fuelCheck(d), left = fc.left, hm = fc.endTxt.replace(' h ', ':').replace(' min', '');
+  set('g-fuel', `${+left.toFixed(1)} gal`, fc.empty ? 'not enough fuel' : fc.over ? `below 4 gal reserve · max ${hm}` : `${(Math.max(0, left) * L_PER_GAL).toFixed(1)} l · max flight ${hm}`, fc.over);
   const m = $('metar').value.toUpperCase().match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?(KT|MPS)\b/);
-  if (!m) { set('g-wx', 'No METAR', 'Get weather in section 2', false); $('g-wx').querySelector('.l').textContent = 'Wind / RWY'; $('gz-wx').innerHTML = windMini(null, null); }
+  if (!m) { set('g-wx', '-', 'needs a METAR', false); $('swind').textContent = 'No METAR'; $('srwy').textContent = 'Weather below'; }
   else {
     const k = m[4] === 'MPS' ? 1.944 : 1, s = Math.round(+m[2] * k), gs = m[3] ? Math.round(+m[3] * k) : 0;
-    $('g-wx').querySelector('.l').textContent = `Wind ${m[1]}/${s}${gs ? 'G' + gs : ''}`;
-    if (m[1] === 'VRB' || s === 0) { set('g-wx', s === 0 ? 'Calm' : `VRB ${s} kt`, s <= 3 ? 'Any runway' : `Up to ${gs || s} kt crosswind`, (gs || s) > 15); $('gz-wx').innerHTML = windMini(null, null); }
-    else {
+    const wtxt = `${m[1]}/${String(s).padStart(2, '0')}${gs ? 'G' + gs : ''}`;
+    $('swind').textContent = wtxt;
+    if (m[1] === 'VRB' || s === 0) {
+      const x = s <= 3 ? 0 : (gs || s);
+      set('g-wx', s === 0 ? 'Calm' : `up to ${x} kt`, s === 0 ? 'any runway' : `variable wind ${wtxt}`, x > 15);
+      $('srwy').textContent = s <= 3 ? 'Any runway' : 'Variable wind';
+    } else {
       const dir = +m[1], c = h2 => Math.cos((dir - h2) * Math.PI / 180);
       const bi = c(90) >= c(270) ? 0 : 1, hdg = bi ? 270 : 90, xc = Math.round(Math.abs(Math.max(s, gs) * Math.sin((dir - hdg) * Math.PI / 180)));
-      set('g-wx', `RWY ${bi ? '27' : '09'}`, `${xc} kt crosswind${xc > 15 ? ', above 15' : ''}`, xc > 15);
-      $('gz-wx').innerHTML = windMini(dir, bi);
+      set('g-wx', `${xc} kt`, `RWY ${bi ? '27' : '09'}${gs ? ', in gusts' : ''} · limit 15`, xc > 15);
+      $('srwy').textContent = `RWY ${bi ? '27' : '09'} in use`;
     }
   }
-  // section lights: green done, amber needs input, red out of limits or invalid
-  const mark = (id, st) => { $(id).className = st; };
-  const v = validate(d);
-  mark('n1', v.s1.e.length ? 'bad' : (d.pic && d.student && !v.s1.w.length) ? 'done' : 'todo');
-  mark('n2', ($('metar').value.trim() && $('taf').value.trim()) ? (metarAge() > 60 ? 'todo' : 'done') : 'todo');
-  mark('n3', v.s3.e.length || fc.over ? 'bad' : 'done');
-  mark('n4', !Object.values(checks).every(Boolean) || v.s4.e.length ? 'bad' : 'done');
-  mark('n5', $('exercise').value.trim() ? 'done' : '');
   $('pic').classList.toggle('need', !d.pic); $('stu').classList.toggle('need', !d.student);
 }
+// UTC clock in the top bar
+function tickClock() { const n = new Date(); $('clock').innerHTML = `<span class="cd">${n.getUTCDate()} ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][n.getUTCMonth()]} ${n.getUTCFullYear()} · </span>${String(n.getUTCHours()).padStart(2, '0')}:${String(n.getUTCMinutes()).padStart(2, '0')} UTC`; }
+tickClock(); setInterval(tickClock, 20000);
 // ---- input checks: e = error (wrong number, blocks the PDF), w = warning ----
 function validate(d) {
   const out = { s1: { e: [], w: [] }, s3: { e: [], w: [] }, s4: { e: [], w: [] } };
@@ -1002,7 +971,7 @@ function validate(d) {
   out.anyErr = out.s1.e.length + out.s3.e.length + out.badIds.length > 0;
   return out;
 }
-function showV(id, sec) { $(id).innerHTML = sec.e.map(t => `<div class="e">✕ ${t}</div>`).join('') + sec.w.map(t => `<div class="w">▲ ${t}</div>`).join(''); }
+function showV(id, sec) { $(id).innerHTML = sec.e.map(t => `<div class="e">${t}</div>`).join('') + sec.w.map(t => `<div class="w">${t}</div>`).join(''); }
 // METAR age in minutes (Infinity if none)
 function metarAge() {
   const x = $('metar').value.toUpperCase().match(/\bLHBP (\d{2})(\d{2})(\d{2})Z/); if (!x) return Infinity;
@@ -1048,9 +1017,17 @@ function wxDecode() {
   const cloud = cl.length ? cl[0] + (cl.length > 1 ? ' +' : '') : /CAVOK|NSC|NCD|CLR|SKC/.test(m) ? 'No cloud' : '-';
   const td = m.match(/\s(M?\d{2})\/(M?\d{2})\s/), tt = v => v.replace('M', '−').replace(/^(−?)0(\d)/, '$1$2');
   const q = (m.match(/\bQ(\d{4})\b/) || [])[1];
-  $('decode').innerHTML = `<div><span>Visibility</span><b>${visT}</b></div><div><span>Cloud</span><b title="${cl.join(', ')}">${cloud}</b></div><div><span>Temp / Dew</span><b>${td ? `${tt(td[1])} / ${tt(td[2])} °C` : '-'}</b></div><div><span>QNH</span><b>${q ? q + ' hPa' : '-'}</b></div>`;
+  const w = m.match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?(KT|MPS)\b/);
+  const wk = w && w[4] === 'MPS' ? 1.944 : 1;
+  const windT = !w ? '' : (+w[2] === 0 ? 'Wind calm' : `Wind ${w[1] === 'VRB' ? 'variable' : w[1] + '°'} ${Math.round(+w[2] * wk)} kt${w[3] ? ` gusting ${Math.round(+w[3] * wk)}` : ''}`);
+  const visS = !vis ? '' : vis === 'CAVOK' ? 'CAVOK' : vis === '9999' ? 'visibility 10 km or more' : `visibility ${+vis >= 5000 ? (+vis / 1000) + ' km' : +vis + ' m'}`;
+  const CN = { FEW: 'few', SCT: 'scattered', BKN: 'broken', OVC: 'overcast', VV: 'vertical visibility' };
+  const cloudS = [...m.matchAll(/\b(FEW|SCT|BKN|OVC|VV)(\d{3})(CB|TCU)?\b/g)].map(c => `${CN[c[1]]} ${+c[2] * 100} ft${c[3] ? ' ' + c[3] : ''}`).join(', ') || (/NSC|NCD|CLR|SKC/.test(m) ? 'no significant cloud' : '');
+  const parts = [windT, visS, cloudS, td ? `${tt(td[1])} / ${tt(td[2])} °C` : '', q ? `QNH ${q}` : ''].filter(Boolean);
+  $('decode').textContent = parts.join(' · ');
 }
 function drawDial(dir, best) {
+  if (!$('wdial')) return;
   let g = '<circle class="wd-ring" cx="110" cy="110" r="100"/>';
   for (let a = 0; a < 360; a += 30) { const r1 = a % 90 ? 92 : 86, s = Math.sin(a * Math.PI / 180), c = Math.cos(a * Math.PI / 180); g += `<line class="wd-tick" x1="${(110 + 100 * s).toFixed(1)}" y1="${(110 - 100 * c).toFixed(1)}" x2="${(110 + r1 * s).toFixed(1)}" y2="${(110 - r1 * c).toFixed(1)}"/>`; }
   g += '<text class="wd-txt" x="110" y="40" text-anchor="middle">N</text><text class="wd-txt" x="110" y="194" text-anchor="middle">S</text>';
@@ -1070,12 +1047,12 @@ function update() {
   const d = data();
   const tot = d.fuel.taxi + d.fuel.trip + d.fuel.reserve + d.fuel.extra;
   $('achint').textContent = `BEW ${FLEET[ac][0]} lbs · arm ${FLEET[ac][1].toFixed(2)}`;
-  $('tot').textContent = `Total ${+tot.toFixed(2)} gal · ${lit(tot)} · ${(tot * 6.71).toFixed(1)} lbs`;
+  $('tot').textContent = `· ${+tot.toFixed(2)} gal on board, ${lit(tot)}, ${(tot * 6.71).toFixed(1)} lbs`;
   const rate = type === 'local' ? 5 : 4.5, hrsDec = d.hours + d.minutes / 60, g = rate * hrsDec;
   const fc = fuelCheck(d), avail = tot, left = fc.left;
   const warn = fc.empty
-    ? `<div class="fwarn">⚠ Not enough fuel. ${+tot.toFixed(1)} gal on board runs out before ${d.hours} h ${d.minutes} min. Max flight time with the 4 gal reserve: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>`
-    : fc.over ? `<div class="fwarn">⚠ Flight time is longer than your fuel allows. You would land with ${+left.toFixed(2)} gal, below the 4 gal reserve. Max flight time: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>` : '';
+    ? `<div class="fwarn">Not enough fuel. ${+tot.toFixed(1)} gal on board runs out before ${d.hours} h ${d.minutes} min. Max flight time with the 4 gal reserve: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>`
+    : fc.over ? `<div class="fwarn">Flight time is longer than your fuel allows. You would land with ${+left.toFixed(2)} gal, below the 4 gal reserve. Max flight time: <b>${fc.endTxt}</b>. Add fuel or shorten the flight.</div>` : '';
   $('burn').innerHTML = warn +
     `<div><span>On board</span><b>${+tot.toFixed(2)} gal (${lit(tot)}) at engine start</b></div>` +
     `<div><span>Available</span><b>${+avail.toFixed(2)} gal × 6.71 = ${(Math.max(0, avail) * 6.71).toFixed(1)} lbs (usable fuel on M&amp;B)</b></div>` +
@@ -1114,20 +1091,23 @@ function update() {
     $('etape').innerHTML = usable > 0 ? `<div class="bar2" role="img" aria-label="Trip uses ${(fc2.burn / usable * 100).toFixed(0)} percent of usable fuel"><div class="resv" style="width:${Math.min(100, 4 / usable * 100).toFixed(1)}%"></div><div class="trip${fc2.over ? ' over' : ''}" style="width:${Math.min(100, fc2.burn / usable * 100).toFixed(1)}%"></div></div><div class="lbl"><span>Trip ${d.hours}:${String(d.minutes).padStart(2, '0')}</span><span>Max flight ${fc2.endTxt.replace(' h ', ':').replace(' min', '')}</span><span>4 gal reserve</span></div>` : '';
     // baggage combined meter
     const bs = d.bag1 + d.bag2; $('bagt').textContent = `${+bs.toFixed(1)} / 120 lbs`; $('bagi').style.width = Math.min(100, bs / 120 * 100) + '%'; $('bagm').classList.toggle('over', bs > 120);
-    const wt = $('wbtag'); wt.className = 'tag ' + (allOk ? 'ok' : 'bad'); wt.textContent = allOk ? '✓ Within limits' : '✕ Outside limits';
+    const wt = $('wbtag'); wt.className = allOk ? 'ok' : 'bad'; wt.textContent = allOk ? 'Within limits at every point.' : 'Outside limits. Values in red.';
     // METAR age chip
     const ma = metarAge(), mt = $('metage');
-    mt.className = 'tag ' + (ma === Infinity ? 'info' : ma > 60 ? 'warn' : 'ok');
-    mt.textContent = ma === Infinity ? 'No METAR yet' : ma > 60 ? `▲ METAR ${Math.floor(ma / 60)} h ${ma % 60} min old` : `● METAR ${ma} min old`;
+    mt.className = ma === Infinity ? 'info' : ma > 60 ? 'warn' : 'ok';
+    mt.textContent = ma === Infinity ? 'No METAR yet' : `METAR ${Math.floor(ma / 60) ? Math.floor(ma / 60) + ' h ' : ''}${ma % 60} min old${ma > 60 ? ', refresh before printing' : ''}`;
     // quick flight-time chips
     const tot = d.hours * 60 + d.minutes; document.querySelectorAll('.qbtn[data-t]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.t === tot));
     // bottom bar verdict
-    const s = $('sum'), need = [!d.pic && 'instructor name', !d.student && 'student name'].filter(Boolean);
-    if (v.anyErr) { s.className = 'bad'; s.textContent = '✕ Check the red fields'; }
-    else if (!allOk) { s.className = 'bad'; s.textContent = '✕ Outside weight / CG limits'; }
-    else if (fc2.over) { s.className = 'bad'; s.textContent = `✕ Not enough fuel · max ${fc2.endTxt}`; }
-    else if (need.length || ma > 60) { s.className = 'warn'; s.textContent = '▲ ' + [need.length && 'Add ' + need.join(' and '), ma > 60 && ma !== Infinity && 'METAR is old'].filter(Boolean).join(' · '); }
-    else { s.className = 'ok'; s.textContent = '✓ Within weight, CG and fuel limits'; }
+    const need = [!d.pic && 'instructor name', !d.student && 'student name'].filter(Boolean);
+    let cls, main, sub;
+    if (v.anyErr) { cls = 'bad'; main = 'Check the red fields'; sub = 'A value looks wrong'; }
+    else if (!allOk) { cls = 'bad'; main = 'Outside limits'; sub = 'See mass & balance'; }
+    else if (fc2.over) { cls = 'bad'; main = 'Not enough fuel'; sub = `Max flight ${fc2.endTxt}`; }
+    else { cls = (need.length || ma > 60) ? 'warn' : 'ok'; main = 'Within limits'; sub = [need.length && 'Add ' + need.join(' and '), ma > 60 && ma !== Infinity && 'METAR is old'].filter(Boolean).join(' · ') || 'Ready to print'; }
+    const s = $('sum'); s.className = cls; s.textContent = main + (sub !== 'Ready to print' ? '. ' + sub + '.' : '. Ready to print.');
+    $('sverd').className = cls === 'warn' ? 'ok' : cls; $('sverd').textContent = main;
+    $('sverd2').className = sub === 'Ready to print' ? 'ok' : ''; $('sverd2').textContent = sub;
   }
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
