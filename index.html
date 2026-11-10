@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>C172 Flight Sheet</title>
+<title>FlyCoop C172 Flight Sheet</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230b1f3a'/%3E%3Cpath d='M4 34h56a28 28 0 0 1-56 0z' fill='%23173a66'/%3E%3Cpath d='M14 33h12l3 5 3-5h18' fill='none' stroke='%2333c3db' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='20 20 720 440'%3E%3Crect x='20' y='20' width='720' height='440' rx='60' fill='#0b1f3a'/%3E%3Cg fill='none' stroke-width='34' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='118,80 135,42 595,40 645,135 625,162' stroke='#c9d4e3'/%3E%3Cpath d='M40 145 C110 100 220 120 360 170' stroke='#deb246'/%3E%3Cpolyline points='300,212 490,92 502,104 400,225' stroke='#deb246'/%3E%3Cpolyline points='440,190 580,238 665,188 720,200' stroke='#e6965f'/%3E%3Cpolyline points='258,338 358,440 462,335' stroke='#c9d4e3'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 /* Cockpit Command: navy instrument header over a bright working surface (dark panel at night).
    Cyan = live values and inputs, blue = primary action, green / amber / red = within limits / caution / out of limits. */
@@ -45,13 +45,15 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(
   padding: calc(18px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 22px max(16px, env(safe-area-inset-left, 0px)); }
 .cmd .in { max-width: 1240px; margin: 0 auto; display: grid; gap: 18px; }
 .brand { display: flex; align-items: center; gap: 12px; }
-.brand .mark { width: 44px; height: 44px; flex: none; }
+.brand .mark { width: 118px; height: 72px; flex: none; }
+.brand .org { color: #deb246; font-weight: 700; }
+.brand .wm { border-left: 1px solid var(--nline); padding-left: 14px; }
 .brand .wm { display: grid; gap: 1px; min-width: 0; flex: 1; }
 .brand h1 { margin: 0; font: 700 22px/1.1 var(--head); letter-spacing: -.01em; }
 .brand .sl { font: 500 12px var(--mono); color: var(--nmuted); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tail { margin-left: auto; display: flex; align-items: center; gap: 10px; flex: none; }
 .reg { font: 600 15px var(--mono); letter-spacing: .04em; color: var(--navy); background: #ffffff; border-radius: 4px; padding: 5px 10px; position: relative; }
-.reg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--cyan); border-radius: 4px 0 0 4px; }
+.reg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #deb246; border-radius: 4px 0 0 4px; }
 .reg { padding-left: 14px; }
 .glance { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .tile { border: 1px solid var(--nline); background: var(--navy2); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 96px minmax(0, 1fr); grid-template-rows: auto auto auto; column-gap: 12px; align-items: center; min-width: 0; }
@@ -74,7 +76,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(
   .tile { grid-template-columns: 1fr; padding: 10px; justify-items: start; row-gap: 2px; }
   .tile svg { grid-row: auto; width: 76px; height: 44px; }
   .tile .v { font-size: 18px; }
-  .brand h1 { font-size: 18px; } .brand .mark { width: 38px; height: 38px; } .cmd { padding-bottom: 16px; } .cmd .in { gap: 14px; }
+  .brand h1 { font-size: 18px; } .brand .mark { width: 72px; height: 44px; } .brand .wm { padding-left: 10px; } .brand .org { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; } .cmd { padding-bottom: 16px; } .cmd .in { gap: 14px; }
   .tail .reg { font-size: 13px; }
 }
 
@@ -295,13 +297,17 @@ td:first-child { font-weight: 500; }
 <header class="cmd">
   <div class="in">
     <div class="brand">
-      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r="30" fill="#102a4c" stroke="#33c3db" stroke-width="2"/>
-        <path d="M4 34h56a28 28 0 0 1-56 0z" fill="#173a66"/>
-        <g stroke="#9fb6d4" stroke-width="2" stroke-linecap="round"><line x1="32" y1="6" x2="32" y2="11"/><line x1="15" y1="13" x2="18" y2="17"/><line x1="49" y1="13" x2="46" y2="17"/></g>
-        <path d="M14 33h12l3 5 3-5h18" fill="none" stroke="#33c3db" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <svg class="mark" viewBox="20 20 720 440" role="img" aria-label="FlyCoop">
+        <g fill="none" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="118,80 135,42 595,40 645,135 625,162" stroke="#c9d4e3"/>
+          <path d="M40 145 C110 100 220 120 360 170" stroke="#deb246"/>
+          <polyline points="300,212 490,92 502,104 400,225" stroke="#deb246"/>
+          <polyline points="440,190 580,238 665,188 720,200" stroke="#e6965f"/>
+          <polyline points="258,338 358,440 462,335" stroke="#c9d4e3"/>
+        </g>
+        <text x="365" y="300" text-anchor="middle" fill="#c9d4e3" style="font:500 64px var(--sans);letter-spacing:22px">FLY-COOP</text>
       </svg>
-      <div class="wm"><h1>C172 Flight Sheet</h1><span class="sl" id="hsub">Navlog · M&amp;B · Briefing</span></div>
+      <div class="wm"><h1><span class="org">FlyCoop</span> C172 Flight Sheet</h1><span class="sl" id="hsub">Navlog · M&amp;B · Briefing</span></div>
       <div class="tail"><span class="reg" id="hreg">HA-BFN</span></div>
     </div>
     <div class="glance" aria-live="polite">
@@ -436,7 +442,7 @@ td:first-child { font-weight: 500; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611101950';
+  var V = '202611101952';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
