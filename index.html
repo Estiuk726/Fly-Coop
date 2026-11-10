@@ -55,6 +55,10 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(
 .reg { font: 600 15px var(--mono); letter-spacing: .04em; color: var(--navy); background: #ffffff; border-radius: 4px; padding: 5px 10px; position: relative; }
 .reg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: #deb246; border-radius: 4px 0 0 4px; }
 .reg { padding-left: 14px; }
+.fcat { font: 700 13px var(--mono); letter-spacing: .06em; padding: 5px 10px; border-radius: 4px; color: #ffffff; white-space: nowrap; }
+.fcat[hidden] { display: none; }
+.fcat.VFR { background: #15803d; } .fcat.MVFR { background: #1d5fd1; } .fcat.IFR { background: #c42b2b; } .fcat.LIFR { background: #a3229b; }
+.sh .fcat { font-size: 12px; padding: 4px 9px; }
 .glance { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .tile { border: 1px solid var(--nline); background: var(--navy2); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 96px minmax(0, 1fr); grid-template-rows: auto auto auto; column-gap: 12px; align-items: center; min-width: 0; }
 .tile svg { grid-row: 1 / 4; width: 96px; height: 58px; overflow: visible; }
@@ -77,7 +81,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(
   .tile svg { grid-row: auto; width: 76px; height: 44px; }
   .tile .v { font-size: 18px; }
   .brand h1 { font-size: 18px; } .brand .mark { width: 72px; height: 44px; } .brand .wm { padding-left: 10px; } .brand .org { display: block; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; } .cmd { padding-bottom: 16px; } .cmd .in { gap: 14px; }
-  .tail .reg { font-size: 13px; }
+  .tail .reg { font-size: 13px; } .tail { flex-direction: column; align-items: flex-end; gap: 6px; } .tail .fcat { font-size: 12px; padding: 3px 8px; }
 }
 
 /* ---------- Section jump bar (one page) ---------- */
@@ -308,7 +312,7 @@ td:first-child { font-weight: 500; }
         <text x="365" y="300" text-anchor="middle" fill="#c9d4e3" style="font:500 64px var(--sans);letter-spacing:22px">FLY-COOP</text>
       </svg>
       <div class="wm"><h1><span class="org">FlyCoop</span> C172 Flight Sheet</h1><span class="sl" id="hsub">Navlog · M&amp;B · Briefing</span></div>
-      <div class="tail"><span class="reg" id="hreg">HA-BFN</span></div>
+      <div class="tail"><span class="fcat" id="hcat" hidden></span><span class="reg" id="hreg">HA-BFN</span></div>
     </div>
     <div class="glance" aria-live="polite">
       <div class="tile" id="g-tow"><svg id="gz-tow" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">Take-off</span><span class="v">-</span><span class="s"></span></div>
@@ -356,7 +360,8 @@ td:first-child { font-weight: 500; }
   </section>
 
   <section id="s2">
-    <div class="sh"><h2><span class="n">2</span>Weather &amp; NOTAM</h2><span class="tag" id="metage"></span></div>
+    <div class="sh"><h2><span class="n">2</span>Weather &amp; NOTAM</h2><span style="display:flex;gap:8px;flex-wrap:wrap"><span class="fcat" id="wxcat" hidden></span><span class="tag" id="metage"></span></span></div>
+    <div class="hint" id="cath"></div>
     <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
     <div class="wxgrid">
       <svg id="wdial" viewBox="0 0 220 220" role="img" aria-label="Wind and runway 09/27"></svg>
@@ -442,7 +447,7 @@ td:first-child { font-weight: 500; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611101952';
+  var V = '202611101959';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -1005,8 +1010,36 @@ function metarAge() {
   if (t > now.getTime() + 36e5) t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, +x[1], +x[2], +x[3]);
   return Math.max(0, Math.round((now.getTime() - t) / 6e4));
 }
+// flight category from the METAR, same definitions as aviationweather.gov:
+// VFR ceiling > 3000 ft and vis > 5 SM, MVFR 1000-3000 ft or 3-5 SM, IFR 500-999 ft or 1-<3 SM, LIFR < 500 ft or < 1 SM.
+// Ceiling = lowest BKN, OVC or VV layer.
+function flightCat() {
+  const m = ' ' + $('metar').value.toUpperCase().replace(/\s+/g, ' ') + ' ';
+  if (!/LHBP/.test(m)) return null;
+  const SM = 1609.34;
+  let vis = null;
+  if (/ CAVOK /.test(m)) vis = 10000;
+  else { const v = m.match(/ (\d{4})(?:NDV)? /); if (v) vis = v[1] === '9999' ? 10000 : +v[1]; }
+  const layers = [...m.matchAll(/ (BKN|OVC|VV)(\d{3})/g)].map(x => +x[2] * 100);
+  const ceil = layers.length ? Math.min(...layers) : null;
+  const rank = { VFR: 0, MVFR: 1, IFR: 2, LIFR: 3 };
+  const byCeil = ceil == null ? 'VFR' : ceil < 500 ? 'LIFR' : ceil < 1000 ? 'IFR' : ceil <= 3000 ? 'MVFR' : 'VFR';
+  const byVis = vis == null ? 'VFR' : vis < SM ? 'LIFR' : vis < 3 * SM ? 'IFR' : vis <= 5 * SM ? 'MVFR' : 'VFR';
+  const cat = rank[byCeil] >= rank[byVis] ? byCeil : byVis;
+  const visT = vis == null ? 'visibility not reported' : vis >= 10000 ? 'visibility 10 km or more' : `visibility ${vis >= 5000 ? (vis / 1000).toFixed(0) + ' km' : vis + ' m'}`;
+  const ceilT = ceil == null ? 'no ceiling' : `ceiling ${ceil} ft`;
+  return { cat, ceil, vis, why: `${ceilT}, ${visT}` };
+}
+const CAT_TXT = { VFR: 'ceiling above 3000 ft and visibility above 8 km', MVFR: 'ceiling 1000 to 3000 ft or visibility 5 to 8 km', IFR: 'ceiling 500 to 999 ft or visibility 1.6 to 5 km', LIFR: 'ceiling below 500 ft or visibility below 1.6 km' };
+const CAT_NAME = { VFR: 'VFR', MVFR: 'Marginal VFR', IFR: 'IFR', LIFR: 'Low IFR' };
+function showCat() {
+  const c = flightCat();
+  ['hcat', 'wxcat'].forEach(id => { const e = $(id); e.hidden = !c; if (c) { e.className = 'fcat ' + c.cat; e.textContent = c.cat; e.title = `${CAT_NAME[c.cat]}: ${CAT_TXT[c.cat]}`; } });
+  $('cath').textContent = c ? `${CAT_NAME[c.cat]} means ${CAT_TXT[c.cat]}. LHBP now: ${c.why}.` : '';
+}
 // decoded METAR tiles and the wind dial
 function wxDecode() {
+  showCat();
   const m = $('metar').value.toUpperCase().replace(/\s+/g, ' ');
   if (!/LHBP/.test(m)) { $('decode').innerHTML = ''; return; }
   const vis = (m.match(/\s(CAVOK|\d{4})\s/) || [])[1];
