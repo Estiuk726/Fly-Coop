@@ -4,186 +4,274 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>C172 Flight Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%230b1f3a'/%3E%3Cpath d='M4 34h56a28 28 0 0 1-56 0z' fill='%23173a66'/%3E%3Cpath d='M14 33h12l3 5 3-5h18' fill='none' stroke='%2333c3db' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
-/* Editorial: two neutrals (ink, paper), one accent for primary actions, red kept only for safety warnings.
-   Hairline rules instead of cards, 0-4px corners, no shadows or gradients, generous whitespace. */
+/* Cockpit Command: navy instrument header over a bright working surface (dark panel at night).
+   Cyan = live values and inputs, blue = primary action, green / amber / red = within limits / caution / out of limits. */
 :root {
-  --ink: #0d0d0d; --paper: #ffffff; --accent: #2b3ee6; --on-accent: #ffffff; --bad: #c2261b;
-  --fg: var(--ink); --bg: var(--paper);
-  --muted: color-mix(in srgb, var(--ink) 56%, var(--paper));
-  --line: color-mix(in srgb, var(--ink) 13%, var(--paper));
-  --soft: color-mix(in srgb, var(--ink) 4%, var(--paper));
-  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  --h: 44px; --r: 3px;
+  --bg: #eef2f7; --card: #ffffff; --paper: #ffffff; --ink: #0b1f3a; --fg: #0b1f3a; --muted: #4f617a; --line: #d3dce8;
+  --field: #ffffff; --fline: #b9c6d8; --soft: #f5f8fc;
+  --navy: #0b1f3a; --navy2: #102a4c; --nline: #1f3a60; --ntext: #ffffff; --nmuted: #9fb6d4;
+  --cyan: #33c3db; --cyan-t: #065c6e; --cyan-bg: #e2f3f7;
+  --blue: #1757c2; --blue-h: #0f469f; --on-blue: #ffffff; --blue-bg: #eaf1fd;
+  --sel: #0b1f3a; --ok: #11663f; --ok-bg: #e3f4ea; --warn: #7a4b00; --warn-bg: #fdf0d6; --warn-l: #c98a00; --bad: #b42318; --bad-bg: #fde8e7;
+  --head: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --h: 46px; --r: 6px;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --ink: #ededed; --paper: #0b0b0c; --accent: #8a96ff; --on-accent: #0b0b0c; --bad: #ff6b5e; color-scheme: dark } }
-:root[data-theme="dark"] { --ink: #ededed; --paper: #0b0b0c; --accent: #8a96ff; --on-accent: #0b0b0c; --bad: #ff6b5e; color-scheme: dark }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #060d18; --card: #0b1626; --paper: #0b1626; --ink: #e8f0fa; --fg: #e8f0fa; --muted: #8ea3bf; --line: #1c2e48;
+  --field: #060d18; --fline: #2a4064; --soft: #0f1e33;
+  --navy: #08182c; --navy2: #0d2140; --nline: #1c2e48;
+  --sel: #1d4f9e; --cyan-t: #3fd7ea; --cyan-bg: #0b2a33; --blue: #2f7de1; --blue-h: #4a8ff0; --blue-bg: #0f2347;
+  --ok: #4be0a8; --ok-bg: #0f2e26; --warn: #f7c25a; --warn-bg: #33260a; --warn-l: #f7c25a; --bad: #ff8a8a; --bad-bg: #3a1215; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #060d18; --card: #0b1626; --paper: #0b1626; --ink: #e8f0fa; --fg: #e8f0fa; --muted: #8ea3bf; --line: #1c2e48;
+  --field: #060d18; --fline: #2a4064; --soft: #0f1e33;
+  --navy: #08182c; --navy2: #0d2140; --nline: #1c2e48;
+  --sel: #1d4f9e; --cyan-t: #3fd7ea; --cyan-bg: #0b2a33; --blue: #2f7de1; --blue-h: #4a8ff0; --blue-bg: #0f2347;
+  --ok: #4be0a8; --ok-bg: #0f2e26; --warn: #f7c25a; --warn-bg: #33260a; --warn-l: #f7c25a; --bad: #ff8a8a; --bad-bg: #3a1215; color-scheme: dark }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); -webkit-font-smoothing: antialiased;
-  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-block: 56px 0; }
-.wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 0; }
+html { scroll-padding-top: 64px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.45 var(--sans); -webkit-font-smoothing: antialiased; }
+.mono, .tile .v, #tot, .calc b, table, .xw b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 
-/* Header */
-header.hero { display: grid; gap: 10px; padding: 0 0 40px; }
-.eyebrow { font: 500 12px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-h1 { font-size: 44px; line-height: 1.05; font-weight: 650; letter-spacing: -.035em; margin: 0; }
-.sub { color: var(--muted); margin: 0; font-size: 16px; max-width: 34em; }
-
-/* At a glance: four figures on one hairline row */
-.glance { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); }
-.tile { padding: 14px 12px 16px 0; display: grid; gap: 4px; min-width: 0; }
-.tile + .tile { padding-left: 14px; border-left: 1px solid var(--line); }
-.tile .l { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-.tile .v { font-size: 20px; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile .s { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile.warn .v, .tile.warn .s { color: var(--bad); }
-@media (max-width: 620px) {
-  .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tile:nth-child(3) { padding-left: 0; border-left: 0; }
-  .tile:nth-child(n+3) { border-top: 1px solid var(--line); }
-  h1 { font-size: 36px; }
-  body { padding-top: 36px; }
+/* ---------- Instrument header ---------- */
+.cmd { background: var(--navy); color: var(--ntext);
+  padding: calc(18px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 22px max(16px, env(safe-area-inset-left, 0px)); }
+.cmd .in { max-width: 1240px; margin: 0 auto; display: grid; gap: 18px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand .mark { width: 44px; height: 44px; flex: none; }
+.brand .wm { display: grid; gap: 1px; min-width: 0; flex: 1; }
+.brand h1 { margin: 0; font: 700 22px/1.1 var(--head); letter-spacing: -.01em; }
+.brand .sl { font: 500 12px var(--mono); color: var(--nmuted); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tail { margin-left: auto; display: flex; align-items: center; gap: 10px; flex: none; }
+.reg { font: 600 15px var(--mono); letter-spacing: .04em; color: var(--navy); background: #ffffff; border-radius: 4px; padding: 5px 10px; position: relative; }
+.reg::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--cyan); border-radius: 4px 0 0 4px; }
+.reg { padding-left: 14px; }
+.glance { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.tile { border: 1px solid var(--nline); background: var(--navy2); border-radius: 10px; padding: 12px 14px; display: grid; grid-template-columns: 96px minmax(0, 1fr); grid-template-rows: auto auto auto; column-gap: 12px; align-items: center; min-width: 0; }
+.tile svg { grid-row: 1 / 4; width: 96px; height: 58px; overflow: visible; }
+.tile .l { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--nmuted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .v { font-size: 22px; font-weight: 600; color: #ffffff; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile .s { font: 500 12px var(--sans); color: var(--nmuted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile.warn { border-color: #e5484d; }
+.tile.warn .s { color: #ff9b9b; font-weight: 600; }
+.g-track { fill: none; stroke: var(--nline); stroke-width: 12; }
+.g-red { fill: none; stroke: #e5484d; stroke-width: 12; }
+.g-amb { fill: none; stroke: #f0b429; stroke-width: 12; }
+.g-val { fill: none; stroke: var(--cyan); stroke-width: 12; }
+.g-val.over { stroke: #e5484d; }
+.g-ndl { stroke: var(--cyan); stroke-width: 5; stroke-linecap: round; }
+.g-hub { fill: var(--cyan); }
+@media (max-width: 1000px) { .glance { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) {
+  .glance { gap: 8px; }
+  .tile { grid-template-columns: 1fr; padding: 10px; justify-items: start; row-gap: 2px; }
+  .tile svg { grid-row: auto; width: 76px; height: 44px; }
+  .tile .v { font-size: 18px; }
+  .brand h1 { font-size: 18px; } .brand .mark { width: 38px; height: 38px; } .cmd { padding-bottom: 16px; } .cmd .in { gap: 14px; }
+  .tail .reg { font-size: 13px; }
 }
 
-/* Section index */
-.steps { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 4; display: flex; gap: 22px; overflow-x: auto; padding: 14px 0; margin-bottom: 8px;
-  background: var(--paper); border-bottom: 1px solid var(--line); scrollbar-width: none; }
+/* ---------- Section jump bar (one page) ---------- */
+.steps { position: sticky; top: 0; z-index: 6; background: var(--navy); border-top: 1px solid var(--nline);
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); }
 .steps::-webkit-scrollbar { display: none; }
-.steps a { flex: none; display: inline-flex; align-items: baseline; gap: 6px; text-decoration: none; color: var(--muted); font-size: 14px; font-weight: 500; }
-.steps a:hover { color: var(--ink); }
-.steps a i { font: 500 11px var(--mono); font-style: normal; color: var(--muted); }
-.steps a.todo { color: var(--bad); }
-.steps a.todo i { color: var(--bad); }
+.steps .in2 { max-width: 1240px; margin: 0 auto; display: flex; gap: 6px; width: 100%; }
+.steps a { flex: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #dbe6f4; font: 500 14px var(--sans);
+  padding: 7px 12px; border-radius: 6px; border: 1px solid transparent; }
+.steps a:hover { background: var(--navy2); }
+.steps a i { font-style: normal; width: 9px; height: 9px; border-radius: 50%; background: #4b6488; font-size: 0; overflow: hidden; }
+.steps a.done i { background: #4be0a8; }
+.steps a.todo { color: #ffd27a; border-color: #5a4512; }
+.steps a.todo i { background: #f0b429; }
+.steps a.bad { color: #ffb3b3; border-color: #6b2a30; }
+.steps a.bad i { background: #e5484d; }
 
-/* Sections: no cards, just space and a rule */
-section { padding: 48px 0; display: grid; gap: 20px; border-bottom: 1px solid var(--line); scroll-margin-top: 56px; }
-.sh { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-h2, .sh h2 { display: flex; align-items: baseline; gap: 14px; margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -.02em; color: var(--ink); text-transform: none; }
-.sh h2 .n { font: 500 12px var(--mono); color: var(--muted); letter-spacing: 0; }
-.sh h2 .n::before { content: "0"; }
+/* ---------- Page body ---------- */
+.wrap { max-width: 1240px; margin: 0 auto; padding: 22px max(16px, env(safe-area-inset-right, 0px)) 28px max(16px, env(safe-area-inset-left, 0px));
+  display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 1080px) {
+  .wrap { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); grid-template-areas: "s1 s4" "s2 s4" "s3 s5"; align-items: start; }
+  #s1 { grid-area: s1; } #s2 { grid-area: s2; } #s3 { grid-area: s3; } #s4 { grid-area: s4; } #s5 { grid-area: s5; }
+}
+section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 16px; min-width: 0; scroll-margin-top: 64px; }
+.sh { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.sh h2 { margin: 0; display: flex; align-items: center; gap: 12px; font: 600 21px var(--head); letter-spacing: -.01em; color: var(--ink); }
+.sh h2 .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--sel); color: #ffffff; font: 600 13px var(--mono); flex: none; }
 .chip { font: 500 13px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.sub2 { font: 500 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 12px; padding-top: 16px; border-top: 1px solid var(--line); }
+.sub2 { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-top: 4px; }
+.sub2.sep { border-top: 1px solid var(--line); padding-top: 16px; }
+.tag { display: inline-flex; align-items: center; gap: 6px; font: 600 12px var(--mono); padding: 4px 9px; border-radius: 4px; white-space: nowrap; }
+.tag.ok { background: var(--ok-bg); color: var(--ok); } .tag.warn { background: var(--warn-bg); color: var(--warn); } .tag.bad { background: var(--bad-bg); color: var(--bad); } .tag.info { background: var(--cyan-bg); color: var(--cyan-t); }
+.tag:empty { display: none; }
+@media (max-width: 560px) { section { padding: 16px 14px; border-radius: 10px; } .sh h2 { font-size: 19px; } }
 
-/* Fields */
-.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px 14px; align-items: end; }
-.span2 { grid-column: span 2; }
-.full { grid-column: 1 / -1; }
-.crew { display: grid; grid-template-columns: minmax(0, 1fr) 120px; gap: 18px 14px; align-items: end; }
-@media (max-width: 620px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } section { padding: 40px 0; } }
+/* ---------- Fields ---------- */
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px 12px; align-items: end; }
+.span2 { grid-column: span 2; } .full { grid-column: 1 / -1; }
+.crew { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 14px 12px; align-items: end; }
+@media (max-width: 560px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .crew { grid-template-columns: minmax(0, 1fr) 92px; } }
 .f { display: grid; gap: 6px; min-width: 0; }
-.f > .k { font-size: 13px; font-weight: 500; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-input, select, textarea { font: 500 16px var(--sans); color: var(--ink); background: var(--paper); border: 1px solid var(--line);
-  border-radius: var(--r); padding: 0 12px; width: 100%; min-width: 0; margin: 0; transition: border-color .12s; }
+.f > .k { font: 600 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+input, select, textarea { font: 500 16px var(--sans); color: var(--ink); background: var(--field); border: 1.5px solid var(--fline);
+  border-radius: var(--r); padding: 0 12px; width: 100%; min-width: 0; margin: 0; transition: border-color .12s, box-shadow .12s; }
+input[type="number"], input[type="date"], #dep, #dest, #flaps, select { font-family: var(--mono); }
 input, select { height: var(--h); line-height: normal; }
-input:hover, select:hover, textarea:hover { border-color: color-mix(in srgb, var(--ink) 35%, var(--paper)); }
 input[type="date"] { -webkit-appearance: none; appearance: none; display: block; text-align: left; }
 input[type="date"]::-webkit-date-and-time-value { text-align: left; }
 select { -webkit-appearance: none; appearance: none; padding-right: 34px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%237d8ea6' stroke-width='1.6'/%3E%3C/svg%3E");
   background-position: calc(100% - 13px) 50%; background-repeat: no-repeat; }
-textarea { padding: 12px; resize: vertical; font: 400 14px/1.55 var(--mono); }
-input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
-input::placeholder, textarea::placeholder { color: var(--muted); opacity: .6; }
-input[readonly] { color: var(--muted); background: var(--soft); border-color: transparent; }
-.need { border-color: var(--ink) !important; border-style: dashed !important; }
-.u { position: relative; }
+textarea { padding: 11px 12px; resize: vertical; font: 400 13px/1.55 var(--mono); }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 22%, transparent); }
+input::placeholder, textarea::placeholder { color: var(--muted); opacity: .75; }
+input[readonly] { color: var(--muted); background: var(--soft); border-style: dashed; }
+.need { border-color: var(--warn-l) !important; background: var(--warn-bg) !important; }
+input.bad { border-color: var(--bad) !important; background: var(--bad-bg) !important; }
+.u { position: relative; display: block; }
 .u input { padding-right: 46px; font-variant-numeric: tabular-nums; }
-.u::after { content: attr(data-unit); position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font: 12px var(--mono); color: var(--muted); pointer-events: none; }
+.u::after { content: attr(data-unit); position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font: 500 12px var(--mono); color: var(--muted); pointer-events: none; }
 input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 input[type=number] { -moz-appearance: textfield; }
+.seg { display: flex; height: var(--h); border: 1.5px solid var(--fline); border-radius: var(--r); overflow: hidden; background: var(--field); }
+.seg button { flex: 1; font: 600 14px var(--sans); background: transparent; color: var(--muted); border: 0; cursor: pointer; padding: 0 8px; white-space: nowrap; }
+.seg button + button { border-left: 1.5px solid var(--fline); }
+.seg button[aria-pressed="true"] { background: var(--sel); color: #ffffff; }
+.seg button:focus-visible { outline: 2px solid var(--blue); outline-offset: -3px; }
+.hint { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.hint a { color: var(--blue); }
+.hint.stale { color: var(--warn); font-weight: 600; }
+.vmsg { display: grid; gap: 6px; }
+.vmsg:empty { display: none; }
+.vmsg div { font-size: 13px; line-height: 1.4; padding: 8px 12px; border-radius: 6px; }
+.vmsg .e { background: var(--bad-bg); color: var(--bad); font-weight: 500; }
+.vmsg .w { background: var(--warn-bg); color: var(--warn); font-weight: 500; }
 
-/* Segmented control: selected = ink, not accent */
-.seg { display: flex; height: var(--h); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
-.seg button { flex: 1; font: 500 15px var(--sans); background: transparent; color: var(--muted); border: 0; cursor: pointer; padding: 0 8px; white-space: nowrap; }
-.seg button + button { border-left: 1px solid var(--line); }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
-
-.hint { font-size: 13px; color: var(--muted); }
-.hint a { color: var(--ink); text-underline-offset: 3px; }
-.hint.stale { color: var(--bad); font-weight: 500; }
-
-/* Readouts: plain rows on a hairline, no boxes */
-.calc, .xw { display: grid; gap: 6px; border-top: 1px solid var(--line); padding: 14px 0 0; font-size: 15px; font-variant-numeric: tabular-nums; }
-.calc div { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: baseline; }
-.xw .row { display: grid; grid-template-columns: 96px 1fr; gap: 12px; align-items: baseline; }
-.calc span, .xw .row span { color: var(--muted); font: 12px var(--mono); }
-.calc b, .xw b { font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
-.calc .warnc, .xw .warn { color: var(--bad); }
-.xw .best { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
-.xw small { color: var(--muted); font-size: 12px; }
-.fwarn { display: block !important; border-left: 2px solid var(--bad); color: var(--bad); padding: 2px 0 2px 12px; margin-bottom: 6px; font-weight: 500; font-size: 14px; line-height: 1.45; }
-.fwarn b { color: inherit; }
-
-/* Buttons */
-.wxrow { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 0; }
-.wxbtn, .qbtn { font: 500 14px var(--sans); background: transparent; color: var(--ink); border: 1px solid var(--ink); border-radius: var(--r);
-  height: 40px; padding: 0 16px; cursor: pointer; -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
-.qbtn { height: 34px; padding: 0 12px; font-size: 13px; border-color: var(--line); }
-.wxbtn:hover, .qbtn:hover { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-.wxbtn:disabled { opacity: .5; cursor: default; }
-.wxbtn:focus-visible, .qbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* ---------- Buttons ---------- */
 .quick { display: flex; flex-wrap: wrap; gap: 8px; }
-.go { font: 600 15px var(--sans); background: var(--accent); color: var(--on-accent); border: 0; border-radius: var(--r); height: 48px; padding: 0 26px; cursor: pointer; white-space: nowrap; }
-.go:hover { background: color-mix(in srgb, var(--accent) 88%, var(--ink)); }
-.go:disabled { opacity: .45; cursor: default; }
+.qbtn { font: 500 14px var(--mono); color: var(--ink); background: var(--field); border: 1.5px solid var(--fline); border-radius: var(--r); height: 40px; padding: 0 14px; cursor: pointer; }
+.qbtn:hover { border-color: var(--blue); }
+.qbtn[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-bg); color: var(--blue); font-weight: 600; }
+.qbtn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.wxrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.wxbtn { font: 600 14px var(--sans); background: var(--field); color: var(--blue); border: 1.5px solid var(--blue); border-radius: var(--r); height: 42px; padding: 0 16px; cursor: pointer;
+  -webkit-appearance: none; appearance: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.wxbtn:hover { background: var(--blue-bg); }
+.wxbtn:disabled { opacity: .55; cursor: default; }
+.wxbtn:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.go { font: 600 16px var(--sans); background: var(--blue); color: var(--on-blue); border: 0; border-radius: 8px; height: 50px; padding: 0 26px; cursor: pointer; white-space: nowrap; }
+.go:hover { background: var(--blue-h); }
+.go:disabled { opacity: .5; cursor: default; }
 .go:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
-.link { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink); cursor: pointer; user-select: none; }
-.link input { width: 18px; height: 18px; margin: 0; accent-color: var(--ink); flex: none; }
-.link small { color: var(--muted); font-size: 13px; }
+.link { display: flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; user-select: none; }
+.link input { width: 20px; height: 20px; margin: 0; accent-color: var(--blue); flex: none; }
 
-/* Table */
-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 15px; }
-th, td { text-align: right; padding: 10px 6px; border-bottom: 1px solid var(--line); }
-tr:first-child th { border-bottom: 1px solid var(--ink); }
+/* ---------- Weather ---------- */
+.wxgrid { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: center; }
+#wdial { width: 150px; height: 150px; display: block; }
+.wd-ring { fill: var(--soft); stroke: var(--line); stroke-width: 2; }
+.wd-tick { stroke: var(--muted); stroke-width: 2; }
+.wd-txt { font: 600 17px var(--mono); fill: var(--muted); }
+.wd-rwy { fill: var(--sel); }
+.wd-num { font: 700 17px var(--mono); fill: #ffffff; }
+.wd-arrow { stroke: var(--cyan); stroke-width: 5; stroke-linecap: round; fill: none; }
+.wd-head { fill: var(--cyan); }
+.decode { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.decode div { background: var(--soft); padding: 9px 12px; display: grid; gap: 2px; min-width: 0; }
+.decode span { font: 600 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.decode b { font: 600 15px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.decode:empty { display: none; }
+@media (max-width: 560px) { .wxgrid { grid-template-columns: 124px minmax(0, 1fr); gap: 12px; } #wdial { width: 124px; height: 124px; } .xw .row { grid-template-columns: 1fr; gap: 0; } .xw b { font-size: 13px; } .decode { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.xw { display: grid; gap: 7px; font-size: 14px; font-variant-numeric: tabular-nums; min-width: 0; }
+.xw .row { display: grid; grid-template-columns: 64px 1fr; gap: 10px; align-items: baseline; }
+.xw .row span { font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.xw b { font-weight: 600; font-size: 14px; min-width: 0; overflow-wrap: anywhere; }
+.xw .best { color: var(--ok); }
+.xw .warn { color: var(--bad); }
+.xw small { color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+/* ---------- Fuel ---------- */
+.calc { display: grid; gap: 7px; background: var(--soft); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; font-size: 14px; }
+.calc div { display: grid; grid-template-columns: 92px 1fr; gap: 10px; align-items: baseline; }
+.calc span { font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.calc b { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.calc b.key { color: var(--cyan-t); font-weight: 600; }
+.calc .warnc { color: var(--bad); font-weight: 600; }
+.fwarn { display: block !important; background: var(--bad-bg); color: var(--bad); border-radius: 6px; padding: 10px 12px; font-weight: 500; font-size: 14px; line-height: 1.45; }
+.fwarn b { color: inherit; }
+.etape { display: grid; gap: 6px; }
+.etape .bar2 { position: relative; height: 22px; border-radius: 4px; background: var(--soft); border: 1px solid var(--line); overflow: hidden; }
+.etape .trip { position: absolute; left: 0; top: 0; bottom: 0; background: var(--cyan); }
+.etape .trip.over { background: #e5484d; }
+.etape .resv { position: absolute; top: 0; bottom: 0; right: 0; background: repeating-linear-gradient(135deg, var(--warn-bg) 0 6px, color-mix(in srgb, var(--warn-l) 45%, transparent) 6px 12px); border-left: 2px solid var(--warn-l); }
+.etape .lbl { display: flex; justify-content: space-between; gap: 8px; font: 500 12px var(--mono); color: var(--muted); }
+
+/* ---------- Weight & balance ---------- */
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: right; padding: 9px 6px; border-bottom: 1px solid var(--line); }
+tr:first-child th { border-bottom: 1.5px solid var(--ink); }
 tr:last-child td { border-bottom: 0; }
-th:first-child, td:first-child { text-align: left; padding-left: 0; }
+th:first-child, td:first-child { text-align: left; padding-left: 0; font-family: var(--sans); }
 th:last-child, td:last-child { padding-right: 0; }
-th { font: 500 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+th { font: 600 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
 td:first-child { font-weight: 500; }
-.pill { font: 600 12px var(--mono); letter-spacing: .04em; }
-.pill.ok { color: var(--ink); }
-.pill.bad { color: var(--bad); }
-.mg { display: block; font: 11px var(--mono); color: var(--muted); white-space: nowrap; }
-.mg.tight { color: var(--bad); }
-
-/* CG chart */
+.pill { font: 600 11px var(--mono); padding: 3px 7px; border-radius: 4px; letter-spacing: .04em; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.mg { display: block; font: 500 11px var(--mono); color: var(--muted); white-space: nowrap; }
+.mg.tight { color: var(--warn); }
+.bagm { display: grid; gap: 6px; }
+.bagm .t { display: flex; justify-content: space-between; font: 600 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.bagm .b { height: 6px; border-radius: 3px; background: var(--soft); border: 1px solid var(--line); overflow: hidden; }
+.bagm .b i { display: block; height: 100%; background: var(--ok); }
+.bagm.over .t { color: var(--bad); } .bagm.over .b i { background: var(--bad); }
 .cg { width: 100%; height: auto; display: block; }
 .cg text { font: 11px var(--mono); fill: var(--muted); }
-.cg .env { fill: var(--soft); stroke: var(--ink); stroke-width: 1.25; }
+.cg .env { fill: var(--blue-bg); stroke: var(--ink); stroke-width: 1.5; }
 .cg .grid line { stroke: var(--line); stroke-width: 1; }
-.cg .pt circle { stroke: var(--paper); stroke-width: 2; }
-.cg .pt text { font-weight: 600; fill: var(--ink); }
+.cg .pt circle { stroke: var(--card); stroke-width: 2; }
+.cg .pt text { font-weight: 700; font-size: 12px; }
 
-/* Sticky action bar */
-.bar { position: sticky; bottom: 0; z-index: 5; margin: 0 calc(-1 * max(20px, env(safe-area-inset-left, 0px))) 0;
-  padding: 14px max(20px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(20px, env(safe-area-inset-left, 0px));
-  background: var(--paper); border-top: 1px solid var(--ink); }
-.bar .in { max-width: 720px; margin: 0 auto; display: flex; align-items: center; gap: 16px; }
+/* ---------- Sticky action bar ---------- */
+.bar { position: sticky; bottom: 0; z-index: 5; background: var(--navy); color: #ffffff; border-top: 1px solid var(--nline);
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.bar .in { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: 14px; }
 .bar .st { flex: 1; min-width: 0; display: grid; gap: 2px; }
-#sum { font-size: 14px; font-weight: 600; }
-#sum.ok { color: var(--ink); } #sum.bad { color: var(--bad); }
-.status { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.status.err { color: var(--bad); } .status.okc { color: var(--ink); }
+#sum { font: 600 14px var(--sans); }
+#sum.ok { color: #4be0a8; } #sum.bad { color: #ff9b9b; } #sum.warn { color: #ffd27a; }
+.status { font-size: 13px; color: var(--nmuted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.status.err { color: #ff9b9b; } .status.okc { color: #4be0a8; }
+.bar .go { background: #2f7de1; }
+.bar .go:hover { background: #4a8ff0; }
 
-/* Preview overlay */
-.pv { position: fixed; inset: 0; z-index: 20; background: #141414; display: flex; flex-direction: column;
-  padding: calc(14px + env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+/* ---------- Preview overlay ---------- */
+.pv { position: fixed; inset: 0; z-index: 20; background: #07101d; display: flex; flex-direction: column;
+  padding: calc(12px + env(safe-area-inset-top, 0px)) max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px)); }
 .pv[hidden] { display: none; }
-.pv .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 1100px; width: 100%; margin: 0 auto 12px; color: #fff; }
-.pv .top b { font-size: 16px; font-weight: 600; }
+.pv .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #fff; }
+.pv .top b { font: 600 18px var(--head); }
 .pv .top .acts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-.pv .top .acts .go, .pv .top .acts .ghost { height: 40px; padding: 0 14px; font-size: 14px; }
-.pv .pages { flex: 1; overflow: auto; display: grid; gap: 16px; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
-.pv canvas, .pv .pg { width: min(1100px, 100%); height: auto; background: #fff; border-radius: 2px; display: block; }
+.pv .top .acts .go, .pv .top .acts .ghost { height: 44px; padding: 0 16px; font-size: 15px; }
+.pv .top .acts .go { background: #2f7de1; }
+.pv .pages { flex: 1; overflow: auto; display: grid; gap: 14px; justify-items: center; align-content: start; -webkit-overflow-scrolling: touch; }
+.pv canvas, .pv .pg { width: min(1100px, 100%); height: auto; background: #fff; border-radius: 4px; display: block; }
 .pv .pg.rot180 { transform: rotate(180deg); }
-.pv .note { color: #a8a8a8; font-size: 13px; text-align: center; }
-.pv .howto { max-width: 1100px; width: 100%; margin: 0 auto 12px; color: #e6e6e6; font-size: 14px; line-height: 1.5; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 10px 0; display: grid; gap: 8px; }
-.pv .rot { display: flex; align-items: center; gap: 8px; color: #a8a8a8; font-size: 13px; }
-.pv .rot input { width: 18px; height: 18px; margin: 0; flex: none; accent-color: #fff; }
-.ghost { font: 500 14px var(--sans); background: transparent; color: #fff; border: 1px solid #555; border-radius: var(--r); height: 40px; padding: 0 16px; cursor: pointer; }
-.ghost:hover { border-color: #fff; }
+.pv .note { color: #9fb6d4; font-size: 13px; text-align: center; }
+.pv .howto { max-width: 1100px; width: 100%; margin: 0 auto 10px; color: #dbe6f4; font-size: 14px; line-height: 1.5; background: #0d1d33; border: 1px solid #1c2e48; border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; }
+.pv .howto ol { margin: 0; padding-left: 20px; display: grid; gap: 2px; }
+.pv .pvwarn { background: #33260a; color: #ffd27a; border-radius: 6px; padding: 8px 10px; font-weight: 500; }
+.pv .pvwarn:empty { display: none; }
+.pv .rot { display: flex; align-items: center; gap: 8px; color: #9fb6d4; font-size: 13px; }
+.pv .rot input { width: 20px; height: 20px; margin: 0; flex: none; accent-color: #33c3db; }
+.ghost { font: 600 15px var(--sans); background: transparent; color: #fff; border: 1px solid #3a5070; border-radius: var(--r); height: 44px; padding: 0 16px; cursor: pointer; }
+.ghost:hover { border-color: #9fb6d4; }
 .ghost:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
 @page { size: A4 landscape; margin: 0; }
@@ -198,50 +286,59 @@ td:first-child { font-weight: 500; }
   #pv .pg { width: 297mm !important; height: 210mm !important; max-width: none !important; border-radius: 0 !important; page-break-after: always; break-after: page; }
   #pv .pg:last-of-type, body.only-1 #pv .pg, body.only-2 #pv .pg { page-break-after: auto; break-after: auto; }
 }
-@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } html { scroll-behavior: auto; } }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
 </style>
 </head>
 <body>
 
-
-<div class="wrap">
-  <header class="hero">
-    <div class="t"><div class="eyebrow">C172 &middot; LHBS</div><h1>Flight Sheet</h1>
-    <p class="sub">Navlog, M&amp;B and briefing as one A4 PDF.</p></div>
-  </header>
-
-  <div class="glance" aria-live="polite">
-    <div class="tile" id="g-tow"><span class="l">Take-off</span><span class="v">-</span><span class="s"></span></div>
-    <div class="tile" id="g-cg"><span class="l">CG at T/O</span><span class="v">-</span><span class="s"></span></div>
-    <div class="tile" id="g-fuel"><span class="l">Fuel at landing</span><span class="v">-</span><span class="s"></span></div>
-    <div class="tile info" id="g-wx"><span class="l">Wind / RWY</span><span class="v">-</span><span class="s"></span></div>
+<header class="cmd">
+  <div class="in">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="32" r="30" fill="#102a4c" stroke="#33c3db" stroke-width="2"/>
+        <path d="M4 34h56a28 28 0 0 1-56 0z" fill="#173a66"/>
+        <g stroke="#9fb6d4" stroke-width="2" stroke-linecap="round"><line x1="32" y1="6" x2="32" y2="11"/><line x1="15" y1="13" x2="18" y2="17"/><line x1="49" y1="13" x2="46" y2="17"/></g>
+        <path d="M14 33h12l3 5 3-5h18" fill="none" stroke="#33c3db" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="wm"><h1>C172 Flight Sheet</h1><span class="sl" id="hsub">Navlog · M&amp;B · Briefing</span></div>
+      <div class="tail"><span class="reg" id="hreg">HA-BFN</span></div>
+    </div>
+    <div class="glance" aria-live="polite">
+      <div class="tile" id="g-tow"><svg id="gz-tow" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">Take-off</span><span class="v">-</span><span class="s"></span></div>
+      <div class="tile" id="g-cg"><svg id="gz-cg" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">CG at T/O</span><span class="v">-</span><span class="s"></span></div>
+      <div class="tile" id="g-fuel"><svg id="gz-fuel" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">Fuel at landing</span><span class="v">-</span><span class="s"></span></div>
+      <div class="tile" id="g-wx"><svg id="gz-wx" viewBox="0 0 200 104" aria-hidden="true"></svg><span class="l">Wind / RWY</span><span class="v">-</span><span class="s"></span></div>
+    </div>
   </div>
+</header>
 
-  <nav class="steps" aria-label="Sections">
-    <a href="#s1" id="n1"><i>1</i>Flight &amp; crew</a>
-    <a href="#s2" id="n2"><i>2</i>Weather &amp; NOTAMs</a>
-    <a href="#s3" id="n3"><i>3</i>Fuel</a>
-    <a href="#s4" id="n4"><i>4</i>Weight &amp; balance</a>
-    <a href="#s5" id="n5"><i>5</i>Exercise</a>
-  </nav>
+<nav class="steps" aria-label="Jump to section"><div class="in2">
+  <a href="#s1" id="n1"><i>1</i>Flight &amp; crew</a>
+  <a href="#s2" id="n2"><i>2</i>Weather &amp; NOTAM</a>
+  <a href="#s3" id="n3"><i>3</i>Fuel</a>
+  <a href="#s4" id="n4"><i>4</i>Weight &amp; balance</a>
+  <a href="#s5" id="n5"><i>5</i>Exercise</a>
+</div></nav>
 
+<main class="wrap">
   <section id="s1">
     <div class="sh"><h2><span class="n">1</span>Flight &amp; crew</h2><span class="chip" id="achint"></span></div>
     <div class="grid">
+      <label class="f"><span class="k">Registration</span><select id="ac"></select></label>
       <label class="f"><span class="k">Date (UTC)</span><input id="date" type="date"></label>
-      <label class="f"><span class="k">Aircraft</span><select id="ac"></select></label>
-      <label class="f"><span class="k">DEP</span><input id="dep" value="LHBS" autocapitalize="characters"></label>
-      <label class="f"><span class="k">DEST</span><input id="dest" value="LHBS" autocapitalize="characters"></label>
+      <label class="f"><span class="k">From</span><input id="dep" value="LHBS" autocapitalize="characters" maxlength="4"></label>
+      <label class="f"><span class="k">To</span><input id="dest" value="LHBS" autocapitalize="characters" maxlength="4"></label>
     </div>
     <div class="crew">
       <label class="f"><span class="k">Student pilot</span><input id="stu" placeholder="Student name" autocomplete="off"></label>
-      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wstu" type="number" inputmode="decimal" step="0.5" value="75"></span></label>
+      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wstu" type="number" inputmode="decimal" step="0.5" min="0" value="75"></span></label>
       <label class="f"><span class="k">Instructor (PIC)</span><input id="pic" placeholder="Instructor name" autocomplete="off"></label>
-      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wins" type="number" inputmode="decimal" step="0.5" value="70"></span></label>
+      <label class="f"><span class="k">Weight</span><span class="u" data-unit="kg"><input id="wins" type="number" inputmode="decimal" step="0.5" min="0" value="70"></span></label>
     </div>
     <div class="grid">
-      <label class="f"><span class="k">Aircraft</span><input id="acname" value="Cessna 172"></label>
-            <div class="f"><span class="k">ASI</span>
+      <label class="f"><span class="k">Type (back page)</span><input id="acname" value="Cessna 172"></label>
+      <div class="f"><span class="k">ASI</span>
         <div class="seg" role="group" aria-label="ASI units">
           <button type="button" id="asi-kt" aria-pressed="true">Knots</button>
           <button type="button" id="asi-mph" aria-pressed="false">MPH</button>
@@ -249,62 +346,74 @@ td:first-child { font-weight: 500; }
       </div>
       <label class="f span2"><span class="k">Flaps max</span><input id="flaps" value="30°"></label>
     </div>
+    <div class="vmsg" id="v1" aria-live="polite"></div>
   </section>
 
   <section id="s2">
-    <div class="sh"><h2><span class="n">2</span>Weather &amp; NOTAMs</h2></div>
+    <div class="sh"><h2><span class="n">2</span>Weather &amp; NOTAM</h2><span class="tag" id="metage"></span></div>
     <div class="wxrow"><button type="button" id="wx" class="wxbtn"><span aria-hidden="true">&#8635;</span> Get latest METAR and TAF</button><span class="hint" id="wxst"></span></div>
+    <div class="wxgrid">
+      <svg id="wdial" viewBox="0 0 220 220" role="img" aria-label="Wind and runway 09/27"></svg>
+      <div class="xw" id="xw" aria-live="polite"></div>
+    </div>
+    <div class="decode" id="decode"></div>
     <label class="f"><span class="k">METAR LHBP</span><textarea id="metar" rows="2" placeholder="Tap the button above or paste the METAR"></textarea></label>
-    <div class="xw" id="xw" aria-live="polite"></div>
-    <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="4" placeholder="Tap the button above or paste the TAF"></textarea></label>
+    <label class="f"><span class="k">TAF LHBP</span><textarea id="taf" rows="3" placeholder="Tap the button above or paste the TAF"></textarea></label>
     <div class="hint" id="tafage"></div>
-    <label class="f"><span class="k">NOTAMs</span><textarea id="notam" rows="4">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
-    <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>.</div>
+    <label class="f"><span class="k">NOTAM</span><textarea id="notam" rows="3">OBSTACLE ERECTED WEST FROM THE AIRPORT, IN LINE OF EXTENDED CENTERLINE OF RWY, 1560M WEST FROM THR RWY 27. HEIGHT OF THE OBSTACLE IS MAX 40M</textarea></label>
+    <div class="hint">Weather source: <a href="https://aviationweather.gov/data/metar/?id=LHBP&amp;hours=0&amp;taf=1" target="_blank" rel="noopener">aviationweather.gov</a>. Refreshes every 5 minutes.</div>
   </section>
 
   <section id="s3">
     <div class="sh"><h2><span class="n">3</span>Fuel</h2><span class="chip" id="tot"></span></div>
-    <div class="sub2">Fuel table (navlog), US gal · 1 US gal = 3.8 l</div>
+    <div class="sub2">A · Navlog fuel table · you fill · US gal (1 gal = 3.8 l)</div>
     <div class="grid">
-      <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" value="2"></span></label>
-      <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" value="15"></span></label>
-      <label class="f"><span class="k">Reserve</span><span class="u" data-unit="gal"><input id="res" type="number" inputmode="decimal" step="0.1" value="4"></span></label>
-      <label class="f"><span class="k">Extra</span><span class="u" data-unit="gal"><input id="extra" type="number" inputmode="decimal" step="0.1" value="0"></span></label>
+      <label class="f"><span class="k">Taxi</span><span class="u" data-unit="gal"><input id="taxi" type="number" inputmode="decimal" step="0.1" min="0" value="2"></span></label>
+      <label class="f"><span class="k">Trip</span><span class="u" data-unit="gal"><input id="trip" type="number" inputmode="decimal" step="0.1" min="0" value="15"></span></label>
+      <label class="f"><span class="k">Reserve</span><span class="u" data-unit="gal"><input id="res" type="number" inputmode="decimal" step="0.1" min="0" value="4"></span></label>
+      <label class="f"><span class="k">Extra</span><span class="u" data-unit="gal"><input id="extra" type="number" inputmode="decimal" step="0.1" min="0" value="0"></span></label>
     </div>
-    <div class="sub2">My flight (M&amp;B trip fuel)</div>
+    <div class="sub2 sep">B · My flight · M&amp;B trip burn from flight time</div>
+    <div class="quick" role="group" aria-label="Quick flight time">
+      <button type="button" class="qbtn" data-t="30">0:30</button><button type="button" class="qbtn" data-t="45">0:45</button><button type="button" class="qbtn" data-t="60">1:00</button><button type="button" class="qbtn" data-t="90">1:30</button><button type="button" class="qbtn" data-t="120">2:00</button>
+    </div>
     <div class="grid">
-      <label class="f"><span class="k">My flight, h</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" step="1" value="0"></span></label>
-      <label class="f"><span class="k">My flight, min</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="1" value="45"></span></label>
+      <label class="f"><span class="k">Hours</span><span class="u" data-unit="h"><input id="th" type="number" inputmode="numeric" min="0" max="9" step="1" value="0"></span></label>
+      <label class="f"><span class="k">Minutes</span><span class="u" data-unit="min"><input id="tm" type="number" inputmode="numeric" min="0" max="59" step="5" value="45"></span></label>
       <div class="f span2"><span class="k">Type of flight</span>
         <div class="seg" role="group" aria-label="Type of flight">
-          <button type="button" id="t-local" aria-pressed="true">Local</button>
-          <button type="button" id="t-xc" aria-pressed="false">Cross country</button>
+          <button type="button" id="t-local" aria-pressed="true">Local · 5 gal/h</button>
+          <button type="button" id="t-xc" aria-pressed="false">Cross country · 4.5</button>
         </div>
       </div>
     </div>
+    <div class="vmsg" id="v3" aria-live="polite"></div>
     <div class="calc" id="burn" aria-live="polite"></div>
+    <div class="etape" id="etape"></div>
   </section>
 
   <section id="s4">
-    <div class="sh"><h2><span class="n">4</span>Weight &amp; balance</h2></div>
+    <div class="sh"><h2><span class="n">4</span>Weight &amp; balance</h2><span class="tag" id="wbtag"></span></div>
     <div class="grid">
-      <label class="f"><span class="k">Pilot + passenger</span><span class="u" data-unit="lbs"><input id="front" type="number" readonly tabindex="-1"></span></label>
-      <label class="f"><span class="k">Rear seat</span><span class="u" data-unit="lbs"><input id="rear" type="number" inputmode="decimal" value="0"></span></label>
-      <label class="f"><span class="k">Baggage 1 (max 120)</span><span class="u" data-unit="lbs"><input id="bag1" type="number" inputmode="decimal" value="0"></span></label>
-      <label class="f"><span class="k">Baggage 2 (max 50)</span><span class="u" data-unit="lbs"><input id="bag2" type="number" inputmode="decimal" value="0"></span></label>
+      <label class="f"><span class="k">Front seats</span><span class="u" data-unit="lbs"><input id="front" type="number" readonly tabindex="-1"></span></label>
+      <label class="f"><span class="k">Rear seat</span><span class="u" data-unit="lbs"><input id="rear" type="number" inputmode="decimal" min="0" value="0"></span></label>
+      <label class="f"><span class="k">Bag 1 · max 120</span><span class="u" data-unit="lbs"><input id="bag1" type="number" inputmode="decimal" min="0" value="0"></span></label>
+      <label class="f"><span class="k">Bag 2 · max 50</span><span class="u" data-unit="lbs"><input id="bag2" type="number" inputmode="decimal" min="0" value="0"></span></label>
     </div>
     <div class="hint" id="fronth"></div>
-    <div style="overflow-x:auto"><table id="mb"></table></div>
+    <div class="bagm" id="bagm"><div class="t"><span>Baggage 1 + 2 combined</span><span id="bagt">0 / 120 lbs</span></div><div class="b"><i id="bagi" style="width:0%"></i></div></div>
+    <div class="vmsg" id="v4" aria-live="polite"></div>
     <svg class="cg" id="cg" viewBox="0 0 640 340" role="img" aria-label="Centre of gravity envelope with zero fuel, take-off and landing points"></svg>
+    <div style="overflow-x:auto"><table id="mb"></table></div>
   </section>
 
   <section id="s5">
-    <div class="sh"><h2><span class="n">5</span>Exercise</h2></div>
-    <label class="f"><span class="k">Exercise</span><textarea id="exercise" rows="3" placeholder="Leave empty to write it by hand"></textarea></label>
+    <div class="sh"><h2><span class="n">5</span>Exercise</h2><span class="chip">Optional</span></div>
+    <label class="f"><span class="k">Printed on the back page</span><textarea id="exercise" rows="3" placeholder="Leave empty to write it by hand"></textarea></label>
     <div class="quick"><button type="button" class="qbtn" id="ex-tc">+ Traffic Circuit</button></div>
-    <div class="hint">The PDF is A4 landscape. In the preview, print the front first, then the back.</div>
+    <div class="hint">The PDF is A4 landscape. In the preview, print the front, turn the sheet over, then print the back.</div>
   </section>
-</div>
+</main>
 
 <div class="bar">
   <div class="in">
@@ -314,10 +423,11 @@ td:first-child { font-weight: 500; }
 </div>
 
 <div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-label="PDF preview">
-  <div class="top"><b>Preview</b><div class="acts"><button type="button" class="ghost" id="pvback">Edit</button><button type="button" class="ghost" id="pvsave">Save PDF</button><button type="button" class="go" id="pvp1">Print front</button><button type="button" class="go" id="pvp2">Print back</button></div></div>
+  <div class="top"><b>Print</b><div class="acts"><button type="button" class="ghost" id="pvback">Edit</button><button type="button" class="ghost" id="pvsave">Save PDF</button><button type="button" class="go" id="pvp1">Print front</button><button type="button" class="go" id="pvp2">Print back</button></div></div>
   <div class="howto" id="pvhow">
-    <div><b>Two-sided by hand:</b> 1. Tap <b>Print front</b>. 2. Put the printed sheet back in the tray, flipped over. 3. Tap <b>Print back</b>.</div>
-    <span id="pvst" style="color:#e6e6e6;font-weight:500"></span>
+    <div class="pvwarn" id="pvwarn"></div>
+    <ol><li>Tap <b>Print front</b>.</li><li>Turn the printed sheet over and put it back in the tray.</li><li>Tap <b>Print back</b>.</li></ol>
+    <span id="pvst" style="color:#4be0a8;font-weight:500"></span>
     <label class="rot"><input type="checkbox" id="pvrot"> Back came out upside down? Tick this and print the back again.</label>
   </div>
   <div class="pages" id="pvpages"></div>
@@ -326,7 +436,7 @@ td:first-child { font-weight: 500; }
 <script>
 // Always use the newest version: if GitHub has a newer build than this cached page, reload it.
 (function () {
-  var V = '202611101924';
+  var V = '202611101950';
   fetch('version.txt?t=' + Date.now(), { cache: 'no-store' }).then(function (r) { return r.ok ? r.text() : V; }).then(function (t) {
     t = (t || '').trim();
     var done = null; try { done = sessionStorage.getItem('reloadedFor'); } catch (e) {}
@@ -382,7 +492,7 @@ const SHEET = (() => {
     const checks = {
       zfw: inEnv(r.zfw.arm, zw), ramp: rw <= 2302,
       tow: tw <= 2300 && inEnv(r.tow.arm, tw), ldw: lw <= 2300 && inEnv(r.ldw.arm, lw),
-      bag1: d.bag1 <= 120, bag2: d.bag2 <= 50,
+      bag1: d.bag1 <= 120, bag2: d.bag2 <= 50, bags: d.bag1 + d.bag2 <= 120, // C172 POH: areas 1 + 2 together max 120 lbs
     };
     return { r, totalGal, checks };
   }
@@ -756,10 +866,12 @@ function drawCG(r) {
 function crosswind() {
   const box = $('xw'); const m = $('metar').value.toUpperCase();
   const w = m.match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?(KT|MPS)\b/);
-  if (!w) { box.innerHTML = '<div class="row"><span>Wind</span><b>Add a METAR to see runway components</b></div>'; return; }
+  wxDecode();
+  if (!w) { drawDial(null, null); box.innerHTML = '<div class="row"><span>Wind</span><b>Add a METAR to see runway components</b></div>'; return; }
   const k = w[4] === 'MPS' ? 1.944 : 1, spd = Math.round(+w[2] * k), gst = w[3] ? Math.round(+w[3] * k) : 0;
   const LIMIT = 15;
   if (w[1] === 'VRB' || spd === 0) {
+    drawDial(null, null);
     box.innerHTML = `<div class="row"><span>Wind</span><b>${spd === 0 ? 'Calm' : `Variable ${spd} kt${gst ? ` gusting ${gst}` : ''}`}</b></div><div class="row"><span>Runway</span><b>${spd <= 3 ? 'Any runway' : `Assume full ${gst || spd} kt could be crosswind`}</b></div>`;
     return;
   }
@@ -767,6 +879,7 @@ function crosswind() {
   const comp = hdg => { const rad = (dir - hdg) * Math.PI / 180; return { head: spd * Math.cos(rad), cross: Math.abs(spd * Math.sin(rad)), gcross: gst ? Math.abs(gst * Math.sin(rad)) : 0 }; };
   const rw = [['09', 90], ['27', 270]].map(([n2, hdg]) => ({ n: n2, ...comp(hdg) }));
   const best = rw[0].head >= rw[1].head ? 0 : 1;
+  drawDial(dir, best);
   const vr = m.match(/\b(\d{3})V(\d{3})\b/);
   let html = `<div class="row"><span>Wind</span><b>${String(dir).padStart(3, '0')}° ${spd} kt${gst ? ` gusting ${gst}` : ''}${vr ? ` (varying ${vr[1]}–${vr[2]}°)` : ''}</b></div>`;
   rw.forEach((x, i) => {
@@ -775,7 +888,7 @@ function crosswind() {
     const cls = xc > LIMIT ? 'warn' : i === best ? 'best' : '';
     html += `<div class="row"><span>RWY ${x.n}</span><b class="${cls}">${hw}, ${Math.round(x.cross)} kt cross${gst ? ` (${Math.round(x.gcross)} in gusts)` : ''}${i === best ? ' · favoured' : ''}${xc > LIMIT ? ' · above 15 kt demonstrated' : ''}</b></div>`;
   });
-  html += '<small>LHBP wind applied to LHBS runways 09/27, headings taken as 090°/270°. C172 max demonstrated crosswind 15 kt.</small>';
+  html += '<small>LHBP wind on LHBS RWY 09/27 (090°/270°). C172 demonstrated crosswind 15 kt, gusts included.</small>';
   box.innerHTML = html;
 }
 
@@ -790,30 +903,128 @@ function fuelCheck(d) {
   const fmt = mm => `${Math.floor(mm / 60)} h ${String(mm % 60).padStart(2, '0')} min`;
   return { rate, hrs, burn, tot, left, endMin, endTxt: fmt(endMin), over: left < 4, empty: left < 0 };
 }
+// ---- instrument gauges (semicircle, f = 0 at left, 1 at right) ----
+const gp = f => { const a = Math.PI * (1 - Math.max(0, Math.min(1, f))); return [(100 + 80 * Math.cos(a)).toFixed(1), (92 - 80 * Math.sin(a)).toFixed(1)]; };
+const garc = (f1, f2, cls) => { if (f2 - f1 < 0.002) return ''; const [x1, y1] = gp(f1), [x2, y2] = gp(f2); return `<path class="${cls}" d="M${x1} ${y1} A80 80 0 0 1 ${x2} ${y2}"/>`; };
+const gneedle = f => { const [x, y] = gp(f); const a = Math.PI * (1 - Math.max(0, Math.min(1, f))); const xi = (100 + 64 * Math.cos(a)).toFixed(1), yi = (92 - 64 * Math.sin(a)).toFixed(1); return `<line class="g-ndl" x1="100" y1="92" x2="${xi}" y2="${yi}"/><circle class="g-hub" cx="100" cy="92" r="7"/>`; };
+function windMini(dir, best) {
+  // runway 09/27 seen from above, wind arrow blowing from `dir` (null = calm or variable)
+  let g = '<rect x="22" y="40" width="156" height="26" rx="3" fill="#1f3a60"/>' +
+    '<line x1="56" y1="53" x2="144" y2="53" stroke="#9fb6d4" stroke-width="2" stroke-dasharray="8 7"/>' +
+    `<text x="30" y="59" fill="${best === 0 ? '#33c3db' : '#dbe6f4'}" style="font:700 17px var(--mono)">09</text>` +
+    `<text x="170" y="59" text-anchor="end" fill="${best === 1 ? '#33c3db' : '#dbe6f4'}" style="font:700 17px var(--mono)">27</text>`;
+  if (dir != null) {
+    const a = dir * Math.PI / 180, s = Math.sin(a), c = Math.cos(a);
+    const ox = 100 + 50 * s * 1.6, oy = 53 - 50 * c, ix = 100 + 14 * s * 1.6, iy = 53 - 14 * c;
+    g += `<line x1="${ox.toFixed(1)}" y1="${oy.toFixed(1)}" x2="${ix.toFixed(1)}" y2="${iy.toFixed(1)}" stroke="#33c3db" stroke-width="6" stroke-linecap="round"/><circle cx="${ix.toFixed(1)}" cy="${iy.toFixed(1)}" r="7" fill="#33c3db"/>`;
+  }
+  return g;
+}
 function glance() {
   const d = data(); const { r, checks } = SHEET.compute(d);
-  const set = (id, v, s, warn, info) => { const t = $(id); if (id === 'g-wx') t.querySelector('.l').textContent = 'Wind / RWY'; t.className = 'tile' + (warn ? ' warn' : info ? ' info' : ''); t.querySelector('.v').textContent = v; t.querySelector('.s').textContent = s; };
-  const tm = 2300 - r.tow.w;
-  set('g-tow', `${r.tow.w.toFixed(0)} lbs`, tm >= 0 ? `${tm.toFixed(0)} under max` : `${(-tm).toFixed(0)} OVER max`, !checks.tow);
-  const fl = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), cm = Math.min(r.tow.arm - fl(r.tow.w), 47.3 - r.tow.arm);
-  set('g-cg', r.tow.arm.toFixed(2) + ' in', cm >= 0 ? `${cm.toFixed(2)} in inside limits` : 'Outside CG range', !(checks.tow && checks.ldw && checks.zfw));
-  const fc = fuelCheck(d), left = fc.left;
-  set('g-fuel', `${+left.toFixed(1)} gal · ${(left * L_PER_GAL).toFixed(0)} l`, fc.empty ? 'NOT ENOUGH FUEL' : fc.over ? `Below reserve · max ${fc.endTxt}` : `Max flight ${fc.endTxt}`, fc.over);
-  const m = $('metar').value.toUpperCase().match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?KT\b/);
-  if (!m) set('g-wx', 'No METAR', 'Get weather in step 2', false, true);
-  else if (m[1] === 'VRB') set('g-wx', `VRB ${+m[2]} kt`, 'Any runway', false, true);
+  const set = (id, v, s, warn) => { const t = $(id); t.className = 'tile' + (warn ? ' warn' : ''); t.querySelector('.v').textContent = v; t.querySelector('.s').textContent = s; };
+  $('hreg').textContent = ac;
+  $('hsub').textContent = `${d.date || ''} UTC · ${d.dep || '----'} → ${d.dest || '----'} · ${d.type === 'local' ? 'Local' : 'Cross country'} ${d.hours}:${String(d.minutes).padStart(2, '0')}`;
+  // take-off weight, 1500 to 2400 lbs
+  const tm = 2300 - r.tow.w, fw = w => (w - 1500) / 900;
+  set('g-tow', `${r.tow.w.toFixed(0)} lbs`, tm >= 0 ? `${tm.toFixed(0)} under max 2300` : `${(-tm).toFixed(0)} OVER max 2300`, !checks.tow);
+  $('gz-tow').innerHTML = garc(0, 1, 'g-track') + garc(fw(2300), 1, 'g-red') + garc(0, fw(r.tow.w), 'g-val' + (r.tow.w > 2300 ? ' over' : ''));
+  // CG, 34 to 48 in, red outside the limits at take-off weight
+  const fl = w => (w <= 1950 ? 35 : 35 + (w - 1950) * 3.5 / 350), cm = Math.min(r.tow.arm - fl(r.tow.w), 47.3 - r.tow.arm), fa = a => (a - 34) / 14;
+  set('g-cg', r.tow.arm.toFixed(2) + ' in', cm >= 0 ? `${fl(r.tow.w).toFixed(2)} to 47.30 limits` : 'OUTSIDE CG RANGE', !(checks.tow && checks.ldw && checks.zfw));
+  $('gz-cg').innerHTML = garc(0, 1, 'g-track') + garc(0, fa(fl(r.tow.w)), 'g-red') + garc(fa(47.3), 1, 'g-red') + gneedle(fa(r.tow.arm));
+  // fuel endurance after taxi: trip used, reserve zone
+  const fc = fuelCheck(d), left = fc.left, usable = Math.max(0, fc.tot - d.fuel.taxi);
+  const hm = fc.endTxt.replace(' h ', ':').replace(' min', '');
+  set('g-fuel', `${+left.toFixed(1)} gal`, fc.empty ? 'NOT ENOUGH FUEL' : fc.over ? `Below reserve · max ${hm}` : `${(Math.max(0, left) * L_PER_GAL).toFixed(1)} l · max flight ${hm}`, fc.over);
+  $('gz-fuel').innerHTML = usable > 0
+    ? garc(0, 1, 'g-track') + garc(Math.max(0, (usable - 4) / usable), 1, 'g-amb') + garc(0, Math.min(1, fc.burn / usable), 'g-val' + (fc.over ? ' over' : ''))
+    : garc(0, 1, 'g-track');
+  // wind
+  const m = $('metar').value.toUpperCase().match(/\b(\d{3}|VRB)(\d{2,3})(?:G(\d{2,3}))?(KT|MPS)\b/);
+  if (!m) { set('g-wx', 'No METAR', 'Get weather in section 2', false); $('g-wx').querySelector('.l').textContent = 'Wind / RWY'; $('gz-wx').innerHTML = windMini(null, null); }
   else {
-    const dir = +m[1], s = +m[2], gs = m[3] ? +m[3] : 0, c = h2 => Math.cos((dir - h2) * Math.PI / 180);
-    const rw = c(90) >= c(270) ? ['09', 90] : ['27', 270], xc = Math.round(Math.abs(Math.max(s, gs) * Math.sin((dir - rw[1]) * Math.PI / 180)));
-    set('g-wx', `RWY ${rw[0]}`, `${xc} kt crosswind${xc > 15 ? ', above 15' : ''}`, xc > 15, xc <= 15); $('g-wx').querySelector('.l').textContent = `Wind ${m[1]}/${s}${gs ? 'G' + gs : ''}`;
+    const k = m[4] === 'MPS' ? 1.944 : 1, s = Math.round(+m[2] * k), gs = m[3] ? Math.round(+m[3] * k) : 0;
+    $('g-wx').querySelector('.l').textContent = `Wind ${m[1]}/${s}${gs ? 'G' + gs : ''}`;
+    if (m[1] === 'VRB' || s === 0) { set('g-wx', s === 0 ? 'Calm' : `VRB ${s} kt`, s <= 3 ? 'Any runway' : `Up to ${gs || s} kt crosswind`, (gs || s) > 15); $('gz-wx').innerHTML = windMini(null, null); }
+    else {
+      const dir = +m[1], c = h2 => Math.cos((dir - h2) * Math.PI / 180);
+      const bi = c(90) >= c(270) ? 0 : 1, hdg = bi ? 270 : 90, xc = Math.round(Math.abs(Math.max(s, gs) * Math.sin((dir - hdg) * Math.PI / 180)));
+      set('g-wx', `RWY ${bi ? '27' : '09'}`, `${xc} kt crosswind${xc > 15 ? ', above 15' : ''}`, xc > 15);
+      $('gz-wx').innerHTML = windMini(dir, bi);
+    }
   }
-  const mark = (id, ok) => { const a = $(id); a.className = ok ? 'done' : 'todo'; a.querySelector('i').textContent = ok ? '✓' : '!'; };
-  mark('n1', d.pic && d.student);
-  mark('n2', !!$('metar').value.trim() && !!$('taf').value.trim());
-  mark('n3', left >= 4);
-  mark('n4', Object.values(checks).every(Boolean));
-  $('n5').className = ''; $('n5').querySelector('i').textContent = '5';
+  // section lights: green done, amber needs input, red out of limits or invalid
+  const mark = (id, st) => { $(id).className = st; };
+  const v = validate(d);
+  mark('n1', v.s1.e.length ? 'bad' : (d.pic && d.student && !v.s1.w.length) ? 'done' : 'todo');
+  mark('n2', ($('metar').value.trim() && $('taf').value.trim()) ? (metarAge() > 60 ? 'todo' : 'done') : 'todo');
+  mark('n3', v.s3.e.length || fc.over ? 'bad' : 'done');
+  mark('n4', !Object.values(checks).every(Boolean) || v.s4.e.length ? 'bad' : 'done');
+  mark('n5', $('exercise').value.trim() ? 'done' : '');
   $('pic').classList.toggle('need', !d.pic); $('stu').classList.toggle('need', !d.student);
+}
+// ---- input checks: e = error (wrong number, blocks the PDF), w = warning ----
+function validate(d) {
+  const out = { s1: { e: [], w: [] }, s3: { e: [], w: [] }, s4: { e: [], w: [] } };
+  const raw = id => $(id).value.trim();
+  const neg = (id, label, sec) => { if (raw(id) !== '' && parseFloat(raw(id)) < 0) { out[sec].e.push(`${label} cannot be negative.`); return id; } return null; };
+  const badIds = [];
+  [['taxi', 'Taxi fuel', 's3'], ['trip', 'Trip fuel', 's3'], ['res', 'Reserve fuel', 's3'], ['extra', 'Extra fuel', 's3'], ['th', 'Hours', 's3'], ['tm', 'Minutes', 's3'],
+   ['wstu', 'Student weight', 's1'], ['wins', 'Instructor weight', 's1'], ['rear', 'Rear seat', 's4'], ['bag1', 'Baggage 1', 's4'], ['bag2', 'Baggage 2', 's4']]
+    .forEach(([id, l, s]) => { const b = neg(id, l, s); if (b) badIds.push(b); });
+  const mins = parseFloat(raw('tm'));
+  if (mins > 59) { out.s3.e.push(`${mins} minutes is not a valid time. Use 0 to 59 and put whole hours in Hours.`); badIds.push('tm'); }
+  if (raw('tm') !== '' && !Number.isInteger(mins)) { out.s3.e.push('Minutes must be a whole number.'); badIds.push('tm'); }
+  if (d.hours > 9) { out.s3.e.push(`${d.hours} hours is longer than any C172 flight here. Check Hours.`); badIds.push('th'); }
+  if (d.hours === 0 && d.minutes === 0) out.s3.w.push('Flight time is 0, so the M&B trip fuel will be 0.');
+  [['wstu', 'Student'], ['wins', 'Instructor']].forEach(([id, l]) => {
+    const kg = parseFloat(raw(id));
+    if (raw(id) === '') { out.s1.w.push(`${l} weight is empty.`); }
+    else if (kg > 150) { out.s1.e.push(`${l} weight ${kg} kg looks like a typo. Enter the weight in kg (40 to 150).`); badIds.push(id); }
+    else if (kg > 0 && kg < 40) { out.s1.w.push(`${l} weight ${kg} kg is very low. Is it in kg?`); }
+  });
+  if (d.bag1 > 120) out.s4.e.push(`Baggage 1 is ${d.bag1} lbs, max 120.`);
+  if (d.bag2 > 50) out.s4.e.push(`Baggage 2 is ${d.bag2} lbs, max 50.`);
+  if (d.bag1 + d.bag2 > 120) out.s4.e.push(`Baggage 1 + 2 is ${d.bag1 + d.bag2} lbs, max 120 together.`);
+  out.badIds = badIds;
+  out.anyErr = out.s1.e.length + out.s3.e.length + out.badIds.length > 0;
+  return out;
+}
+function showV(id, sec) { $(id).innerHTML = sec.e.map(t => `<div class="e">✕ ${t}</div>`).join('') + sec.w.map(t => `<div class="w">▲ ${t}</div>`).join(''); }
+// METAR age in minutes (Infinity if none)
+function metarAge() {
+  const x = $('metar').value.toUpperCase().match(/\bLHBP (\d{2})(\d{2})(\d{2})Z/); if (!x) return Infinity;
+  const now = new Date(); let t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), +x[1], +x[2], +x[3]);
+  if (t > now.getTime() + 36e5) t = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, +x[1], +x[2], +x[3]);
+  return Math.max(0, Math.round((now.getTime() - t) / 6e4));
+}
+// decoded METAR tiles and the wind dial
+function wxDecode() {
+  const m = $('metar').value.toUpperCase().replace(/\s+/g, ' ');
+  if (!/LHBP/.test(m)) { $('decode').innerHTML = ''; return; }
+  const vis = (m.match(/\s(CAVOK|\d{4})\s/) || [])[1];
+  const visT = !vis ? '-' : vis === 'CAVOK' ? 'CAVOK' : vis === '9999' ? '≥10 km' : `${+vis} m`;
+  const cl = [...m.matchAll(/\b(FEW|SCT|BKN|OVC|VV)(\d{3})(CB|TCU)?\b/g)].map(c => `${c[1]} ${+c[2] * 100}${c[3] || ''}`);
+  const cloud = cl.length ? cl[0] + (cl.length > 1 ? ' +' : '') : /CAVOK|NSC|NCD|CLR|SKC/.test(m) ? 'No cloud' : '-';
+  const td = m.match(/\s(M?\d{2})\/(M?\d{2})\s/), tt = v => v.replace('M', '−').replace(/^(−?)0(\d)/, '$1$2');
+  const q = (m.match(/\bQ(\d{4})\b/) || [])[1];
+  $('decode').innerHTML = `<div><span>Visibility</span><b>${visT}</b></div><div><span>Cloud</span><b title="${cl.join(', ')}">${cloud}</b></div><div><span>Temp / Dew</span><b>${td ? `${tt(td[1])} / ${tt(td[2])} °C` : '-'}</b></div><div><span>QNH</span><b>${q ? q + ' hPa' : '-'}</b></div>`;
+}
+function drawDial(dir, best) {
+  let g = '<circle class="wd-ring" cx="110" cy="110" r="100"/>';
+  for (let a = 0; a < 360; a += 30) { const r1 = a % 90 ? 92 : 86, s = Math.sin(a * Math.PI / 180), c = Math.cos(a * Math.PI / 180); g += `<line class="wd-tick" x1="${(110 + 100 * s).toFixed(1)}" y1="${(110 - 100 * c).toFixed(1)}" x2="${(110 + r1 * s).toFixed(1)}" y2="${(110 - r1 * c).toFixed(1)}"/>`; }
+  g += '<text class="wd-txt" x="110" y="40" text-anchor="middle">N</text><text class="wd-txt" x="110" y="194" text-anchor="middle">S</text>';
+  g += '<rect class="wd-rwy" x="40" y="96" width="140" height="28" rx="3"/>';
+  g += `<text class="wd-num" x="48" y="116"${best === 0 ? ' style="fill:#33c3db"' : ''}>09</text><text class="wd-num" x="172" y="116" text-anchor="end"${best === 1 ? ' style="fill:#33c3db"' : ''}>27</text>`;
+  if (dir != null) {
+    const a = dir * Math.PI / 180, s = Math.sin(a), c = Math.cos(a);
+    const ox = 110 + 96 * s, oy = 110 - 96 * c, ix = 110 + 30 * s, iy = 110 - 30 * c;
+    const px = -c, py = -s; // perpendicular for the arrow head
+    g += `<line class="wd-arrow" x1="${ox.toFixed(1)}" y1="${oy.toFixed(1)}" x2="${(110 + 42 * s).toFixed(1)}" y2="${(110 - 42 * c).toFixed(1)}"/>`;
+    g += `<path class="wd-head" d="M${ix.toFixed(1)} ${iy.toFixed(1)} L${(110 + 48 * s + 9 * px).toFixed(1)} ${(110 - 48 * c + 9 * py).toFixed(1)} L${(110 + 48 * s - 9 * px).toFixed(1)} ${(110 - 48 * c - 9 * py).toFixed(1)} Z"/>`;
+  }
+  $('wdial').innerHTML = g;
 }
 function update() {
   { const kg = n('wstu') + n('wins'); $('front').value = (kg * 2.205).toFixed(1); $('fronth').textContent = `${+n('wstu').toFixed(1)} + ${+n('wins').toFixed(1)} = ${+kg.toFixed(1)} kg × 2.205 = ${(kg * 2.205).toFixed(1)} lbs`; }
@@ -829,7 +1040,7 @@ function update() {
   $('burn').innerHTML = warn +
     `<div><span>On board</span><b>${+tot.toFixed(2)} gal (${lit(tot)}) at engine start</b></div>` +
     `<div><span>Available</span><b>${+avail.toFixed(2)} gal × 6.71 = ${(Math.max(0, avail) * 6.71).toFixed(1)} lbs (usable fuel on M&amp;B)</b></div>` +
-    `<div><span>My trip</span><b>${rate} gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} gal (${lit(g)}) = ${(g * 6.71).toFixed(1)} lbs</b></div>` +
+    `<div><span>My trip</span><b class="key">${rate} gal/h × ${+hrsDec.toFixed(2)} h = ${+g.toFixed(2)} gal (${lit(g)}) = ${(g * 6.71).toFixed(1)} lbs</b></div>` +
     `<div><span>At landing</span><b class="${fc.over ? 'warnc' : ''}">${+left.toFixed(2)} gal (${lit(left)}) left (after ${+d.fuel.taxi.toFixed(1)} gal taxi)${fc.over ? ' · below 4 gal reserve' : ''}</b></div>` +
     `<div><span>Max flight</span><b>${fc.endTxt} with 4 gal reserve</b></div>`;
   const { r, checks } = SHEET.compute(d);
@@ -843,7 +1054,7 @@ function update() {
       const cTxt = `<span class="mg${cm < 1 ? ' tight' : ''}">${cm >= 0 ? (fm <= am ? `${fm.toFixed(2)} aft of fwd lim` : `${am.toFixed(2)} fwd of aft lim`) : 'outside CG range'}</span>`;
       return `<tr><td>${l}</td><td>${v.w.toFixed(0)}${wTxt}</td><td>${v.arm.toFixed(2)}${cTxt}</td><td>${v.m.toFixed(2)}</td><td><span class="pill ${ok ? 'ok' : 'bad'}">${ok ? 'OK' : 'Out'}</span></td></tr>`;
     }).join('') +
-    (checks.bag1 && checks.bag2 ? '' : '<tr><td colspan="5"><span class="pill bad">Baggage over limit</span></td></tr>');
+    (checks.bag1 && checks.bag2 && checks.bags ? '' : '<tr><td colspan="5"><span class="pill bad">Baggage over limit</span></td></tr>');
   drawCG(r);
   crosswind();
   glance();
@@ -855,10 +1066,34 @@ function update() {
       const nextH = [5, 11, 17, 23].find(hh => hh * 60 + 15 > now.getUTCHours() * 60 + now.getUTCMinutes()) ?? 5;
       el.className = 'hint' + (age > 7 * 60 ? ' stale' : '');
       el.textContent = `TAF issued ${x[2]}:${x[3]} UTC, ${Math.floor(age / 60)} h ${age % 60} min ago. LHBP issues a new TAF about every 6 hours (next around ${String(nextH).padStart(2, '0')}:15 UTC).`; } }
-  { const allOk = Object.values(checks).every(Boolean); const s = $('sum'); const fc = fuelCheck(data()); s.className = allOk && !fc.over ? 'ok' : 'bad'; s.textContent = !allOk ? '✕ Outside limits, check M&B' : fc.over ? `✕ Not enough fuel · max ${fc.endTxt}` : '✓ Within weight, CG and fuel limits'; }
+  {
+    const v = validate(d), fc2 = fuelCheck(d), allOk = Object.values(checks).every(Boolean);
+    showV('v1', v.s1); showV('v3', v.s3); showV('v4', v.s4);
+    ids.concat(['wstu','wins']).forEach(k => $(k).classList.toggle('bad', v.badIds.includes(k)));
+    // endurance tape: trip vs usable after taxi, reserve hatched
+    const usable = Math.max(0, fc2.tot - d.fuel.taxi);
+    $('etape').innerHTML = usable > 0 ? `<div class="bar2" role="img" aria-label="Trip uses ${(fc2.burn / usable * 100).toFixed(0)} percent of usable fuel"><div class="resv" style="width:${Math.min(100, 4 / usable * 100).toFixed(1)}%"></div><div class="trip${fc2.over ? ' over' : ''}" style="width:${Math.min(100, fc2.burn / usable * 100).toFixed(1)}%"></div></div><div class="lbl"><span>Trip ${d.hours}:${String(d.minutes).padStart(2, '0')}</span><span>Max flight ${fc2.endTxt.replace(' h ', ':').replace(' min', '')}</span><span>4 gal reserve</span></div>` : '';
+    // baggage combined meter
+    const bs = d.bag1 + d.bag2; $('bagt').textContent = `${+bs.toFixed(1)} / 120 lbs`; $('bagi').style.width = Math.min(100, bs / 120 * 100) + '%'; $('bagm').classList.toggle('over', bs > 120);
+    const wt = $('wbtag'); wt.className = 'tag ' + (allOk ? 'ok' : 'bad'); wt.textContent = allOk ? '✓ Within limits' : '✕ Outside limits';
+    // METAR age chip
+    const ma = metarAge(), mt = $('metage');
+    mt.className = 'tag ' + (ma === Infinity ? 'info' : ma > 60 ? 'warn' : 'ok');
+    mt.textContent = ma === Infinity ? 'No METAR yet' : ma > 60 ? `▲ METAR ${Math.floor(ma / 60)} h ${ma % 60} min old` : `● METAR ${ma} min old`;
+    // quick flight-time chips
+    const tot = d.hours * 60 + d.minutes; document.querySelectorAll('.qbtn[data-t]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.t === tot));
+    // bottom bar verdict
+    const s = $('sum'), need = [!d.pic && 'instructor name', !d.student && 'student name'].filter(Boolean);
+    if (v.anyErr) { s.className = 'bad'; s.textContent = '✕ Check the red fields'; }
+    else if (!allOk) { s.className = 'bad'; s.textContent = '✕ Outside weight / CG limits'; }
+    else if (fc2.over) { s.className = 'bad'; s.textContent = `✕ Not enough fuel · max ${fc2.endTxt}`; }
+    else if (need.length || ma > 60) { s.className = 'warn'; s.textContent = '▲ ' + [need.length && 'Add ' + need.join(' and '), ma > 60 && ma !== Infinity && 'METAR is old'].filter(Boolean).join(' · '); }
+    else { s.className = 'ok'; s.textContent = '✓ Within weight, CG and fuel limits'; }
+  }
   try { const s = {}; ids.forEach(k => s[k] = $(k).value); s.type = type; s.ac = ac; s.asi = asi; localStorage.setItem('c172sheet', JSON.stringify(s)); } catch (e) {}
 }
 setAsi(asi); setType(type);
+document.querySelectorAll('.qbtn[data-t]').forEach(b => b.onclick = () => { const t = +b.dataset.t; $('th').value = Math.floor(t / 60); $('tm').value = t % 60; update(); });
 ids.concat(['date','metar','taf','exercise','pic','stu','notam']).forEach(k => $(k).addEventListener('input', update));
 
 
@@ -1012,6 +1247,11 @@ $('make').onclick = async () => {
   const d = data();
   if (!d.pic) { st.className = 'status err'; st.textContent = 'Add the instructor name first.'; $('pic').focus(); return; }
   if (!d.student) { st.className = 'status err'; st.textContent = 'Add the student pilot name first.'; $('stu').focus(); return; }
+  { const v = validate(d); if (v.anyErr) { st.className = 'status err'; st.textContent = 'Fix the fields marked in red first.'; const f = $(v.badIds[0] || 'wstu'); f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); return; } }
+  { const ok = Object.values(SHEET.compute(d).checks).every(Boolean) && !fuelCheck(d).over;
+    if (!ok && !window.__limitsAck) { window.__limitsAck = true; st.className = 'status err'; st.textContent = 'Outside limits or not enough fuel. Tap Preview PDF again to make the sheet anyway.'; return; }
+    window.__limitsAck = false; }
+  { const ma = metarAge(); $('pvwarn').textContent = ma === Infinity ? 'No METAR on this sheet. Paste one or tap Get latest METAR and TAF.' : ma > 60 ? `The METAR is ${Math.floor(ma / 60)} h ${ma % 60} min old. A newer one should be out: go back and refresh the weather.` : ''; }
   if (!window.jspdf) { st.className = 'status err'; st.textContent = 'The PDF tool did not load. Check your connection and reload the page.'; return; }
   let doc;
   try { doc = SHEET.build(window.jspdf.jsPDF, d, { regular: FONT_REG, bold: FONT_BOLD }); }
